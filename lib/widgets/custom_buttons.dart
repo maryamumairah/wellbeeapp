@@ -6,6 +6,8 @@ class CustomButton extends StatelessWidget {
   final Color color; // Customizable button color.
   final Color textColor; // Customizable text color.
   final double fontSize; // Font size of the button text.
+  final FontWeight fontWeight; // Font weight of the button text.
+  final String fontFamily;
   final int width; // Width of the button in pixels.
   final int height; // Height of the button in pixels.
 
@@ -19,6 +21,8 @@ class CustomButton extends StatelessWidget {
     required this.width,
     required this.height,
     this.fontSize = 24, // Default font size is 24.
+    this.fontWeight = FontWeight.bold,
+    this.fontFamily = 'Inter',
   }) : super(key: key);
 
   @override
@@ -46,7 +50,8 @@ class CustomButton extends StatelessWidget {
             style: TextStyle(
               color: textColor, // Uses the specified text color.
               fontSize: fontSize, // Uses the specified font size.
-              fontWeight: FontWeight.w500, // Medium font weight.
+              fontWeight: fontWeight, // Medium font weight.
+              fontFamily: fontFamily,
             ),
           ),
         ),
