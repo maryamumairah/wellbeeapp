@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> {
           });
           switch (newIndex) {
             case 0:
-              Navigator.pushNamed(context, Routes.home);
+              // Navigator.pushNamed(context, Routes.home);
               break;
             case 1:
               //Navigator.pushNamed(context, Routes.activity);
