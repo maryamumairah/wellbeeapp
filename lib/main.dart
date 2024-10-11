@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
       title: 'Wellbee',
 
       theme: ThemeData(      
+        fontFamily: 'Inter',
         scaffoldBackgroundColor: Colors.transparent, // Set to transparent to apply gradient          
         primaryColor: const Color(0xFFB8DEFF),
         colorScheme: const ColorScheme.light(
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
             textStyle: const TextStyle(fontSize: 16.0),
           ),
         ),
+
       ),
 
       initialRoute: Routes.register, //to be changed

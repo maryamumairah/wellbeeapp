@@ -11,6 +11,23 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _jobPositionFocusNode = FocusNode();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    // Dispose of the FocusNodes to avoid memory leaks
+    _usernameFocusNode.dispose();
+    _jobPositionFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,10 +77,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
+                          fontFamily: 'Inter',
                         ),
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        focusNode: _usernameFocusNode,
                         decoration: InputDecoration(
                           labelText: 'Username',
                           border: OutlineInputBorder(),
@@ -74,9 +93,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }
                           return null;
                         },
+                        onTap: () {
+                          print('Username field tapped');
+                        },
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        focusNode: _jobPositionFocusNode,
                         decoration: InputDecoration(
                           labelText: 'Job Position',
                           border: OutlineInputBorder(),
@@ -90,6 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        focusNode: _emailFocusNode,
                         decoration: InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder(),
@@ -104,6 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        focusNode: _passwordFocusNode,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           border: OutlineInputBorder(),
@@ -118,6 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        focusNode: _confirmPasswordFocusNode,
                         decoration: InputDecoration(
                           labelText: 'Confirm Password',
                           border: OutlineInputBorder(),
@@ -154,6 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
                                 color: Colors.blue,
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ),
