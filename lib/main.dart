@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
+import 'package:wellbeeapp/screens/login_screen.dart';
 // import 'package:wellbeeapp/screens/activity_screen.dart';
 // import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'routes.dart';
@@ -33,9 +34,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: Routes.home, //to be changed
+      initialRoute: Routes.login, //to be changed
       routes: {
         Routes.home: (context) => const HomeScreen(), 
+        Routes.login: (context) => const LoginScreen(), 
         // Routes.activity: (context) => const ActivityScreen(),
         // Routes.addActivity: (context) => AddActivityScreen(),
         // Routes.test: (context) => const BottomSheetExampleApp(),
