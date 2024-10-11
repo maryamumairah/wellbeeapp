@@ -3,7 +3,7 @@ import '../widgets/custom_buttons.dart';
 import 'package:wellbeeapp/routes.dart';
 
 class RegisterScreen extends StatefulWidget {
-    const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({Key? key}) : super(key: key);
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
