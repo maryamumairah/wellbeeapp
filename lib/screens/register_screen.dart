@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import '../widgets/custom_buttons.dart';
+import '../widgets/custom_buttons.dart';
 import 'package:wellbeeapp/routes.dart';
 
 class RegisterScreen extends StatefulWidget {
