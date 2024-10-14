@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   //display current date
                   Text(                                     
-                    DateFormat('dd MMM yyyy').format(DateTime.now()), 
+                    DateFormat('d MMM yyyy').format(DateTime.now()), 
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -201,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               elevation: 5,
                             ),
                             onPressed: () {
-                              //Navigator.pushNamed(context, Routes.activity);
+                              Navigator.pushNamed(context, Routes.activity);
                             },
                             child: Container(
                               padding: const EdgeInsets.all(10),                           
@@ -421,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushNamed(context, Routes.home);
               break;
             case 1:
-              //Navigator.pushNamed(context, Routes.activity);
+              Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
               //Navigator.pushNamed(context, Routes.);
@@ -449,8 +449,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.sentiment_satisfied_alt),
             label: 'Stress',
           ),
-        ],
-        
+        ],        
       ),            
     );
   }

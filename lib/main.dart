@@ -1,10 +1,27 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:wellbeeapp/firebase_options.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
-// import 'package:wellbeeapp/screens/activity_screen.dart';
-// import 'package:wellbeeapp/screens/add_activity_screen.dart';
+import 'package:wellbeeapp/screens/activity_screen.dart';
+import 'package:wellbeeapp/screens/add_activity_screen.dart';
+import 'package:wellbeeapp/screens/edit_activity_screen.dart';
+// import 'package:wellbeeapp/screens/timer_activity_screen.dart';
 import 'routes.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  //await Firebase.initializeApp(); 
+  try {
+    // await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );    
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    
+  }
   runApp(const MyApp());
 }
 
@@ -36,11 +53,24 @@ class MyApp extends StatelessWidget {
       initialRoute: Routes.home, //to be changed
       routes: {
         Routes.home: (context) => const HomeScreen(), 
-        // Routes.activity: (context) => const ActivityScreen(),
-        // Routes.addActivity: (context) => AddActivityScreen(),
-        // Routes.test: (context) => const BottomSheetExampleApp(),
+        Routes.activity: (context) => const ActivityScreen(),
+        Routes.addActivity: (context) => AddActivityScreen(),
+        // Routes.editActivity: (context) => EditActivityScreen( ), // error
+        // Routes.timerActivity: (context) => TimerActivityScreen(),
 
       },
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case Routes.editActivity:
+            // final args = settings.arguments as Map<String, dynamic>;
+            final args = settings.arguments as DocumentSnapshot;
+            return MaterialPageRoute(
+              builder: (context) => EditActivityScreen(activity: args),
+            );
+          default:
+            return null;
+        }
+      },            
 
       builder: (context, child) {
         return Container(
@@ -59,3 +89,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+
