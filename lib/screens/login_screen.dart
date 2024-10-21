@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(
                                   fontSize: 35,
                                   color: Colors.black,
-                                  fontWeight: FontWeight.w900, // Make the text bold
+                                  fontWeight: FontWeight.w800, // Make the text bold
                                   fontFamily: 'InterBold',
                                 ),
                               ),
@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(
                                   fontSize: 35,
                                   color: Colors.black,
-                                  fontWeight: FontWeight.w900, // Make the text bold
+                                  fontWeight: FontWeight.w800, // Make the text bold
                                   fontFamily: 'InterBold',
                                 ),
                               ),
@@ -97,9 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Login',
                         style: TextStyle(
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
-                          fontFamily: 'Inter',
+                          fontFamily: 'InterSemiBold',
                         ),
                       ),
                       const SizedBox(height: 20.0),
