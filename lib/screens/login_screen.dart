@@ -97,9 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Login',
                         style: TextStyle(
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
-                          fontFamily: 'Inter',
+                          fontFamily: 'InterSemiBold',
                         ),
                       ),
                       const SizedBox(height: 20.0),
@@ -148,6 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             fillColor: Colors.white,
                             filled: true,
                           ),
+                          obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
