@@ -92,6 +92,10 @@ flutter:
 
     - family: InterBold
       fonts:
+        - asset: fonts/Inter_18pt-Bold.ttf
+    
+    - family: InterExtraBold
+      fonts:
         - asset: fonts/Inter_18pt-ExtraBold.ttf
   #
   # For details regarding fonts from package dependencies,
