@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {  
   const HomeScreen({Key? key}) : super(key: key);
@@ -97,6 +98,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 //Navigator.pushNamed(context, Routes.);
               },
             ),
+
+            IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              FirebaseAuth.instance.signOut().then((value){
+                print('Signed out');
+                Navigator.pushNamed(context, Routes.login);
+              });
+            },
+          ),
           ],
         ),
       ),

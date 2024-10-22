@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -162,8 +163,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              Navigator.pushNamed(context, Routes.home);
-                            }
+                              FirebaseAuth.instance.
+                                signInWithEmailAndPassword(
+                                  email: emailController.text,
+                                  password: passwordController.text)
+                                .then((value) {
+                                  Navigator.pushNamed(context, Routes.home);
+                                }).onError((error, stackTrace) {
+                                    print("Error: ${error.toString()}");
+                                });
+                            };
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(

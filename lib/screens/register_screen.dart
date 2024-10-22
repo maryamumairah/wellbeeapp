@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -252,7 +253,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              Navigator.pushNamed(context, Routes.home);
+                              FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                email: emailController.text, 
+                                password: passwordController.text)
+                                .then((value) {
+                                  print("User created successfully");
+                                  Navigator.pushNamed(context, Routes.home);
+                                }).onError((error, stackTrace) {
+                                  print("Error ${error.toString()}");
+                                });
                             }
                           },
                           style: ElevatedButton.styleFrom(
