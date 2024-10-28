@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -11,8 +14,19 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  bool _isSigningIn = false;
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,34 +63,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  Center(
+                  const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Welcome to',
-                                style: TextStyle(
-                                  fontSize: 35,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w800, // Make the text bold
-                                  fontFamily: 'InterBold',
-                                ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Welcome to',
+                              style: TextStyle(
+                                fontSize: 35,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w800, // Make the text bold
+                                fontFamily: 'InterBold',
                               ),
-                              Text(
-                                'Wellbee!',
-                                style: TextStyle(
-                                  fontSize: 35,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w800, // Make the text bold
-                                  fontFamily: 'InterBold',
-                                ),
+                            ),
+                            Text(
+                              'Wellbee!',
+                              style: TextStyle(
+                                fontSize: 35,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w800, // Make the text bold
+                                fontFamily: 'InterBold',
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -87,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Divider(height: 15.0, thickness: 2.0),
             const SizedBox(height: 5.0),
             Container(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
                 child: Container(
@@ -161,38 +173,29 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7, // Set the width to 70% of the screen width
                         child: ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              FirebaseAuth.instance.
-                                signInWithEmailAndPassword(
-                                  email: emailController.text,
-                                  password: passwordController.text)
-                                .then((value) {
-                                  Navigator.pushNamed(context, Routes.home);
-                                }).onError((error, stackTrace) {
-                                    print("Error: ${error.toString()}");
-                                });
-                            };
-                          },
+                          onPressed: _login,
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12), // Set the border radius
                             ),
                           ),
-                          child: const Text('Login'),
+                          // child: const Text('Login'),
+                          child: Center(
+                            child: _isSigningIn ? const CircularProgressIndicator(color: Colors.white,) : const Text('Login'),
+                          )
                         ),
                       ),
                       const SizedBox(height: 30.0), // Add some space between the button and the row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("New User? "),
+                          const Text("New User? "),
                           GestureDetector(
                             onTap: () {
                               // Navigate to the register screen
                               Navigator.pushNamed(context, Routes.register);
                             },
-                            child: Text(
+                            child: const Text(
                               "Register here",
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
@@ -212,5 +215,27 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  void _login() async {
+    setState(() {
+      _isSigningIn = true;
+    });
+
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    setState(() {
+      _isSigningIn = false;
+    });
+    
+    if (user != null) {
+      showToast(message: 'User is successfully logged in');
+      Navigator.pushNamed(context, Routes.home);
+    } else {
+      showToast(message: 'User login failed');
+    }
   }
 }

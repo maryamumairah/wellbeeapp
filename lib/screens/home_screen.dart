@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -105,6 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
               FirebaseAuth.instance.signOut().then((value){
                 print('Signed out');
                 Navigator.pushNamed(context, Routes.login);
+                showToast(message: 'Succesfully signed out');
               });
             },
           ),

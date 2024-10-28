@@ -42,6 +42,7 @@ dependencies:
   random_string: ^2.3.1
   stop_watch_timer: ^3.2.1
   circular_countdown_timer: ^0.2.4
+  fluttertoast: ^8.2.8
 
 dev_dependencies:
   flutter_test:

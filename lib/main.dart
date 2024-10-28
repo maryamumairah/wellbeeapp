@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wellbeeapp/firebase_options.dart';
+import 'package:wellbeeapp/screens/welcome_screen.dart';
 import 'package:wellbeeapp/screens/login_screen.dart';
 import 'package:wellbeeapp/screens/register_screen.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
@@ -52,8 +53,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: Routes.register, //to be changed
+      initialRoute: Routes.welcome, //to be changed
       routes: {
+        Routes.welcome: (context) => const WelcomeScreen(), 
         Routes.register: (context) => const RegisterScreen(), 
         Routes.login: (context) => const LoginScreen(), 
         Routes.home: (context) => const HomeScreen(), 

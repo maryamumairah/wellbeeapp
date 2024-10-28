@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -11,12 +13,25 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+
+  bool isSigningUp = false;
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
   
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController jobPositionController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    jobPositionController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          child: Column(
+                          child: const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
@@ -215,6 +230,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a password';
                             }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
                             return null;
                           },
                         ),
@@ -243,6 +261,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter a password';
                             }
+                            if (value != passwordController.text) {
+                              return 'Passwords do not match';
+                            }
                             return null;
                           },
                         ),
@@ -252,24 +273,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         width: MediaQuery.of(context).size.width * 0.7, // Set the width to 70% of the screen width
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              FirebaseAuth.instance.createUserWithEmailAndPassword(
-                                email: emailController.text, 
-                                password: passwordController.text)
-                                .then((value) {
-                                  print("User created successfully");
-                                  Navigator.pushNamed(context, Routes.home);
-                                }).onError((error, stackTrace) {
-                                  print("Error ${error.toString()}");
-                                });
-                            }
+                            _register();
+                            showToast(message: 'User registered successfully');
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12), // Set the border radius
                             ),
                           ),
-                          child: const Text('Register'),
+                          // child: const Text('Register'),
+                          child: isSigningUp ? const CircularProgressIndicator(color: Colors.white,) : const Text('Register'),
                         ),
                       ),
                       const SizedBox(height: 30.0), // Add some space between the button and the row
@@ -302,5 +315,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+
+  void _register() async {
+    setState(() {
+      isSigningUp = true;
+    });
+
+    String username = usernameController.text;
+    String jobPosition = jobPositionController.text;
+    String email = emailController.text;
+    String password = passwordController.text;
+    String confirmPassword = confirmPasswordController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+    setState(() {
+      isSigningUp = false;
+    });
+
+    if (user != null) {
+      showToast(message: 'User registered successfully');
+      Navigator.pushNamed(context, Routes.home);
+    } else {
+      showToast(message: 'User registration failed');
+    }
   }
 }
