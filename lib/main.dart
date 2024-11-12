@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wellbeeapp/firebase_options.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
+import 'package:wellbeeapp/screens/update_user_profile_screen.dart';
+import 'package:wellbeeapp/screens/user_profile_screen.dart';
 import 'package:wellbeeapp/screens/activity_screen.dart';
 import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'package:wellbeeapp/screens/edit_activity_screen.dart';
@@ -50,8 +52,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: Routes.home, //to be changed
+      initialRoute: Routes.userProfile, //to be changed
       routes: {
+        Routes.userProfile: (context) => const UserProfile(), 
+        Routes.updateUserProfile: (context) => const UpdateUserProfileScreen(), 
         Routes.home: (context) => const HomeScreen(), 
         Routes.activity: (context) => const ActivityScreen(),
         Routes.addActivity: (context) => AddActivityScreen(),
