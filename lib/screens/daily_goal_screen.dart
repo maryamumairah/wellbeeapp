@@ -22,16 +22,16 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
       body: Stack(
         children: [
           const Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.all(25.0),
             child: Align(
               alignment: Alignment.topLeft,
               child: Text(
                 'Daily Goal',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  // fontFamily: 'Inter',
+                  fontSize: 28,
                   color: Colors.black,
+                  fontWeight: FontWeight.w800, // Make the text bold
+                  fontFamily: 'InterBold',
                 ),
               ),
             ),
@@ -54,7 +54,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                 FloatingActionButton(
                   onPressed: () {
                     // navigate to add daily goal screen
-                    // Navigator.pushNamed(context, Routes.);
+                    Navigator.pushNamed(context, Routes.addDailyGoal);
                   },
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   shape: const CircleBorder(),
