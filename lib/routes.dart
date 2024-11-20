@@ -3,6 +3,7 @@ class Routes {
   static const activity = '/activity';
   static const addActivity = '/addActivity'; 
   static const editActivity = '/editActivity';
+  static const dailyGoal = '/dailyGoal';
   // static const timerActivity = '/timerActivity';
 
 }
