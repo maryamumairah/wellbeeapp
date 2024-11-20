@@ -30,6 +30,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
+                  // fontFamily: 'Inter',
                   color: Colors.black,
                 ),
               ),
