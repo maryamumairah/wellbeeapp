@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "173403208824",
     "project_id": "wellbeeapp-8de6c",
-    "storage_bucket": "wellbeeapp-8de6c.appspot.com"
+    "storage_bucket": "wellbeeapp-8de6c.firebasestorage.app"
   },
   "client": [
     {
@@ -22,7 +22,8 @@
         "appinvite_service": {
           "other_platform_oauth_client": []
         }
-      }
+      },
+      "google_app_id": "1:173403208824:android:4be975b138c5c47d26418d"
     }
   ],
   "configuration_version": "1"

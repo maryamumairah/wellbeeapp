@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:random_string/random_string.dart';
+// import 'package:random_string/random_string.dart';
 import 'package:wellbeeapp/services/database.dart';
 import 'package:wellbeeapp/routes.dart';
 
@@ -192,15 +192,16 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                       if (Firebase.apps.isEmpty) {
                         await Firebase.initializeApp();
                       }
-
-                      // String activityID = randomAlphaNumeric(10);
+                    
                       // int hours = int.parse(hourController.text);
                       // int minutes = int.parse(minuteController.text);
                       // int activityDuration = (hours * 60) + minutes; // Convert hours to minutes and add to minutes 
                       
-                      int activityCount = await DatabaseMethods().getActivityCount();
-                      String activityID = "A${activityCount.toString().padLeft(4, '0')}";
-                                    
+                      int activityCount = await DatabaseMethods().getActivityCount() + 1;                      
+                      print('activityCount is $activityCount');
+                      String activityID = "A${activityCount.toString().padLeft(4, '0')}"; // activityID will be A0001, A0002, A0003, etc.                    
+                      print('activityID is $activityID');                                    
+
                       Map<String, dynamic> activityInfoMap = {
                         "activityName": activityController.text,
                         "categoryName": categoryController.text,
@@ -208,10 +209,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                         "minute": minuteController.text, //kiv
                         // "activityDuration": activityDuration, // Combined hour and minute
                         "date": dateController.text, //kiv
-                        "activityID": activityID,
+                        "activityID": activityID, 
                       };
-                      await DatabaseMethods()
-                        // .addActivityDetails(activityInfoMap, activityID)
+                      await DatabaseMethods()                        
                         .addActivityDetails(activityInfoMap)
                         .then((value) {
                           ScaffoldMessenger.of(context).showSnackBar(
