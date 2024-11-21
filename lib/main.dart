@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wellbeeapp/firebase_options.dart';
 import 'package:wellbeeapp/screens/user_profile_screen.dart';
+import 'package:wellbeeapp/screens/update_user_profile_screen.dart';
 import 'package:wellbeeapp/screens/welcome_screen.dart';
 import 'package:wellbeeapp/screens/login_screen.dart';
 import 'package:wellbeeapp/screens/register_screen.dart';
@@ -60,7 +61,8 @@ class MyApp extends StatelessWidget {
         Routes.register: (context) => const RegisterScreen(), 
         Routes.login: (context) => const LoginScreen(), 
         Routes.home: (context) => const HomeScreen(), 
-        Routes.userProfile: (context) => const UserProfile(), 
+        Routes.userProfile: (context) => const UserProfile(),
+        Routes.updateUserProfile: (context) => const UpdateUserProfileScreen(),
         Routes.activity: (context) => const ActivityScreen(),
         Routes.addActivity: (context) => AddActivityScreen(),
         // Routes.editActivity: (context) => EditActivityScreen( ), // error

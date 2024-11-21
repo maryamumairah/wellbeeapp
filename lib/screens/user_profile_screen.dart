@@ -12,7 +12,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   int _currentIndex = 0;
-  final User? user = FirebaseAuth.instance.currentUser;
+  User? user = FirebaseAuth.instance.currentUser;
   String jobPosition = '';
 
   @override
@@ -90,8 +90,16 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 const SizedBox(height: 50.0),
                 ElevatedButton(
-                  onPressed: () {
-                    // Navigator.pushNamed(context, Routes.updateUserProfile);
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(context, Routes.updateUserProfile);
+                    if (result != null && result is Map<String, String>) {
+                      setState(() {
+                        user = FirebaseAuth.instance.currentUser;
+                        user?.updateProfile(displayName: result['displayName'] ?? user!.displayName!);
+                        user?.verifyBeforeUpdateEmail(result['email'] ?? user!.email!);
+                        jobPosition = result['jobPosition'] ?? jobPosition;
+                      });
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
