@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
-                //Navigator.pushNamed(context, Routes.);
+                Navigator.pushNamed(context, Routes.userProfile);
               },
             ),
           ],
