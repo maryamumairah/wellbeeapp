@@ -1,7 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -274,14 +275,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             _register();
-                            showToast(message: 'User registered successfully');
                           },
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12), // Set the border radius
                             ),
                           ),
-                          // child: const Text('Register'),
                           child: isSigningUp ? const CircularProgressIndicator(color: Colors.white,) : const Text('Register'),
                         ),
                       ),
@@ -317,7 +316,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-
   void _register() async {
     setState(() {
       isSigningUp = true;
@@ -329,17 +327,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
 
+    if (password != confirmPassword) {
+      showToast(message: 'Passwords do not match');
+      setState(() {
+        isSigningUp = false;
+      });
+      return;
+    }
+
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
-    setState(() {
-      isSigningUp = false;
-    });
-
     if (user != null) {
+      await user.updateProfile(displayName: username);
+
+      // Save job position to Firestore
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'jobPosition': jobPosition,
+      });
+
       showToast(message: 'User registered successfully');
       Navigator.pushNamed(context, Routes.home);
     } else {
       showToast(message: 'User registration failed');
     }
+
+    setState(() {
+      isSigningUp = false;
+    });
   }
 }

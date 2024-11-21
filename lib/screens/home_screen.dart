@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {  
   int _currentIndex = 0;
+  final User? user = FirebaseAuth.instance.currentUser;
 
   // display ongoing activity test 2
   // void _showBottomSheet(BuildContext context) {
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
-                //Navigator.pushNamed(context, Routes.);
+                Navigator.pushNamed(context, Routes.userProfile);
               },
             ),
 
@@ -119,12 +120,12 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [            
             // display greetings
-            const Column(              
+            Column(              
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                   Text(
-                    'Hello, addusernamehere!',
-                    style: TextStyle(
+                    'Hello, ${user?.displayName ?? 'User'}!',
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
