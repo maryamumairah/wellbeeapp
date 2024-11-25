@@ -7,12 +7,11 @@ class DatabaseMethods {
   
   // create
   Future addActivityDetails
-    // (Map<String, dynamic> activityInfoMap, String activityID) async {
-    (Map<String, dynamic> activityInfoMap) async {      
-      int activityCount = await getActivityCount();
-      String activityID = "A${activityCount.toString().padLeft(4, '0')}";
+    (Map<String, dynamic> activityInfoMap) async {           
+      int activityCount = await getActivityCount() + 1;
+      String activityID = "A${activityCount.toString().padLeft(4, '0')}"; // activityID will be A0001, A0002, A0003, etc.
 
-      activityInfoMap['activityID'] = activityID;
+      activityInfoMap['activityID'] = activityID; 
       
       return await FirebaseFirestore.instance
       .collection('activities')
@@ -23,7 +22,7 @@ class DatabaseMethods {
   // get activity count
   Future<int> getActivityCount() async {
     QuerySnapshot activityCount = await FirebaseFirestore.instance.collection('activities').get();
-    return activityCount.docs.length;
+    return activityCount.docs.length; // return the number of documents in the collection
   }
 
     // check if activityID exists
