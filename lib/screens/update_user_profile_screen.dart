@@ -73,7 +73,43 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
   }
 
   Future<void> _deleteProfile() async {
-    // Handle delete profile logic here
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('This will delete the profile permanently. You cannot undo this action.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
+                  await user?.delete();
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Profile deleted successfully')),
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop(); // Close the dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Failed to delete profile: $e')),
+                  );
+                }
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -149,98 +185,66 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: confirmPasswordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm Password',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please confirm your password';
-                            }
-                            if (value != passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      // const SizedBox(height: 16.0),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width * 0.7,
+                      //   child: TextFormField(
+                      //     controller: emailController,
+                      //     decoration: const InputDecoration(
+                      //       labelText: 'Email',
+                      //       border: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: Colors.transparent),
+                      //       ),
+                      //       enabledBorder: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: Colors.transparent),
+                      //       ),
+                      //       focusedBorder: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: Colors.black),
+                      //       ),
+                      //       fillColor: Colors.white,
+                      //       filled: true,
+                      //       contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      //     ),
+                      //     validator: (value) {
+                      //       if (value == null || value.isEmpty) {
+                      //         return 'Please enter your email';
+                      //       }
+                      //       return null;
+                      //     },
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 16.0),
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width * 0.7,
+                      //   child: TextFormField(
+                      //     decoration: InputDecoration(
+                      //       labelText: 'Password',
+                      //       border: const OutlineInputBorder(),
+                      //       filled: true,
+                      //       fillColor: Colors.grey[300],
+                      //       contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      //     ),
+                      //     enabled: false, // Disable editing
+                      //     initialValue: '******', // Placeholder text
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 16.0),
+
+                      // // Confirm Password field (Disabled)
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width * 0.7,
+                      //   child: TextFormField(
+                      //     decoration: InputDecoration(
+                      //       labelText: 'Confirm Password',
+                      //       border: const OutlineInputBorder(),
+                      //       filled: true,
+                      //       fillColor: Colors.grey[300],
+                      //       contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                      //     ),
+                      //     enabled: false, // Disable editing
+                      //     initialValue: '******', // Placeholder text
+                      //   ),
+                      // ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7,
@@ -269,16 +273,16 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 20.0),
+                      const SizedBox(height: 200.0),
                       Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
+                        width: MediaQuery.of(context).size.width * 0.8,
                         child: ElevatedButton(
                           onPressed: _updateProfile,
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                             textStyle: const TextStyle(
                               fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'InterBold',
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -296,7 +300,7 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20), backgroundColor: Colors.red,
                             textStyle: const TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'InterBold',
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),

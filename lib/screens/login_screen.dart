@@ -4,7 +4,6 @@ import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -20,6 +19,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  String errorMessage = '';
 
   @override
   void dispose() {
@@ -165,10 +166,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
                             return null;
                           },
                         ),
                       ),
+                      if (errorMessage.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            errorMessage,
+                            style: const TextStyle(
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7, // Set the width to 70% of the screen width
@@ -218,24 +232,45 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() async {
-    setState(() {
-      _isSigningIn = true;
-    });
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSigningIn = true;
+        errorMessage = '';
+      });
 
-    String email = emailController.text;
-    String password = passwordController.text;
+      String email = emailController.text;
+      String password = passwordController.text;
 
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+      try {
+        User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    setState(() {
-      _isSigningIn = false;
-    });
-    
-    if (user != null) {
-      showToast(message: 'User is successfully logged in');
-      Navigator.pushNamed(context, Routes.home);
-    } else {
-      showToast(message: 'User login failed');
+        setState(() {
+          _isSigningIn = false;
+        });
+
+        if (user != null) {
+          showToast(message: 'User is successfully logged in');
+          Navigator.pushNamed(context, Routes.home);
+        }
+      } on FirebaseAuthException catch (e) {
+        print('FirebaseAuthException code: ${e.code}'); // Debugging line
+        setState(() {
+          _isSigningIn = false;
+          if (e.code == 'user-not-found') {
+            errorMessage = 'User not found';
+          } else if (e.code == 'wrong-password') {
+            errorMessage = 'Incorrect password';
+          } else {
+          errorMessage = 'Invalid email or password. Please try again.';
+          }
+        });
+      } catch (e) {
+        print('Exception: $e'); // Debugging line
+        setState(() {
+          _isSigningIn = false;
+          errorMessage = 'An error occurred. Please try again.';
+        });
+      }
     }
   }
 }

@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 
 class FirebaseAuthServices {
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<User?> signUpWithEmailAndPassword(String email, String password) async {
     try {
@@ -13,12 +12,25 @@ class FirebaseAuthServices {
       );
       return credential.user;
     } on FirebaseAuthException catch (e) {
-      
-      if (e.code == 'email-already-in-use') {
-        showToast(message: 'The email address is already in use.');
-      } else {
-        showToast(message: 'An error occurred: ${e.code}');
+      String errorMessage;
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = 'The email address is already in use.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage = 'Email/password accounts are not enabled.';
+          break;
+        case 'weak-password':
+          errorMessage = 'The password is too weak.';
+          break;
+        default:
+          errorMessage = 'An error occurred: ${e.code}';
+          break;
       }
+      showToast(message: errorMessage);
     }
     return null;
   }
@@ -31,12 +43,31 @@ class FirebaseAuthServices {
       );
       return credential.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        showToast(message: 'Invalid email or password.');
-      } else {
-        showToast(message: 'An error occurred: ${e.code}');
+      String errorMessage;
+      print('FirebaseAuthException Code: ${e.code}');
+      print('FirebaseAuthException Message: ${e.message}');
+      switch (e.code) {
+        case 'user-not-found':
+          errorMessage = 'User not found';
+          break;
+        case 'wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'user-disabled':
+          errorMessage = 'The user account has been disabled.';
+          break;
+        case 'invalid-credential':
+          errorMessage = 'Invalid email or password.';
+          break;
+        default:
+          errorMessage = 'An error occurred: ${e.code}';
+          break;
       }
+      showToast(message: errorMessage);
+      rethrow; // Rethrow the exception to handle it in the calling function if needed
     }
-    return null;
   }
 }

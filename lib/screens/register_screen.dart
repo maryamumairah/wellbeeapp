@@ -24,6 +24,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
 
+  String passwordError = '';
+  String confirmPasswordError = '';
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -238,6 +241,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                       ),
+                      if (passwordError.isNotEmpty)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 20.0), // Add left padding
+                            child: Text(
+                              passwordError,
+                              style: TextStyle(
+                                color: passwordError == 'Password is strong' ? Colors.green : Colors.red,
+                              ),
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7,
@@ -269,6 +285,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                       ),
+                      if (confirmPasswordError.isNotEmpty)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 8.0, left: 20.0), // Add left padding
+                            child: Text(
+                              confirmPasswordError,
+                              style: TextStyle(
+                                color: confirmPasswordError == 'Password matches' ? Colors.green : Colors.red,
+                              ),
+                            ),
+                          ),
+                        ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7, // Set the width to 70% of the screen width
@@ -288,13 +317,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text("Already have an account?"),
+                          const Text("Already have an account?"),
                           GestureDetector(
                             onTap: () {
                               // Navigate to the register screen
                               Navigator.pushNamed(context, Routes.login);
                             },
-                            child: Text(
+                            child: const Text(
                               "Login here",
                               style: TextStyle(
                                 decoration: TextDecoration.underline,
@@ -327,12 +356,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
 
-    if (password != confirmPassword) {
-      showToast(message: 'Passwords do not match');
+    if (password.isEmpty) {
       setState(() {
+        passwordError = 'Please enter a password';
         isSigningUp = false;
       });
       return;
+    }
+    if (password.length < 6) {
+      setState(() {
+        passwordError = 'Password must be at least 6 characters';
+        isSigningUp = false;
+      });
+      return;
+    } else {
+      setState(() {
+        passwordError = 'Password is strong';
+      });
+    }
+
+    if (password != confirmPassword) {
+      setState(() {
+        confirmPasswordError = 'Password does not match';
+        isSigningUp = false;
+      });
+      return;
+    } else {
+      setState(() {
+        confirmPasswordError = 'Password matches';
+      });
     }
 
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
@@ -340,8 +392,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (user != null) {
       await user.updateProfile(displayName: username);
 
-      // Save job position to Firestore
+      // Save displayName and job position to Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'displayName': username,
         'jobPosition': jobPosition,
       });
 
