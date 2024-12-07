@@ -4,21 +4,110 @@ import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class HomeScreen extends StatefulWidget {  
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
-  
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {  
+class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   User? user = FirebaseAuth.instance.currentUser;
+  bool _isDialogShown = false;
 
   Future<void> _reloadUser() async {
     user = FirebaseAuth.instance.currentUser;
     await user?.reload();
     user = FirebaseAuth.instance.currentUser;
+  }
+
+  void _showStressLevelDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissing by tapping outside
+      builder: (BuildContext context) {
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            margin: const EdgeInsets.symmetric(horizontal: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Please Report Your Stress Level',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: const BorderSide(color: Colors.grey),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                      },
+                      child: const Text(
+                        'Dismiss',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                        // Navigate to Stress Report page
+                        Navigator.pushNamed(context, Routes.report);
+                      },
+                      child: const Text('Proceed'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_isDialogShown) {
+        _showStressLevelDialog();
+        setState(() {
+          _isDialogShown = true;
+        });
+      }
+    });
   }
 
   @override
@@ -47,16 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     _reloadUser();
                   });
-                });
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              onPressed: () {
-                FirebaseAuth.instance.signOut().then((value) {
-                  print('Signed out');
-                  Navigator.pushNamed(context, Routes.login);
-                  showToast(message: 'Successfully signed out');
                 });
               },
             ),
@@ -238,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 5,
                                   ),
                                   onPressed: () {
-                                    //Navigator.pushNamed(context, Routes. );
+                                    Navigator.pushNamed(context, Routes.stress);
                                   },
                                   child: Container(  
                                     padding: const EdgeInsets.all(10),                           
@@ -291,10 +370,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
-              //Navigator.pushNamed(context, Routes.);
+              // Navigator.pushNamed(context, Routes. );
               break;
             case 3:
-              //Navigator.pushNamed(context, Routes.);
+              // Navigator.pushNamed(context, Routes. );
               break;
           }
         },

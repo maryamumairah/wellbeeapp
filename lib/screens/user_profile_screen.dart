@@ -30,6 +30,11 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacementNamed(context, Routes.login); // Redirect to login page after logout
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,6 +118,22 @@ class _UserProfileState extends State<UserProfile> {
                     ),
                   ),
                   child: const Text('Update Profile'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _logout, // Trigger logout when clicked
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text('Logout'),
                 ),
               ],
             ),

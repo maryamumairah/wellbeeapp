@@ -5,6 +5,8 @@ class Routes {
   static const register = '/register';
   static const login = '/login';
   static const home = '/home';
+  static const report = '/report';
+  static const stress = '/stress';
   static const userProfile = '/userProfile';
   static const updateUserProfile = '/updateUserProfile';
   static const activity = '/activity';

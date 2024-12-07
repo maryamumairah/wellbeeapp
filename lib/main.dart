@@ -9,6 +9,8 @@ import 'package:wellbeeapp/screens/welcome_screen.dart';
 import 'package:wellbeeapp/screens/login_screen.dart';
 import 'package:wellbeeapp/screens/register_screen.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
+import 'package:wellbeeapp/screens/report_stress_level_screen.dart';
+import 'package:wellbeeapp/screens/stress_level_screen.dart';
 import 'package:wellbeeapp/screens/activity_screen.dart';
 import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'package:wellbeeapp/screens/edit_activity_screen.dart';
@@ -61,6 +63,8 @@ class MyApp extends StatelessWidget {
         Routes.register: (context) => const RegisterScreen(), 
         Routes.login: (context) => const LoginScreen(), 
         Routes.home: (context) => const HomeScreen(), 
+        Routes.report: (context) => const ReportStressLevelScreen(), 
+        Routes.stress: (context) => const StressLevelScreen(), 
         Routes.userProfile: (context) => const UserProfile(),
         Routes.updateUserProfile: (context) => const UpdateUserProfileScreen(),
         Routes.activity: (context) => const ActivityScreen(),
