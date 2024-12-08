@@ -65,11 +65,11 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'How are you feeling today?',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Slider(
               value: _stressLevel,
               min: 1,
@@ -97,9 +97,9 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 Text('Overwhelmed', style: TextStyle(fontSize: 12)),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Select a stressor',
                 border: OutlineInputBorder(),
               ),
@@ -115,20 +115,20 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 });
               },
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _descriptionController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Describe here...',
                 border: OutlineInputBorder(),
               ),
               maxLines: 5,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
                 onPressed: _submitReport,
-                child: Text('Submit'),
+                child: const Text('Submit'),
               ),
             ),
           ],
