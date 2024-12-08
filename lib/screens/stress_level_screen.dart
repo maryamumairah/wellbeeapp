@@ -2,21 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/routes.dart';
 
 class StressLevelScreen extends StatefulWidget {
   const StressLevelScreen({Key? key}) : super(key: key);
+  
   @override
   _StressLevelScreenState createState() => _StressLevelScreenState();
 }
 
 class _StressLevelScreenState extends State<StressLevelScreen> {
   List<BarChartGroupData> barChartData = [];
+  int _currentIndex = 3; // Set the initial index to the stress level screen (index 3)
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,12 +51,69 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add, size: 40),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Theme.of(context).primaryColor,
+        unselectedItemColor: const Color(0xFF378DF9),
+        selectedItemColor: Colors.black,
+        currentIndex: _currentIndex,
+        onTap: (int newIndex) {
+          setState(() {
+            _currentIndex = newIndex;
+          });
+          switch (newIndex) {
+            case 0:
+              Navigator.pushNamed(context, Routes.home);
+              break;
+            case 1:
+              Navigator.pushNamed(context, Routes.activity);
+              break;
+            case 2:
+              //Navigator.pushNamed(context, Routes.goals);
+              break;
+            case 3:
+              // No action needed for the stress level screen since it's already here
+              break;
+          }
+        },
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.task_rounded),
+            label: 'Activities',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.track_changes_rounded),
+            label: 'Goals',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.sentiment_satisfied_alt),
+            label: 'Stress',
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildBody(BuildContext context) {
+    // Get the current authenticated user
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      return const Center(child: Text('Please log in to view your stress data.'));
+    }
+
+    // Fetch data from the user's own 'stressReports' subcollection
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('stressLevel').snapshots(),
+      stream: FirebaseFirestore.instance
+          .collection('users') // Top-level collection for users
+          .doc(currentUser.uid) // Document for the current user
+          .collection('stressReports') // Subcollection for stress reports
+          .orderBy('date', descending: false) // Order by date in ascending order
+          .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -64,9 +126,6 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               .map((documentSnapshot) =>
                   StressLevelReport.fromMap(documentSnapshot.data() as Map<String, dynamic>))
               .toList();
-
-          // Sort the reports by date in ascending order
-          reports.sort((a, b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
 
           _generateData(reports);
           return _buildChart(context, reports);
@@ -95,10 +154,18 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
   }
 
   Widget _buildChart(BuildContext context, List<StressLevelReport> reportData) {
+    // Ensure maxLevel is at least 5
+    int maxLevel = reportData.fold(0, (prev, element) {
+      return (element.level > prev) ? element.level : prev;
+    });
+
+    // Set maxY to be the maximum of either the actual max level or 5
+    double chartMaxY = maxLevel >= 5 ? maxLevel.toDouble() : 5.0;
+
     return Column(
       children: [
         SizedBox(
-          height: 400, // Adjust the height of the container to make it bigger
+          height: 350, // Adjust the height of the container to make it bigger
           width: MediaQuery.of(context).size.width * 0.9, // Adjust width if needed
           child: Container(
             decoration: BoxDecoration(
@@ -119,7 +186,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: 5, // Set the max Y value to 5
+                  maxY: chartMaxY + 1, // Set maxY dynamically, but at least 5
                   barGroups: barChartData,
                   gridData: FlGridData(
                     show: true,
@@ -204,10 +271,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               child: ListTile(
                 title: Text(formattedDate),
                 subtitle: Text(
-                  '${reportData[index].category}${reportData[index].description != null &&
-                              reportData[index].description!.isNotEmpty
-                          ? '\n${reportData[index].description}'
-                          : ''}',
+                  '${reportData[index].category}${reportData[index].description != null && reportData[index].description!.isNotEmpty ? '\n${reportData[index].description}' : ''}',
                 ),
               ),
             );
@@ -216,7 +280,6 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
       ],
     );
   }
-
 }
 
 class StressLevelReport {

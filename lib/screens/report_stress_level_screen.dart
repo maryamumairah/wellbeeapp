@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ReportStressLevelScreen extends StatefulWidget {
   const ReportStressLevelScreen({Key? key}) : super(key: key);
 
   @override
-  _ReportStressLevelScreenState createState() => _ReportStressLevelScreenState();
+  _ReportStressLevelScreenState createState() =>
+      _ReportStressLevelScreenState();
 }
 
 class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
@@ -16,20 +18,43 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
   final TextEditingController _descriptionController = TextEditingController();
 
   Future<void> _submitReport() async {
-    if (_selectedStressor != null) {
+    // Ensure the user is logged in and retrieve the UID
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    
+    if (currentUser != null && _selectedStressor != null) {
       String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-      await FirebaseFirestore.instance.collection('stressLevel').add({
-        'date': formattedDate, // Ensure date is not null
-        'level': _stressLevel.round(), // Ensure level is not null and is an integer
-        'stressor': _selectedStressor, // Ensure stressor is a string
-        'description': _descriptionController.text.isEmpty ? null : _descriptionController.text, // Allow description to be null
-        'timestamp': FieldValue.serverTimestamp(),
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Report submitted successfully')),
-      );
-      Navigator.pushNamed(context, Routes.stress);
+      
+      try {
+        // Store the report under the user's UID in a subcollection
+        await FirebaseFirestore.instance
+            .collection('users') // Top-level collection for all users
+            .doc(currentUser.uid) // Document for the current user (using their UID)
+            .collection('stressReports') // Subcollection for stress reports
+            .add({
+          'date': formattedDate, // Ensure date is not null
+          'level': _stressLevel.round(), // Ensure level is not null and is an integer
+          'stressor': _selectedStressor, // Ensure stressor is a string
+          'description': _descriptionController.text.isEmpty
+              ? null
+              : _descriptionController.text, // Allow description to be null
+          'timestamp': FieldValue.serverTimestamp(), // Automatically set the timestamp
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Report submitted successfully')),
+        );
+
+        // Navigate to another screen as required
+        Navigator.pop(context); // Go back to the previous screen
+      } catch (e) {
+        // Handle errors
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to submit report. Please try again.')),
+        );
+      }
     } else {
+      // Show a message if required fields are not filled
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all required fields')),
       );
@@ -58,29 +83,56 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: const Text('Report Stress Level'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'How are you feeling today?',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            const SizedBox(height: 50),
+            const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'How are you',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'InterBold',
+                  ),
+                ),
+                Text(
+                  'feeling today?',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'InterBold',
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Slider(
-              value: _stressLevel,
-              min: 1,
-              max: 5,
-              divisions: 4,
-              label: getCategory(_stressLevel),
-              onChanged: (value) {
-                setState(() {
-                  _stressLevel = value;
-                });
-              },
+            const SizedBox(height: 50),
+            // Updated Slider wrapped in SliderTheme to change the color to blue
+            SliderTheme(
+              data: SliderThemeData(
+                activeTrackColor: Colors.blue, // Active part of the slider
+                inactiveTrackColor: Colors.white, // Inactive part of the slider
+                thumbColor: Colors.blue, // Thumb (draggable part) color
+                overlayColor: Colors.blue.withOpacity(0.2), // Color when thumb is pressed
+                trackHeight: 4.0, // Track height (optional)
+              ),
+              child: Slider(
+                value: _stressLevel,
+                min: 1,
+                max: 5,
+                divisions: 4,
+                label: getCategory(_stressLevel),
+                onChanged: (value) {
+                  setState(() {
+                    _stressLevel = value;
+                  });
+                },
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:wellbeeapp/screens/home_screen.dart';
 import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:intl/intl.dart'; // For date formatting
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -121,219 +124,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'Register',
                         style: TextStyle(
                           fontSize: 24,
-                        //   fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,
                           fontFamily: 'InterSemiBold',
                         ),
                       ),
                       const SizedBox(height: 20.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: usernameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Username',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a username';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      _buildTextField(usernameController, 'Username', TextInputType.text),
                       const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: jobPositionController,
-                          decoration: const InputDecoration(
-                            labelText: 'Job Position',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.text,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a job position';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      _buildTextField(jobPositionController, 'Job Position', TextInputType.text),
                       const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter an email';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      _buildTextField(emailController, 'Email', TextInputType.emailAddress),
                       const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: passwordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            }
-                            if (value.length < 6) {
-                              return 'Password must be at least 6 characters';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      _buildPasswordField(passwordController, 'Password'),
                       if (passwordError.isNotEmpty)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 20.0), // Add left padding
-                            child: Text(
-                              passwordError,
-                              style: TextStyle(
-                                color: passwordError == 'Password is strong' ? Colors.green : Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildErrorText(passwordError),
                       const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: TextFormField(
-                          controller: confirmPasswordController,
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm Password',
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                            fillColor: Colors.white,
-                            filled: true,
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a password';
-                            }
-                            if (value != passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
+                      _buildPasswordField(confirmPasswordController, 'Confirm Password'),
                       if (confirmPasswordError.isNotEmpty)
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8.0, left: 20.0), // Add left padding
-                            child: Text(
-                              confirmPasswordError,
-                              style: TextStyle(
-                                color: confirmPasswordError == 'Password matches' ? Colors.green : Colors.red,
-                              ),
-                            ),
-                          ),
-                        ),
+                        _buildErrorText(confirmPasswordError),
                       const SizedBox(height: 16.0),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.7, // Set the width to 70% of the screen width
-                        child: ElevatedButton(
-                          onPressed: () {
-                            _register();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12), // Set the border radius
-                            ),
-                          ),
-                          child: isSigningUp ? const CircularProgressIndicator(color: Colors.white,) : const Text('Register'),
-                        ),
-                      ),
-                      const SizedBox(height: 30.0), // Add some space between the button and the row
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an account?"),
-                          GestureDetector(
-                            onTap: () {
-                              // Navigate to the register screen
-                              Navigator.pushNamed(context, Routes.login);
-                            },
-                            child: const Text(
-                              "Login here",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: Colors.blue,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildRegisterButton(),
+                      const SizedBox(height: 30.0),
+                      _buildLoginRedirect(),
                     ],
                   ),
                 ),
@@ -342,6 +154,106 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, TextInputType keyboardType) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          fillColor: Colors.white,
+          filled: true,
+        ),
+        keyboardType: keyboardType,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(TextEditingController controller, String label) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          fillColor: Colors.white,
+          filled: true,
+        ),
+        obscureText: true,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildErrorText(String errorText) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0, left: 20.0),
+        child: Text(
+          errorText,
+          style: TextStyle(
+            color: errorText == 'Password is strong' ? Colors.green : Colors.red,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterButton() {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: ElevatedButton(
+        onPressed: _register,
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: isSigningUp ? const CircularProgressIndicator(color: Colors.white,) : const Text('Register'),
+      ),
+    );
+  }
+
+  Widget _buildLoginRedirect() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text("Already have an account?"),
+        GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, Routes.login);
+          },
+          child: const Text(
+            "Login here",
+            style: TextStyle(
+              decoration: TextDecoration.underline,
+              color: Colors.blue,
+              fontFamily: 'Inter',
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -356,6 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
 
+    // Check password validity
     if (password.isEmpty) {
       setState(() {
         passwordError = 'Please enter a password';
@@ -387,19 +300,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
     }
 
+    // Creating user via Firebase Authentication
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
     if (user != null) {
+      // Generate a user ID based on the current count of users in Firestore
+      int userCount = await FirebaseFirestore.instance.collection('users').get().then((snapshot) => snapshot.docs.length);
+      String userID = "U${userCount.toString().padLeft(4, '0')}";  // Generate ID like "U0001"
+
+      // Update the user's profile with the display name (username)
       await user.updateProfile(displayName: username);
 
-      // Save displayName and job position to Firestore
+      // Save user info to Firestore, including the generated user ID
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'userID': userID,  // Store the user ID in Firestore
         'displayName': username,
         'jobPosition': jobPosition,
       });
 
       showToast(message: 'User registered successfully');
-      Navigator.pushNamed(context, Routes.home);
+      
+      // Navigate to the Home screen and remove the registration screen from the navigation stack
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()), // Your HomeScreen widget
+        (route) => false, // Remove all previous routes
+      );
     } else {
       showToast(message: 'User registration failed');
     }

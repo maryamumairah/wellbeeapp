@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,22 +16,54 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   User? user = FirebaseAuth.instance.currentUser;
   bool _isDialogShown = false;
+  DateTime? lastReportDate;
 
-  Future<void> _reloadUser() async {
-    user = FirebaseAuth.instance.currentUser;
-    await user?.reload();
-    user = FirebaseAuth.instance.currentUser;
+  // Method to load the last report date from shared preferences
+  Future<void> _loadLastReportDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
+    // Load the last report date using the user's UID
+    String? lastDateString = prefs.getString('lastReportDate_${user?.uid}');
+    
+    if (lastDateString != null) {
+      lastReportDate = DateTime.parse(lastDateString);
+    }
   }
 
-  void _showStressLevelDialog() {
+  // Method to save the current date as the last report date
+  Future<void> _saveLastReportDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    
+    // Save the last report date with the user UID as part of the key
+    await prefs.setString('lastReportDate_${user?.uid}', formattedDate);
+  }
+
+  // Method to check if the report was already submitted today
+  bool _hasSubmittedReportToday() {
+    if (lastReportDate == null) {
+      return false;
+    }
+    return lastReportDate!.day == DateTime.now().day &&
+        lastReportDate!.month == DateTime.now().month &&
+        lastReportDate!.year == DateTime.now().year;
+  }
+
+  Future<void> _showStressLevelDialog() async {
+    if (_hasSubmittedReportToday()) {
+      return; // Skip showing the dialog if the report was submitted today
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext context) {
         return Center(
           child: Container(
-            padding: const EdgeInsets.all(20),
-            margin: const EdgeInsets.symmetric(horizontal: 30),
+            padding: const EdgeInsets.all(30),
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.25,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
@@ -43,19 +76,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
                   'Please Report Your Stress Level',
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                    fontFamily: 'InterBold',
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -73,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
+                    const SizedBox(width: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -82,8 +118,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       onPressed: () {
                         Navigator.pop(context); // Dismiss dialog
-                        // Navigate to Stress Report page
-                        Navigator.pushNamed(context, Routes.report);
+                        Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
+                        _saveLastReportDate(); // Save the current date when proceeding with the report
                       },
                       child: const Text('Proceed'),
                     ),
@@ -97,12 +133,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Reload user data
+  Future<void> _reloadUser() async {
+    user = FirebaseAuth.instance.currentUser;
+    await user?.reload();
+    user = FirebaseAuth.instance.currentUser;
+  }
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_isDialogShown) {
-        _showStressLevelDialog();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadLastReportDate(); // Load the last report date
+      if (!_hasSubmittedReportToday() && !_isDialogShown) {
+        _showStressLevelDialog(); // Show the dialog if not submitted today
         setState(() {
           _isDialogShown = true;
         });
@@ -148,13 +192,13 @@ class _HomeScreenState extends State<HomeScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return Container(        
+            return Container(
               margin: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [            
+                children: [
                   // display greetings
-                  Column(              
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -167,14 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Text(
                         'What are you planning to do today?',
                         style: TextStyle(
-                          fontSize: 16,                      
+                          fontSize: 16,
                         ),
                       ),
                     ],
                   ),
-                  //display date and time
+                  // display date and time
                   const SizedBox(height: 20),
-                  Container(                                  
+                  Container(
                     padding: const EdgeInsets.all(16),
                     width: 200,
                     decoration: BoxDecoration(
@@ -184,29 +228,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //display current date
-                        Text(                                     
-                          DateFormat('d MMM yyyy').format(DateTime.now()), 
+                        // display current date
+                        Text(
+                          DateFormat('d MMM yyyy').format(DateTime.now()),
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
-                        ), 
-                        //display current time                   
+                        ),
+                        // display current time
                         Row(
                           children: [
-                            Text(                    
-                              DateFormat('h:mm').format(DateTime.now()), 
+                            Text(
+                              DateFormat('h:mm').format(DateTime.now()),
                               style: const TextStyle(
                                 fontSize: 50,
-                                fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(                    
+                            Text(
                               DateFormat('a').format(DateTime.now()),
                               style: const TextStyle(
                                 fontSize: 20,
-                                fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -214,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  //display features
+                  // display features
                   const SizedBox(height: 40),
                   Container(
                     child: Column(
@@ -225,12 +269,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 16,
                           ),
-                        ),          
+                        ),
                         const SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            //button Track Activity                      
+                            // button Track Activity
                             Column(
                               children: [
                                 ElevatedButton(
@@ -246,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Navigator.pushNamed(context, Routes.activity);
                                   },
                                   child: Container(
-                                    padding: const EdgeInsets.all(10),                           
+                                    padding: const EdgeInsets.all(10),
                                     width: 115,
                                     height: 120,
                                     child: const Column(
@@ -254,20 +298,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
-                                          child: Icon(             
+                                          child: Icon(
                                             Icons.task_rounded,
                                             color: Color(0xFF378DF9),
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Track Activity'),                                 
+                                        Text('Track Activity'),
                                       ],
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            //button Track Daily Goal
+                            // button Track Daily Goal
                             Column(
                               children: [
                                 ElevatedButton(
@@ -280,10 +324,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 5,
                                   ),
                                   onPressed: () {
-                                    //Navigator.pushNamed(context, Routes. );
+                                    // Navigator.pushNamed(context, Routes. );
                                   },
-                                  child: Container( 
-                                    padding: const EdgeInsets.all(10),                           
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
                                     width: 115,
                                     height: 120,
                                     child: const Column(
@@ -297,14 +341,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Track Daily Goal'),                                 
+                                        Text('Track Daily Goal'),
                                       ],
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            //button Report Stress Level                      
+                            // button Report Stress Level
                             Column(
                               children: [
                                 ElevatedButton(
@@ -319,8 +363,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onPressed: () {
                                     Navigator.pushNamed(context, Routes.stress);
                                   },
-                                  child: Container(  
-                                    padding: const EdgeInsets.all(10),                           
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
                                     width: 115,
                                     height: 120,
                                     child: const Column(
@@ -334,7 +378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Report Stress Level'),                                 
+                                        Text('Report Stress Level'),
                                       ],
                                     ),
                                   ),
@@ -342,12 +386,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                           ],
-                        ),                                        
+                        ),
                       ],
-                    )
+                    ),
                   ),
                 ],
-              ),   
+              ),
             );
           }
         },
@@ -373,7 +417,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Navigator.pushNamed(context, Routes. );
               break;
             case 3:
-              // Navigator.pushNamed(context, Routes. );
+              Navigator.pushNamed(context, Routes.stress);
               break;
           }
         },
@@ -399,3 +443,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+

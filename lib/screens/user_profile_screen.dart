@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wellbeeapp/screens/login_screen.dart'; // Import the LoginScreen widget
 
 class UserProfile extends StatefulWidget {
   const UserProfile({Key? key}) : super(key: key);
@@ -31,8 +32,18 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, Routes.login); // Redirect to login page after logout
+    try {
+      await FirebaseAuth.instance.signOut(); // Sign out the user
+      Navigator.pushAndRemoveUntil(
+        context, MaterialPageRoute(builder: (context) => const LoginScreen()), // Replace with your login screen widget
+        (route) => false, // Remove all previous routes
+      );
+    } catch (e) {
+      // Show error if logout fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error logging out: $e')),
+      );
+    }
   }
 
   @override
@@ -40,7 +51,6 @@ class _UserProfileState extends State<UserProfile> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        // title: const Text('User Profile'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -48,17 +58,17 @@ class _UserProfileState extends State<UserProfile> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center, // Center the children horizontally
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 100.0),
                 Container(
-                  width: 200, // Set the width of the container
-                  height: 200, // Set the height of the container
+                  width: 200,
+                  height: 200,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.black, // Set the border color
-                      width: 2.0, // Set the border width
+                      color: Colors.black,
+                      width: 2.0,
                     ),
                   ),
                   child: CircleAvatar(
@@ -88,7 +98,7 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 const SizedBox(height: 10.0),
                 Text(
-                  jobPosition, // Display the job position
+                  jobPosition,
                   style: const TextStyle(
                     fontSize: 18,
                   ),
@@ -121,7 +131,7 @@ class _UserProfileState extends State<UserProfile> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _logout, // Trigger logout when clicked
+                  onPressed: _logout,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                     textStyle: const TextStyle(

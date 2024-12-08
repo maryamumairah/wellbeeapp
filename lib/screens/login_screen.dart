@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wellbeeapp/screens/home_screen.dart';
 import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -232,45 +233,49 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() async {
-    if (_formKey.currentState!.validate()) {
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isSigningIn = true;
+      errorMessage = '';
+    });
+
+    String email = emailController.text;
+    String password = passwordController.text;
+
+    try {
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
+
       setState(() {
-        _isSigningIn = true;
-        errorMessage = '';
+        _isSigningIn = false;
       });
 
-      String email = emailController.text;
-      String password = passwordController.text;
+      if (user != null) {
+        showToast(message: 'User is successfully logged in');
 
-      try {
-        User? user = await _auth.signInWithEmailAndPassword(email, password);
-
-        setState(() {
-          _isSigningIn = false;
-        });
-
-        if (user != null) {
-          showToast(message: 'User is successfully logged in');
-          Navigator.pushNamed(context, Routes.home);
-        }
-      } on FirebaseAuthException catch (e) {
-        print('FirebaseAuthException code: ${e.code}'); // Debugging line
-        setState(() {
-          _isSigningIn = false;
-          if (e.code == 'user-not-found') {
-            errorMessage = 'User not found';
-          } else if (e.code == 'wrong-password') {
-            errorMessage = 'Incorrect password';
-          } else {
-          errorMessage = 'Invalid email or password. Please try again.';
-          }
-        });
-      } catch (e) {
-        print('Exception: $e'); // Debugging line
-        setState(() {
-          _isSigningIn = false;
-          errorMessage = 'An error occurred. Please try again.';
-        });
+        // Navigate to home screen and clear navigation stack
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home screen widget
+          (route) => false, // Remove all previous routes
+        );
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _isSigningIn = false;
+        if (e.code == 'user-not-found') {
+          errorMessage = 'User not found';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Incorrect password';
+        } else {
+          errorMessage = 'Invalid email or password. Please try again.';
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isSigningIn = false;
+        errorMessage = 'An error occurred. Please try again.';
+      });
     }
   }
+}
 }
