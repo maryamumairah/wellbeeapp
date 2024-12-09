@@ -74,6 +74,11 @@ flutter:
   - assets/bee1.png
   - assets/bee2.png
   - assets/regular_face-smile.png
+  - assets/calm.png
+  - assets/low_stress.png
+  - assets/moderate_stress.png
+  - assets/high_stress.png
+  - assets/overwhelmed.png
 
   
   

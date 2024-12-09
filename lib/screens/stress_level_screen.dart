@@ -7,7 +7,7 @@ import 'package:wellbeeapp/routes.dart';
 
 class StressLevelScreen extends StatefulWidget {
   const StressLevelScreen({Key? key}) : super(key: key);
-  
+
   @override
   _StressLevelScreenState createState() => _StressLevelScreenState();
 }
@@ -69,7 +69,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
-              //Navigator.pushNamed(context, Routes.goals);
+              // Navigator.pushNamed(context, Routes.goals);
               break;
             case 3:
               // No action needed for the stress level screen since it's already here
@@ -109,10 +109,10 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
     // Fetch data from the user's own 'stressReports' subcollection
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
-          .collection('users') // Top-level collection for users
-          .doc(currentUser.uid) // Document for the current user
-          .collection('stressReports') // Subcollection for stress reports
-          .orderBy('date', descending: false) // Order by date in ascending order
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('stressReports')
+          .orderBy('date', descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -145,8 +145,8 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             fromY: 0,
             toY: report.level.toDouble(),
             color: const Color(0xFF96C1F9),
-            width: 30, // Increase the width of each bar
-            borderRadius: BorderRadius.zero, // Make the bars rectangular
+            width: 30,
+            borderRadius: BorderRadius.zero,
           ),
         ],
       );
@@ -154,39 +154,37 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
   }
 
   Widget _buildChart(BuildContext context, List<StressLevelReport> reportData) {
-    // Ensure maxLevel is at least 5
     int maxLevel = reportData.fold(0, (prev, element) {
       return (element.level > prev) ? element.level : prev;
     });
 
-    // Set maxY to be the maximum of either the actual max level or 5
     double chartMaxY = maxLevel >= 5 ? maxLevel.toDouble() : 5.0;
 
     return Column(
       children: [
         SizedBox(
-          height: 350, // Adjust the height of the container to make it bigger
-          width: MediaQuery.of(context).size.width * 0.9, // Adjust width if needed
+          height: 350,
+          width: MediaQuery.of(context).size.width * 0.9,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white, // White background for the container
-              borderRadius: BorderRadius.circular(16), // Border radius
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.2),
                   spreadRadius: 2,
                   blurRadius: 5,
-                  offset: const Offset(0, 3), // Shadow position
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
-            padding: const EdgeInsets.all(16.0), // Add padding to create space inside the container
+            padding: const EdgeInsets.all(16.0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16), // Ensure the bar chart fits the rounded corners
+              borderRadius: BorderRadius.circular(16),
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: chartMaxY + 1, // Set maxY dynamically, but at least 5
+                  maxY: chartMaxY + 1,
                   barGroups: barChartData,
                   gridData: FlGridData(
                     show: true,
@@ -194,7 +192,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     horizontalInterval: 1,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Colors.grey.withOpacity(0.3), // Light grey lines
+                        color: Colors.grey.withOpacity(0.3),
                         strokeWidth: 1,
                       );
                     },
@@ -202,10 +200,10 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   ),
                   titlesData: FlTitlesData(
                     topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false), // Hide top labels
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false), // Hide right labels
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
@@ -228,11 +226,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        interval: 1, // Set interval to 1 to show each label
+                        interval: 1,
                         getTitlesWidget: (double value, TitleMeta meta) {
                           if (value % 1 == 0) {
                             return Text(
-                              value.toStringAsFixed(0), // Display only whole numbers
+                              value.toStringAsFixed(0),
                               style: const TextStyle(fontSize: 12),
                             );
                           }
@@ -241,7 +239,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                       ),
                     ),
                   ),
-                  borderData: FlBorderData(show: false), // Remove border around the chart itself
+                  borderData: FlBorderData(show: false),
                 ),
               ),
             ),
@@ -255,25 +253,87 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           itemBuilder: (context, index) {
             String formattedDate = DateFormat('dd MMM yyyy')
                 .format(DateTime.parse(reportData[index].date));
-            return Container(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Circular container for the image
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: ListTile(
-                title: Text(formattedDate),
-                subtitle: Text(
-                  '${reportData[index].category}${reportData[index].description != null && reportData[index].description!.isNotEmpty ? '\n${reportData[index].description}' : ''}',
+                  child: ClipOval(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0), // Adjust the padding to resize the image inside
+                      child: Image.asset(
+                        reportData[index].getImagePath(),
+                        fit: BoxFit.contain, // Ensures the image fits within the circle
+                        alignment: Alignment.center, // Center-align the image
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // Rectangular container for the list item content
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            formattedDate,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            reportData[index].category, // Larger and bold category text
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontFamily: 'InterBold',
+                              color: Colors.black,
+                            ),
+                          ),
+                          if (reportData[index].description != null &&
+                              reportData[index].description!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              reportData[index].description!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontFamily: 'InterRegular',
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         ),
@@ -303,6 +363,23 @@ class StressLevelReport {
       'category': category,
       'description': description,
     };
+  }
+
+  String getImagePath() {
+    switch (level) {
+      case 1:
+        return 'assets/calm.png';
+      case 2:
+        return 'assets/low_stress.png';
+      case 3:
+        return 'assets/moderate_stress.png';
+      case 4:
+        return 'assets/high_stress.png';
+      case 5:
+        return 'assets/overwhelmed.png';
+      default:
+        return 'assets/unknown.png';
+    }
   }
 }
 
