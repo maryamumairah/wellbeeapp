@@ -9,7 +9,7 @@ class AddDailyGoalScreen extends StatefulWidget {
 }
 
 class _AddDailyGoalScreenState extends State<AddDailyGoalScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
   
   final _formKey = GlobalKey<FormState>();
   final TextEditingController goalController = TextEditingController();

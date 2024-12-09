@@ -9,7 +9,7 @@ class DailyGoalScreen extends StatefulWidget {
 }
 
 class _DailyGoalScreenState extends State<DailyGoalScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
               Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
-              //Navigator.pushNamed(context, Routes.goals);
+              Navigator.pushNamed(context, Routes.dailyGoal);
               break;
             case 3:
               //Navigator.pushNamed(context, Routes.stress);
