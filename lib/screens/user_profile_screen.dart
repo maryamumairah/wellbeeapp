@@ -64,12 +64,12 @@ class _UserProfileState extends State<UserProfile> {
                 Container(
                   width: 200,
                   height: 200,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.black,
-                      width: 2.0,
-                    ),
+                    // border: Border.all(
+                    //   color: Colors.black,
+                    //   width: 2.0,
+                    // ),
                   ),
                   child: CircleAvatar(
                     radius: 100,

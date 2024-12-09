@@ -213,7 +213,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Text(
           errorText,
           style: TextStyle(
-            color: errorText == 'Password is strong' ? Colors.green : Colors.red,
+            color: errorText.contains('strong') || errorText.contains('matches') ? Colors.green : Colors.red,
           ),
         ),
       ),
@@ -262,6 +262,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       isSigningUp = true;
     });
 
+    // Trigger form validation
+    if (!_formKey.currentState!.validate()) {
+      setState(() {
+        isSigningUp = false;
+      });
+      return; // If validation fails, do not proceed
+    }
+
     String username = usernameController.text;
     String jobPosition = jobPositionController.text;
     String email = emailController.text;
@@ -304,27 +312,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
 
     if (user != null) {
-      // Generate a user ID based on the current count of users in Firestore
-      int userCount = await FirebaseFirestore.instance.collection('users').get().then((snapshot) => snapshot.docs.length);
-      String userID = "U${userCount.toString().padLeft(4, '0')}";  // Generate ID like "U0001"
+      int userCount = await FirebaseFirestore.instance
+          .collection('users')
+          .get()
+          .then((snapshot) => snapshot.docs.length);
+      String userID = "U${userCount.toString().padLeft(4, '0')}";
 
-      // Update the user's profile with the display name (username)
       await user.updateProfile(displayName: username);
 
-      // Save user info to Firestore, including the generated user ID
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'userID': userID,  // Store the user ID in Firestore
+        'userID': userID,
         'displayName': username,
+        'email': email,
         'jobPosition': jobPosition,
+        'uid': user.uid,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       showToast(message: 'User registered successfully');
-      
-      // Navigate to the Home screen and remove the registration screen from the navigation stack
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()), // Your HomeScreen widget
-        (route) => false, // Remove all previous routes
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        (route) => false,
       );
     } else {
       showToast(message: 'User registration failed');

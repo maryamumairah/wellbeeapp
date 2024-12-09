@@ -34,7 +34,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   'Stress Level',
                   style: TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'InterBold',
                   ),
                 ),
               ),

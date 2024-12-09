@@ -16,7 +16,97 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
   double _stressLevel = 1;
   String? _selectedStressor;
   final TextEditingController _descriptionController = TextEditingController();
+  final FocusNode _focusNode = FocusNode(); 
 
+  Future<void> _showConfirmationDialog() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents dismissal by tapping outside the dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(18), // Adjust content padding for more space
+          content: Container(
+            width: 500, // Adjust the width of the white container
+            height: 200, // Adjust the height of the white container
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+              crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+              children: [
+                const Text(
+                  'Are you sure to report this stress level?',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18,
+                    fontFamily: 'InterSemiBold',
+                  ),
+                  textAlign: TextAlign.center, // Center the text
+                ),
+                const SizedBox(height: 15), // Space between the title and the next text
+                const Text(
+                  'You are about to add a new stress level entry.',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'InterRegular',
+                  ),
+                  textAlign: TextAlign.center, // Center the text
+                ),
+                const SizedBox(height: 20), // Space before the buttons
+                // Centered Row with Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // Center buttons horizontally
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: const BorderSide(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                      },
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20), // Space between the buttons
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: const BorderSide(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                        _submitReport(); // Proceed to submit the report
+                      },
+                      child: const Text(
+                        'Proceed',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Submit the report to Firebase
   Future<void> _submitReport() async {
     // Ensure the user is logged in and retrieve the UID
     User? currentUser = FirebaseAuth.instance.currentUser;
@@ -51,6 +141,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
         // Handle errors
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to submit report. Please try again.')),
+
         );
       }
     } else {
@@ -79,6 +170,12 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
   }
 
   @override
+  void dispose() {
+    _focusNode.dispose(); // Dispose FocusNode when no longer needed
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -96,7 +193,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 Text(
                   'How are you',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'InterBold',
                   ),
@@ -104,7 +201,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 Text(
                   'feeling today?',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'InterBold',
                   ),
@@ -112,14 +209,13 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
               ],
             ),
             const SizedBox(height: 50),
-            // Updated Slider wrapped in SliderTheme to change the color to blue
             SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: Colors.blue, // Active part of the slider
-                inactiveTrackColor: Colors.white, // Inactive part of the slider
-                thumbColor: Colors.blue, // Thumb (draggable part) color
-                overlayColor: Colors.blue.withOpacity(0.2), // Color when thumb is pressed
-                trackHeight: 4.0, // Track height (optional)
+                activeTrackColor: Colors.blue,
+                inactiveTrackColor: Colors.white,
+                thumbColor: Colors.blue,
+                overlayColor: Colors.blue.withOpacity(0.2),
+                trackHeight: 4.0,
               ),
               child: Slider(
                 value: _stressLevel,
@@ -134,9 +230,15 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 },
               ),
             ),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(5, (index) => Text((index + 1).toString())),
+              children: [
+                Text('1', style: TextStyle(fontSize: 12)),
+                Text('2', style: TextStyle(fontSize: 12)),
+                Text('3', style: TextStyle(fontSize: 12)),
+                Text('4', style: TextStyle(fontSize: 12)),
+                Text('5', style: TextStyle(fontSize: 12)),
+              ],
             ),
             const SizedBox(height: 10),
             const Row(
@@ -151,9 +253,27 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
             ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Select a stressor',
-                border: OutlineInputBorder(),
+                labelStyle: const TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'InterRegular',),
+                filled: true, // Enable the fill color
+                fillColor: _focusNode.hasFocus
+                    ? Colors.white // White when focused
+                    : Colors.grey.shade300, // Set the grey color for the default state (unfocused)
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0), // Border radius
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none, // Grey border when not focused
+                ),
               ),
               items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual']
                   .map((stressor) => DropdownMenuItem<String>(
@@ -167,20 +287,46 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 });
               },
             ),
+
             const SizedBox(height: 20),
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(
                 labelText: 'Describe here...',
-                border: OutlineInputBorder(),
+                alignLabelWithHint: true, // This will position the label at the top
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
               maxLines: 5,
+              textAlign: TextAlign.start, // Align text to the left
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
             Center(
-              child: ElevatedButton(
-                onPressed: _submitReport,
-                child: const Text('Submit'),
+              child: SizedBox(
+                width: 300, // Set the desired width for the button
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _showConfirmationDialog, // Show confirmation dialog when the button is pressed
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary, // Set the button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the font size
+                      fontWeight: FontWeight.bold, // Set the text weight to bold
+                      fontFamily: 'InterSemiBold', // Set the font family (if needed)
+                      color: Colors.black, // Set the text color to white
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

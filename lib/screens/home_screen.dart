@@ -58,39 +58,34 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       barrierDismissible: false, // Prevent dismissing by tapping outside
       builder: (BuildContext context) {
-        return Center(
-          child: Container(
-            padding: const EdgeInsets.all(30),
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.25,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
+        return AlertDialog(
+          contentPadding: const EdgeInsets.all(20), // Adjust content padding for more space
+          content: Container(
+            width: 400, // Adjust the width of the white container
+            height: 200, // Adjust the height of the white container
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+              crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
               children: [
+                const Image(
+                  image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
+                  // width: 60, // Adjust the image size
+                  // height: 60, // Adjust the image size
+                ),
+                const SizedBox(height: 15), // Space between the image and the text
                 const Text(
-                  'Please Report Your Stress Level',
+                  'Please report your stress level.',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
                     color: Colors.black,
                     fontFamily: 'InterBold',
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 15),
+                const SizedBox(height: 15), // Add space between the text and buttons
+                // Centered Row with Buttons
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center, // Center buttons horizontally
                   children: [
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -98,30 +93,40 @@ class _HomeScreenState extends State<HomeScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        side: const BorderSide(color: Colors.grey),
+                        side: const BorderSide(color: Colors.black),
                       ),
                       onPressed: () {
                         Navigator.pop(context); // Dismiss dialog
                       },
                       child: const Text(
                         'Dismiss',
-                        style: TextStyle(color: Colors.black),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'InterSemiBold',
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 20), // Space between the buttons
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
+                        side: const BorderSide(color: Colors.black),
                       ),
                       onPressed: () {
                         Navigator.pop(context); // Dismiss dialog
                         Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
                         _saveLastReportDate(); // Save the current date when proceeding with the report
                       },
-                      child: const Text('Proceed'),
+                      child: const Text(
+                        'Proceed',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                      ),
                     ),
                   ],
                 ),

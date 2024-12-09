@@ -138,12 +138,12 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                 Container(
                   width: 150,
                   height: 150,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.black, // Set the border color
-                      width: 2.0, // Set the border width
-                    ),
+                    // border: Border.all(
+                    //   color: Colors.black, // Set the border color
+                    //   width: 2.0, // Set the border width
+                    // ),
                   ),
                   child: CircleAvatar(
                     radius: 50,
@@ -153,7 +153,7 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                         : const AssetImage('assets/profile.png') as ImageProvider,
                   ),
                 ),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 50.0),
                 Form(
                   key: _formKey,
                   child: Column(
