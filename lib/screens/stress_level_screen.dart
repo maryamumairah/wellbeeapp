@@ -15,6 +15,8 @@ class StressLevelScreen extends StatefulWidget {
 class _StressLevelScreenState extends State<StressLevelScreen> {
   List<BarChartGroupData> barChartData = [];
   int _currentIndex = 3; // Set the initial index to the stress level screen (index 3)
+  String? selectedCategory;
+  DateTimeRange? selectedDateRange;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   ),
                 ),
               ),
+              _buildFilterControls(),
               _buildBody(context),
             ],
           ),
@@ -98,21 +101,113 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
     );
   }
 
+  Widget _buildFilterControls() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: DropdownButton<String>(
+                value: selectedCategory,
+                hint: const Text('Filter by Category',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'InterSemiBold')),
+                items: ['Calm', 'Low Stress', 'Moderate Stress', 'High Stress', 'Overwhelmed']
+                    .map((category) => DropdownMenuItem(
+                          value: category,
+                          child: Text(category),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 16), // Spacing between filters
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Show a popup date picker
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+
+                  if (pickedDate != null) {
+                    setState(() {
+                      selectedDateRange = DateTimeRange(
+                        start: pickedDate,
+                        end: pickedDate,
+                      ); // Single date wrapped in a range
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[200], 
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                child: Text(
+                  selectedDateRange == null
+                      ? 'Filter by Date'
+                      : 'Date: ${DateFormat('dd MMM yyyy').format(selectedDateRange!.start)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'InterSemiBold'),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10), // Spacing below the filters
+        Center(
+          child: ElevatedButton(
+            onPressed: () {
+              setState(() {
+                selectedCategory = null;
+                selectedDateRange = null;
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[200],
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            child: const Text('Reset Filters', 
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: 'Inter'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBody(BuildContext context) {
-    // Get the current authenticated user
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
       return const Center(child: Text('Please log in to view your stress data.'));
     }
 
-    // Fetch data from the user's own 'stressReports' subcollection
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
           .collection('stressReports')
-          .orderBy('date', descending: false)
+          .orderBy('date', descending: false) // Sorting by date in Firestore (ascending)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -122,13 +217,39 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text('No stress data available.'));
         } else {
+          // Convert the documents into StressLevelReport objects
           List<StressLevelReport> reports = snapshot.data!.docs
               .map((documentSnapshot) =>
                   StressLevelReport.fromMap(documentSnapshot.data() as Map<String, dynamic>))
               .toList();
 
+          // Apply filters
+          if (selectedCategory != null) {
+            reports = reports
+                .where((report) => report.category == selectedCategory)
+                .toList();
+          }
+
+          if (selectedDateRange != null) {
+            reports = reports.where((report) {
+              DateTime reportDate = DateTime.parse(report.date);
+              return reportDate.isAtSameMomentAs(selectedDateRange!.start) || // Matches the start date
+                    reportDate.isAtSameMomentAs(selectedDateRange!.end) ||   // Matches the end date
+                    (reportDate.isAfter(selectedDateRange!.start) && 
+                      reportDate.isBefore(selectedDateRange!.end));          // Falls within the range
+            }).toList();
+          }
+
+          reports.sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
+
           _generateData(reports);
-          return _buildChart(context, reports);
+
+          return Column(
+            children: [
+              const SizedBox(height: 16), // Space between Reset Filters and Bar Chart
+              _buildChart(context, reports),
+            ],
+          );
         }
       },
     );
@@ -145,7 +266,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             fromY: 0,
             toY: report.level.toDouble(),
             color: const Color(0xFF96C1F9),
-            width: 30,
+            width: 40,
             borderRadius: BorderRadius.zero,
           ),
         ],
@@ -304,8 +425,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            formattedDate,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            formattedDate.toUpperCase(), // Convert to uppercase
+                            style: const TextStyle(
+                              fontSize: 12, 
+                              fontFamily: 'InterSemiBold',
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -324,7 +448,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
-                                fontFamily: 'InterRegular',
+                                fontFamily: 'Inter',
                               ),
                             ),
                           ],
