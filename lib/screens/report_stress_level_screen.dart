@@ -112,7 +112,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
     User? currentUser = FirebaseAuth.instance.currentUser;
     
     if (currentUser != null && _selectedStressor != null) {
-      String formattedDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      String formattedDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
       
       try {
         // Store the report under the user's UID in a subcollection

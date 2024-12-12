@@ -14,9 +14,11 @@ class StressLevelScreen extends StatefulWidget {
 
 class _StressLevelScreenState extends State<StressLevelScreen> {
   List<BarChartGroupData> barChartData = [];
-  int _currentIndex = 3; // Set the initial index to the stress level screen (index 3)
+  int _currentIndex = 3;
   String? selectedCategory;
-  DateTimeRange? selectedDateRange;
+  DateTime? selectedDate;
+  String? filterCategory;
+  DateTime? filterDate;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0),
                 child: Text(
                   'Stress Level',
                   style: TextStyle(
@@ -40,7 +42,30 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   ),
                 ),
               ),
-              _buildFilterControls(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Spacer(),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.filter_list),
+                    label: const Text(
+                      'Filters',
+                      style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+                    ),
+                    onPressed: () {
+                      _showFilterDialog();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
               _buildBody(context),
             ],
           ),
@@ -72,10 +97,8 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
-              // Navigator.pushNamed(context, Routes.goals);
               break;
             case 3:
-              // No action needed for the stress level screen since it's already here
               break;
           }
         },
@@ -101,21 +124,34 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
     );
   }
 
-  Widget _buildFilterControls() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: DropdownButton<String>(
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: const Text(
+            'Filters',
+            style: TextStyle(fontSize: 20, fontFamily: 'InterBold'),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<String>(
                 value: selectedCategory,
-                hint: const Text('Filter by Category',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'InterSemiBold')),
-                items: ['Calm', 'Low Stress', 'Moderate Stress', 'High Stress', 'Overwhelmed']
+                hint: const Text(
+                  'Filter by Category',
+                  style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+                ),
+                items: [
+                  'Calm',
+                  'Low Stress',
+                  'Moderate Stress',
+                  'High Stress',
+                  'Overwhelmed'
+                ]
                     .map((category) => DropdownMenuItem(
                           value: category,
                           child: Text(category),
@@ -127,71 +163,97 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   });
                 },
               ),
-            ),
-            const SizedBox(width: 16), // Spacing between filters
-            Expanded(
-              child: ElevatedButton(
+              const SizedBox(height: 16),
+              ElevatedButton(
                 onPressed: () async {
-                  // Show a popup date picker
                   DateTime? pickedDate = await showDatePicker(
                     context: context,
-                    initialDate: DateTime.now(),
+                    initialDate: selectedDate ?? DateTime.now(),
                     firstDate: DateTime(2000),
                     lastDate: DateTime.now(),
                   );
-
                   if (pickedDate != null) {
                     setState(() {
-                      selectedDateRange = DateTimeRange(
-                        start: pickedDate,
-                        end: pickedDate,
-                      ); // Single date wrapped in a range
+                      selectedDate = pickedDate;
                     });
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200], 
+                  backgroundColor: const Color(0xFF96C1F9),
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
-                child: Text(
-                  selectedDateRange == null
-                      ? 'Filter by Date'
-                      : 'Date: ${DateFormat('dd MMM yyyy').format(selectedDateRange!.start)}',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'InterSemiBold'),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_today, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      selectedDate == null
+                          ? 'Filter by Date'
+                          : DateFormat('dd MMM yyyy').format(selectedDate!),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'InterSemiBold',
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10), // Spacing below the filters
-        Center(
-          child: ElevatedButton(
-            onPressed: () {
-              setState(() {
-                selectedCategory = null;
-                selectedDateRange = null;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[200],
-              foregroundColor: Colors.black,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  setState(() {
+                    filterCategory = selectedCategory;
+                    filterDate = selectedDate;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                child: const Text(
+                  'Apply Filters',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                    fontFamily: 'InterSemiBold',
+                  ),
+                ),
               ),
-            ),
-            child: const Text('Reset Filters', 
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'Inter'),
-            ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedCategory = null;
+                    selectedDate = null;
+                    filterCategory = null;
+                    filterDate = null;
+                  });
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[200],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                child: const Text(
+                  'Reset Filters',
+                  style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -207,7 +269,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           .collection('users')
           .doc(currentUser.uid)
           .collection('stressReports')
-          .orderBy('date', descending: false) // Sorting by date in Firestore (ascending)
+          .orderBy('date', descending: false) // Fetch in ascending order first
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -217,36 +279,32 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text('No stress data available.'));
         } else {
-          // Convert the documents into StressLevelReport objects
           List<StressLevelReport> reports = snapshot.data!.docs
               .map((documentSnapshot) =>
                   StressLevelReport.fromMap(documentSnapshot.data() as Map<String, dynamic>))
               .toList();
 
-          // Apply filters
-          if (selectedCategory != null) {
+          if (filterCategory != null) {
             reports = reports
-                .where((report) => report.category == selectedCategory)
+                .where((report) => report.category == filterCategory)
                 .toList();
           }
 
-          if (selectedDateRange != null) {
+          if (filterDate != null) {
             reports = reports.where((report) {
               DateTime reportDate = DateTime.parse(report.date);
-              return reportDate.isAtSameMomentAs(selectedDateRange!.start) || // Matches the start date
-                    reportDate.isAtSameMomentAs(selectedDateRange!.end) ||   // Matches the end date
-                    (reportDate.isAfter(selectedDateRange!.start) && 
-                      reportDate.isBefore(selectedDateRange!.end));          // Falls within the range
+              return reportDate == filterDate;
             }).toList();
           }
 
-          reports.sort((a, b) => DateTime.parse(b.date).compareTo(DateTime.parse(a.date)));
+          // Sort the reports by date in descending order
+          reports.sort((a, b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
 
           _generateData(reports);
 
           return Column(
             children: [
-              const SizedBox(height: 16), // Space between Reset Filters and Bar Chart
+              const SizedBox(height: 16),
               _buildChart(context, reports),
             ],
           );
@@ -266,8 +324,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             fromY: 0,
             toY: report.level.toDouble(),
             color: const Color(0xFF96C1F9),
-            width: 40,
-            borderRadius: BorderRadius.zero,
+            width: 40, // Reduced width for better spacing
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(4),
+              topRight: Radius.circular(4),
+            ),
           ),
         ],
       );
@@ -330,17 +391,25 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                       sideTitles: SideTitles(
                         showTitles: true,
                         interval: 1,
+                        reservedSize: 30, // Adjust this value to add more space for labels
                         getTitlesWidget: (double value, TitleMeta meta) {
                           int index = value.toInt();
                           if (index >= 0 && index < barChartData.length) {
-                            return Text(
-                              DateFormat('dd MMM').format(
-                                DateTime.parse(reportData[index].date),
+                            String date = DateFormat('dd MMM').format(
+                              DateTime.parse(reportData[index].date),
+                            );
+                            return Transform.rotate(
+                              angle: -0.5, // Rotate text by ~-28.6 degrees
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0), // Add spacing
+                                child: Text(
+                                  date,
+                                  style: const TextStyle(fontSize: 10),
+                                ),
                               ),
-                              style: const TextStyle(fontSize: 12),
                             );
                           }
-                          return const Text('');
+                          return const SizedBox();
                         },
                       ),
                     ),
@@ -360,7 +429,15 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                       ),
                     ),
                   ),
-                  borderData: FlBorderData(show: false),
+                  borderData: FlBorderData(
+                    show: true,
+                    border: Border(
+                      top: BorderSide.none,
+                      right: BorderSide.none,
+                      bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                      left: BorderSide.none,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -395,11 +472,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   ),
                   child: ClipOval(
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0), // Adjust the padding to resize the image inside
+                      padding: const EdgeInsets.all(8.0),
                       child: Image.asset(
                         reportData[index].getImagePath(),
-                        fit: BoxFit.contain, // Ensures the image fits within the circle
-                        alignment: Alignment.center, // Center-align the image
+                        fit: BoxFit.contain,
+                        alignment: Alignment.center,
                       ),
                     ),
                   ),
@@ -425,21 +502,34 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            formattedDate.toUpperCase(), // Convert to uppercase
+                            formattedDate.toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 12, 
+                              fontSize: 11,
                               fontFamily: 'InterSemiBold',
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            reportData[index].category, // Larger and bold category text
+                            reportData[index].category,
                             style: const TextStyle(
                               fontSize: 20,
                               fontFamily: 'InterBold',
                               color: Colors.black,
                             ),
                           ),
+                          if (reportData[index].stressor != null &&
+                              reportData[index].stressor!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              '${reportData[index].stressor}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontFamily: 'InterSemiBold',
+                                fontStyle: FontStyle.italic, // To differentiate it
+                              ),
+                            ),
+                          ],
                           if (reportData[index].description != null &&
                               reportData[index].description!.isNotEmpty) ...[
                             const SizedBox(height: 4),
@@ -471,55 +561,49 @@ class StressLevelReport {
   final int level;
   final String category;
   final String? description;
+  final String? stressor; // New field for stressor
 
-  StressLevelReport(this.date, this.level, this.category, this.description);
+  StressLevelReport(this.date, this.level, this.category, this.description, this.stressor);
 
   StressLevelReport.fromMap(Map<String, dynamic> map)
       : date = map['date'] ?? 'Unknown date',
         level = map['level'] ?? 0,
         category = getCategory(map['level'] ?? 0),
-        description = map['description'];
+        description = map['description'],
+        stressor = map['stressor']; // Get stressor from Firestore
 
-  Map<String, dynamic> toMap() {
-    return {
-      'date': date,
-      'level': level,
-      'category': category,
-      'description': description,
-    };
+  static String getCategory(int level) {
+    switch (level) {
+      case 1:
+        return 'Calm';
+      case 2:
+        return 'Low Stress';
+      case 3:
+        return 'Moderate Stress';
+      case 4:
+        return 'High Stress';
+      case 5:
+        return 'Overwhelmed';
+      default:
+        return 'Unknown';
+    }
   }
 
   String getImagePath() {
-    switch (level) {
-      case 1:
+    switch (category) {
+      case 'Calm':
         return 'assets/calm.png';
-      case 2:
+      case 'Low Stress':
         return 'assets/low_stress.png';
-      case 3:
+      case 'Moderate Stress':
         return 'assets/moderate_stress.png';
-      case 4:
+      case 'High Stress':
         return 'assets/high_stress.png';
-      case 5:
+      case 'Overwhelmed':
         return 'assets/overwhelmed.png';
       default:
-        return 'assets/unknown.png';
+        return 'assets/default.png';
     }
   }
 }
 
-String getCategory(int level) {
-  switch (level) {
-    case 1:
-      return 'Calm';
-    case 2:
-      return 'Low Stress';
-    case 3:
-      return 'Moderate Stress';
-    case 4:
-      return 'High Stress';
-    case 5:
-      return 'Overwhelmed';
-    default:
-      return 'Unknown';
-  }
-}
