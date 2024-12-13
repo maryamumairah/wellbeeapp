@@ -12,6 +12,7 @@ class Routes {
   static const activity = '/activity';
   static const addActivity = '/addActivity'; 
   static const editActivity = '/editActivity';
-  // static const timerActivity = '/timerActivity';
+  static const timerActivity = '/timerActivity';
+  static const analyticsActivity = '/analyticsActivity';
 
 }

@@ -14,14 +14,13 @@ import 'package:wellbeeapp/screens/stress_level_screen.dart';
 import 'package:wellbeeapp/screens/activity_screen.dart';
 import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'package:wellbeeapp/screens/edit_activity_screen.dart';
-// import 'package:wellbeeapp/screens/timer_activity_screen.dart';
+import 'package:wellbeeapp/screens/timer_activity_screen.dart';
+import 'package:wellbeeapp/screens/activity_analytics_screen.dart';
 import 'routes.dart';
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  //await Firebase.initializeApp(); 
-  try {
-    // await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();  
+  try {    
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );    
@@ -68,23 +67,25 @@ class MyApp extends StatelessWidget {
         Routes.userProfile: (context) => const UserProfile(),
         Routes.updateUserProfile: (context) => const UpdateUserProfileScreen(),
         Routes.activity: (context) => const ActivityScreen(),
-        Routes.addActivity: (context) => AddActivityScreen(),
-        // Routes.editActivity: (context) => EditActivityScreen( ), // error
-        // Routes.timerActivity: (context) => TimerActivityScreen(),
-
+        Routes.addActivity: (context) => AddActivityScreen(),        
+        Routes.analyticsActivity: (context) => ActivityAnalyticsScreen(),
       },
       onGenerateRoute: (settings) {
         switch (settings.name) {
-          case Routes.editActivity:
-            // final args = settings.arguments as Map<String, dynamic>;
+          case Routes.editActivity:           
             final args = settings.arguments as DocumentSnapshot;
             return MaterialPageRoute(
               builder: (context) => EditActivityScreen(activity: args),
             );
+          case Routes.timerActivity:
+            final args = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => TimerActivityScreen(activityID: args),
+            );
           default:
             return null;
         }
-      },            
+      },             
 
       builder: (context, child) {
         return Container(

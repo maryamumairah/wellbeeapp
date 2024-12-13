@@ -22,7 +22,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     super.initState();
   }
 
-  getontheload()async{
+  getontheload()async{ 
     activityStream = await DatabaseMethods().getActivityDetails();
     setState(() {}); 
   }
@@ -168,8 +168,17 @@ class _ActivityScreenState extends State<ActivityScreen> {
                         child: IconButton(
                           icon: const Icon(Icons.play_arrow, color: Colors.white),
                           onPressed: () {
+                            // Debugging prints
+                            print('Document ID: ${ds.id}');
+                            print('Document Data: ${ds.data()}');
+
                             //navigate to timer screen
                             // Navigator.pushNamed(context, Routes.timerActivity);
+                            Navigator.pushNamed(
+                              context,
+                              Routes.timerActivity,                              
+                              arguments: ds.id,
+                            );
                           },
                         ),
                       ),
@@ -211,7 +220,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
         children: [
           FloatingActionButton(
             onPressed: () {
-              // navigate to add new activity screen      
+              // navigate to add new activity screen 
+              Navigator.pushNamed(context, Routes.analyticsActivity);     
             },         
             backgroundColor: Colors.black,
             shape: const CircleBorder(),

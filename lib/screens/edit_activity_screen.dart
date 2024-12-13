@@ -6,11 +6,9 @@ import 'package:wellbeeapp/services/database.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:intl/intl.dart';
 
-class EditActivityScreen extends StatefulWidget {
-  // final Map<String, dynamic> activity; // to pass existing activity details to the screen
+class EditActivityScreen extends StatefulWidget {  
   final DocumentSnapshot activity; 
 
-  // const EditActivityScreen({Key? key, required this.activity}) : super(key: key); // constructor to receive activity details
   EditActivityScreen({Key? key, required this.activity}) : super(key: key); // constructor to receive activity details
 
   @override
@@ -47,22 +45,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     dateController.dispose();
 
     super.dispose(); // to clear the memory
-  }
-
-  // Future<void> _selectDate() async {
-  //   DateTime? picked = await showDatePicker(
-  //     context: context,
-  //     initialDate: DateTime.now(),
-  //     firstDate: DateTime(2000),
-  //     lastDate: DateTime(2101),
-  //   );
-  //   if (picked != null) {
-  //     setState(() {
-  //       dateController.text = picked.toString().split(" ")[0];
-  //       // dateController.text = DateFormat('yyyy-MM-dd').format(picked);
-  //     });
-  //   }
-  // }
+  }  
 
   Future<void> _updateActivity() async {
     if (_formKey.currentState!.validate()) {
@@ -282,52 +265,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                     'Update Activity',
                     
                     style: TextStyle(fontWeight: FontWeight.bold),
-                  ),                                  
-                  // onPressed: () async {
-                  //   try {
-                  //     if (Firebase.apps.isEmpty) {
-                  //       await Firebase.initializeApp();
-                  //     }
-
-                  //     String activityID = randomAlphaNumeric(10);
-                  //     // int hours = int.parse(hourController.text);
-                  //     // int minutes = int.parse(minuteController.text);
-                  //     // int activityDuration = (hours * 60) + minutes; // Convert hours to minutes and add to minutes               
-
-                  //     Map<String, dynamic> activityInfoMap = {
-                  //       "activityName": activityController.text,
-                  //       "categoryName": categoryController.text,
-                  //       "hour": hourController.text, //kiv
-                  //       "minute": minuteController.text, //kiv
-                  //       // "activityDuration": activityDuration, // Combined hour and minute
-                  //       "date": dateController.text, //kiv
-                  //       "activityID": activityID,
-                  //     };
-                  //     await DatabaseMethods()
-                  //       .addActivityDetails(activityInfoMap, activityID)
-                  //       .then((value) {
-                  //         ScaffoldMessenger.of(context).showSnackBar(
-                  //           SnackBar(
-                  //             backgroundColor: Theme.of(context).colorScheme.secondary,
-                  //             content: const Text('Activity created successfully!'),
-                  //           ),
-                  //         );
-                  //         Navigator.pushNamed(context, Routes.activity);                                                      
-                  //       });
-                  //   } catch (e) {
-                  //     //print('Error creating activity: $e');
-                  //     ScaffoldMessenger.of(context).showSnackBar(
-                  //       const SnackBar(
-                  //         backgroundColor: Colors.red,
-                  //         content: Text('Failed to create activity.'),
-                  //       ),
-                  //     );
-                  //   }
-                  // },                  
-                  // child: const Text(
-                  //   'Create Activity',
-                  //   style: TextStyle(fontWeight: FontWeight.bold),
-                  // ),
+                  ),                                                    
                 ),
               ),
             ],
