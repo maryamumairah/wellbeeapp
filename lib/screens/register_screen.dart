@@ -113,7 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const Divider(height: 1.0, thickness: 2.0),
             const SizedBox(height: 5.0),
             Container(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Form(
                 key: _formKey,
                 child: Container(
@@ -164,9 +164,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
           fillColor: Colors.white,
           filled: true,
         ),
@@ -188,9 +188,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
+          border: const OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+          focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Colors.black)),
           fillColor: Colors.white,
           filled: true,
         ),
@@ -336,9 +336,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         MaterialPageRoute(builder: (context) => const HomeScreen()),
         (route) => false,
       );
-    } else {
-      showToast(message: 'User registration failed');
-    }
+    } 
 
     setState(() {
       isSigningUp = false;

@@ -197,6 +197,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         ),
                       ),
+                      const SizedBox(height: 10.0),
+                      GestureDetector(
+                        onTap: _resetPasswordDialog,
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(
+                            decoration: TextDecoration.underline,
+                            color: Colors.blue,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 30.0), // Add some space between the button and the row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -230,49 +242,105 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _login() async {
-  if (_formKey.currentState!.validate()) {
-    setState(() {
-      _isSigningIn = true;
-      errorMessage = '';
-    });
-
-    String email = emailController.text;
-    String password = passwordController.text;
-
-    try {
-      User? user = await _auth.signInWithEmailAndPassword(email, password);
-
+    if (_formKey.currentState!.validate()) {
       setState(() {
-        _isSigningIn = false;
+        _isSigningIn = true;
+        errorMessage = '';
       });
 
-      if (user != null) {
-        showToast(message: 'User is successfully logged in');
+      String email = emailController.text;
+      String password = passwordController.text;
 
-        // Navigate to home screen and clear navigation stack
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home screen widget
-          (route) => false, // Remove all previous routes
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _isSigningIn = false;
-        if (e.code == 'user-not-found') {
-          errorMessage = 'User not found';
-        } else if (e.code == 'wrong-password') {
-          errorMessage = 'Incorrect password';
-        } else {
-          errorMessage = 'Invalid email or password. Please try again.';
+      try {
+        User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+        setState(() {
+          _isSigningIn = false;
+        });
+
+        if (user != null) {
+          showToast(message: 'User is successfully logged in');
+
+          // Navigate to home screen and clear navigation stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()), // Replace with your home screen widget
+            (route) => false, // Remove all previous routes
+          );
         }
-      });
-    } catch (e) {
-      setState(() {
-        _isSigningIn = false;
-        errorMessage = 'An error occurred. Please try again.';
-      });
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          _isSigningIn = false;
+          if (e.code == 'user-not-found') {
+            errorMessage = 'User not found';
+          } else if (e.code == 'wrong-password') {
+            errorMessage = 'Incorrect password';
+          } else {
+            errorMessage = 'Invalid email or password. Please try again.';
+          }
+        });
+      } catch (e) {
+        setState(() {
+          _isSigningIn = false;
+          errorMessage = 'An error occurred. Please try again.';
+        });
+      }
     }
   }
-}
+
+  void _resetPasswordDialog() {
+    String email = '';
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Reset Password'),
+          content: TextField(
+            onChanged: (value) {
+              email = value;
+            },
+            decoration: const InputDecoration(
+              labelText: 'Enter your email',
+              border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel', 
+              style: TextStyle(color: Colors.blue)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _sendPasswordResetEmail(email);
+              },
+              child: const Text('Reset',
+              style: TextStyle(color: Colors.blue)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _sendPasswordResetEmail(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      showToast(message: 'Password reset email sent');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        showToast(message: 'No user found with this email');
+      } else {
+        showToast(message: 'An error occurred. Please try again.');
+      }
+    }
+  }
+
 }
