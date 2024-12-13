@@ -88,7 +88,11 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancel',
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () async {
@@ -109,7 +113,11 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                   showToast(message: 'Failed to delete profile: $e');
                 }
               },
-              child: const Text('Delete'),
+              child: const Text('Delete',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
             ),
           ],
         );
