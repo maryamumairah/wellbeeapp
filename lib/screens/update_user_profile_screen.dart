@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -56,18 +57,20 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
           'jobPosition': jobPositionController.text,
         });
         await user?.reload();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Profile updated successfully')),
+        // );
+        showToast(message: 'Profile updated successfully');
         Navigator.pop(context, {
           'displayName': usernameController.text,
           'email': emailController.text,
           'jobPosition': jobPositionController.text,
         });
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile: $e')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(content: Text('Failed to update profile: $e')),
+        // );
+        showToast(message: 'Failed to update profile: $e');
       }
     }
   }
@@ -94,14 +97,16 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                   await user?.delete();
                   Navigator.of(context).pop(); // Close the dialog
                   Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Profile deleted successfully')),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   const SnackBar(content: Text('Profile deleted successfully')),
+                  // );
+                  showToast(message: 'Profile deleted successfully');
                 } catch (e) {
                   Navigator.of(context).pop(); // Close the dialog
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to delete profile: $e')),
-                  );
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text('Failed to delete profile: $e')),
+                  // );
+                  showToast(message: 'Failed to delete profile: $e');
                 }
               },
               child: const Text('Delete'),
@@ -185,66 +190,6 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                           },
                         ),
                       ),
-                      // const SizedBox(height: 16.0),
-                      // Container(
-                      //   width: MediaQuery.of(context).size.width * 0.7,
-                      //   child: TextFormField(
-                      //     controller: emailController,
-                      //     decoration: const InputDecoration(
-                      //       labelText: 'Email',
-                      //       border: OutlineInputBorder(
-                      //         borderSide: BorderSide(color: Colors.transparent),
-                      //       ),
-                      //       enabledBorder: OutlineInputBorder(
-                      //         borderSide: BorderSide(color: Colors.transparent),
-                      //       ),
-                      //       focusedBorder: OutlineInputBorder(
-                      //         borderSide: BorderSide(color: Colors.black),
-                      //       ),
-                      //       fillColor: Colors.white,
-                      //       filled: true,
-                      //       contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                      //     ),
-                      //     validator: (value) {
-                      //       if (value == null || value.isEmpty) {
-                      //         return 'Please enter your email';
-                      //       }
-                      //       return null;
-                      //     },
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 16.0),
-                      // Container(
-                      //   width: MediaQuery.of(context).size.width * 0.7,
-                      //   child: TextFormField(
-                      //     decoration: InputDecoration(
-                      //       labelText: 'Password',
-                      //       border: const OutlineInputBorder(),
-                      //       filled: true,
-                      //       fillColor: Colors.grey[300],
-                      //       contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                      //     ),
-                      //     enabled: false, // Disable editing
-                      //     initialValue: '******', // Placeholder text
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 16.0),
-
-                      // // Confirm Password field (Disabled)
-                      // Container(
-                      //   width: MediaQuery.of(context).size.width * 0.7,
-                      //   child: TextFormField(
-                      //     decoration: InputDecoration(
-                      //       labelText: 'Confirm Password',
-                      //       border: const OutlineInputBorder(),
-                      //       filled: true,
-                      //       fillColor: Colors.grey[300],
-                      //       contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                      //     ),
-                      //     enabled: false, // Disable editing
-                      //     initialValue: '******', // Placeholder text
-                      //   ),
-                      // ),
                       const SizedBox(height: 16.0),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.7,

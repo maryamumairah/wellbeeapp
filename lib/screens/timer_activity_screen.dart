@@ -15,7 +15,7 @@ class TimerActivityScreen extends StatefulWidget {
 }
 
 class _TimerActivityScreenState extends State<TimerActivityScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   Timer? _timer;
   int _counter = 0;
   int _initialCounter = 0; // Store the initial counter value for progress calculation

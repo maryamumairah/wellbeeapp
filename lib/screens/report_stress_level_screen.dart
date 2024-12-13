@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -131,24 +132,27 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
         });
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Report submitted successfully')),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Report submitted successfully')),
+        // );
+        showToast(message: 'Report submitted successfully');
 
         // Navigate to another screen as required
         Navigator.pop(context); // Go back to the previous screen
       } catch (e) {
         // Handle errors
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to submit report. Please try again.')),
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(content: Text('Failed to submit report. Please try again.')),
 
-        );
+        // );
+        showToast(message: 'Failed to submit report. Please try again.');
       }
     } else {
       // Show a message if required fields are not filled
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all required fields')),
-      );
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   const SnackBar(content: Text('Please fill all required fields')),
+      // );
+      showToast(message: 'Please fill all required fields');
     }
   }
 
