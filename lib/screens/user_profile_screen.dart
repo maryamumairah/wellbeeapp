@@ -171,7 +171,7 @@ class _UserProfileState extends State<UserProfile> {
               //Navigator.pushNamed(context, Routes.goals);
               break;
             case 3:
-              //Navigator.pushNamed(context, Routes.stress);
+              Navigator.pushNamed(context, Routes.stress);
               break;
           }
         },

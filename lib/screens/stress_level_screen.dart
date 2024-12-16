@@ -306,10 +306,15 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
 
           if (filterDate != null) {
             reports = reports.where((report) {
-              DateTime reportDate = DateTime.parse(report.date);
-              return reportDate == filterDate;
-            }).toList();
-          }
+            DateTime reportDate = DateTime.parse(report.date);
+            // Normalize both dates by setting the time to midnight (00:00:00)
+            DateTime normalizedReportDate = DateTime(reportDate.year, reportDate.month, reportDate.day);
+            DateTime normalizedFilterDate = DateTime(filterDate!.year, filterDate!.month, filterDate!.day);
+            
+            return normalizedReportDate == normalizedFilterDate;
+          }).toList();
+        }
+
 
           // Check if there are no results after filtering
         if (reports.isEmpty) {
@@ -330,8 +335,18 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             child: Column(
               children: [
                 SizedBox(
-                  height: 400, // Fixed height for the bar chart
+                  height: 450, // Fixed height for the bar chart
                   child: PageView.builder(
+                    controller: PageController(
+                      initialPage: dates.indexWhere((date) {
+                        // Normalize the dates for comparison
+                        DateTime parsedDate = DateTime.parse(date);
+                        DateTime normalizedDate = DateTime(parsedDate.year, parsedDate.month, parsedDate.day);
+                        DateTime today = DateTime.now();
+                        DateTime normalizedToday = DateTime(today.year, today.month, today.day);
+                        return normalizedDate == normalizedToday;
+                      }).clamp(0, dates.length - 1), // Ensure index is within valid range
+                    ),
                     itemCount: dates.length,
                     itemBuilder: (context, index) {
                       String date = dates[index];
@@ -339,7 +354,6 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     },
                   ),
                 ),
-
                 ListView.builder(
                   shrinkWrap: true, // Let the ListView occupy only the needed space
                   physics: const NeverScrollableScrollPhysics(), // Disable ListView's own scrolling
@@ -501,7 +515,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             fromY: 0,
             toY: report.level.toDouble(),
             color: const Color(0xFF96C1F9),
-            width: 30, // Reduced width for better spacing
+            width: 20, // Reduced width for better spacing
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
               topRight: Radius.circular(4),
@@ -517,8 +531,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
       return (element.level > prev) ? element.level : prev;
     });
 
-    // Add padding above the maximum level for better visualization
-    double chartMaxY = maxLevel.toDouble() + 0.5; // Add a small padding above max value
+    double chartMaxY = maxLevel.toDouble() + 0.5;
 
     // Generate data for the specific day
     _generateData(reportData);
@@ -527,7 +540,9 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
       children: [
         Text(
           DateFormat('dd MMM yyyy').format(DateTime.parse(date)),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 18, 
+            fontFamily: 'InterBold',),
         ),
         const SizedBox(height: 16),
         Container(
@@ -542,90 +557,137 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               ),
             ],
           ),
-          padding: const EdgeInsets.all(16), // Padding around the chart
-          margin: const EdgeInsets.symmetric(horizontal: 16), // Margin for spacing
-          child: SizedBox(
-            height: 300, // Fixed height for the chart
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: chartMaxY, // Dynamic maxY with padding
-                barGroups: barChartData,
-                gridData: FlGridData(
-                  show: true,
-                  drawHorizontalLine: true,
-                  horizontalInterval: 1, // Lines at every integer value
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: Colors.grey.withOpacity(0.3), // Standard grey line
-                      strokeWidth: 1, // Normal line thickness
-                    );
-                  },
-                  drawVerticalLine: false,
-                ),
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      reservedSize: 30,
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        int index = value.toInt();
-                        if (index >= 0 && index < reportData.length) {
-                          String formattedTime = DateFormat('HH:mm').format(
-                            DateTime.parse(reportData[index].date),
-                          );
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Transform.rotate(
-                              angle: -0.5,
-                              child: Text(
-                                formattedTime,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontFamily: 'Inter',
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                        return const SizedBox();
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        if (value % 1 == 0) {
-                          return Text(
-                            value.toStringAsFixed(0),
-                            style: const TextStyle(fontSize: 12),
-                          );
-                        }
-                        return const Text('');
-                      },
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border(
-                    top: BorderSide.none,
-                    right: BorderSide.none,
-                    bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                    left: BorderSide.none,
+          padding: const EdgeInsets.all(10), // Padding around the chart
+          margin: const EdgeInsets.symmetric(horizontal: 5), // Margin for spacing
+          child: Row(
+            children: [
+              // Title "Stress Level" rotated vertically
+              const RotatedBox(
+                quarterTurns: 3, // Rotate the text by 90 degrees counter-clockwise
+                child: Text(
+                  "Stress Level",
+                  style: TextStyle(
+                    fontSize: 13, 
+                    fontFamily: 'InterSemiBold', 
                   ),
                 ),
               ),
-            ),
+              const SizedBox(width: 16), // Space between title and chart
+              // BarChart inside the container
+              Expanded(
+                child: SizedBox(
+                  height: 350, // Fixed height for the chart
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: chartMaxY, // Dynamic maxY with padding
+                      barGroups: barChartData,
+                      gridData: FlGridData(
+                        show: true,
+                        drawHorizontalLine: true,
+                        horizontalInterval: 1, // Lines at every integer value
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: Colors.grey.withOpacity(0.3), // Standard grey line
+                            strokeWidth: 1, // Normal line thickness
+                          );
+                        },
+                        drawVerticalLine: false,
+                      ),
+                      barTouchData: BarTouchData(
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipPadding: const EdgeInsets.all(8.0), // Correct parameter for padding
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            final stressLevelReport = reportData[groupIndex];
+                            String category;
+                            if (stressLevelReport.level == 1) {
+                              category = "Calm";
+                            } else if (stressLevelReport.level == 2) {
+                              category = "Low Stress";
+                            } else if (stressLevelReport.level == 3) {
+                              category = "Moderate Stress";
+                            } else if (stressLevelReport.level == 4) {
+                              category = "High Stress";
+                            } else {
+                              category = "Overwhelmed";
+                            }
+                            return BarTooltipItem(
+                              category, // Show category instead of level
+                              const TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontFamily: 'InterSemiBold',
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      titlesData: FlTitlesData(
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            reservedSize: 30,
+                            getTitlesWidget: (double value, TitleMeta meta) {
+                              int index = value.toInt();
+                              if (index >= 0 && index < reportData.length) {
+                                String formattedTime = DateFormat('HH:mm').format(
+                                  DateTime.parse(reportData[index].date),
+                                );
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Transform.rotate(
+                                    angle: -0.5,
+                                    child: Text(
+                                      formattedTime,
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontFamily: 'Inter',
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const SizedBox();
+                            },
+                          ),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: 1,
+                            getTitlesWidget: (double value, TitleMeta meta) {
+                              if (value % 1 == 0) {
+                                return Text(
+                                  value.toStringAsFixed(0),
+                                  style: const TextStyle(fontSize: 12),
+                                );
+                              }
+                              return const Text('');
+                            },
+                          ),
+                        ),
+                      ),
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border(
+                          top: BorderSide.none,
+                          right: BorderSide.none,
+                          bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                          left: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
