@@ -269,15 +269,29 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           .collection('users')
           .doc(currentUser.uid)
           .collection('stressReports')
-          .orderBy('date', descending: false) // Fetch in ascending order first
+          .orderBy('date', descending: false)
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return const Center(child: Text('Error loading data.'));
+          return const Center(
+            child: Text('Error loading data.', 
+              style: TextStyle(
+                fontSize: 16, 
+                fontFamily: 'InterSemiBold',
+              )
+            )
+          );
         } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No stress data available.'));
+          return const Center(
+            child: Text('No stress data available.', 
+              style: TextStyle(
+                fontSize: 16, 
+                fontFamily: 'InterSemiBold'
+              )
+            )
+          );
         } else {
           List<StressLevelReport> reports = snapshot.data!.docs
               .map((documentSnapshot) =>
@@ -297,21 +311,184 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             }).toList();
           }
 
-          // Sort the reports by date in descending order
-          reports.sort((a, b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date)));
+          // Check if there are no results after filtering
+        if (reports.isEmpty) {
+          return const Center(
+            child: Text(
+              'No data available for the selected filters.',
+              style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+            ),
+          );
+        }
 
-          _generateData(reports);
+          Map<String, List<StressLevelReport>> groupedReports = _groupReportsByDate(reports);
 
-          return Column(
-            children: [
-              const SizedBox(height: 16),
-              _buildChart(context, reports),
-            ],
+          List<String> dates = groupedReports.keys.toList();
+          dates.sort((a, b) => DateTime.parse(a).compareTo(DateTime.parse(b)));
+
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 400, // Fixed height for the bar chart
+                  child: PageView.builder(
+                    itemCount: dates.length,
+                    itemBuilder: (context, index) {
+                      String date = dates[index];
+                      return _buildChart(context, groupedReports[date]!, date);
+                    },
+                  ),
+                ),
+
+                ListView.builder(
+                  shrinkWrap: true, // Let the ListView occupy only the needed space
+                  physics: const NeverScrollableScrollPhysics(), // Disable ListView's own scrolling
+                  itemCount: reports.length,
+                  itemBuilder: (context, index) {
+                    return _buildReportItem(context, reports[index]);
+                  },
+                ),
+              ],
+            ),
           );
         }
       },
     );
   }
+
+  Widget _buildReportItem(BuildContext context, StressLevelReport report) {
+    String formattedTime = DateFormat('HH:mm').format(DateTime.parse(report.date));
+    String formattedDate = DateFormat('dd MMM yyyy').format(DateTime.parse(report.date));
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Circular container for the image
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ClipOval(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.asset(
+                report.getImagePath(),
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+              ),
+            ),
+          ),
+        ),
+        // Rectangular container for the list item content
+        Expanded(
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    formattedTime,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                  ),
+                  Text(
+                    formattedDate.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    report.category,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'InterBold',
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (report.stressor != null && report.stressor!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      '${report.stressor}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontFamily: 'InterSemiBold',
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                  if (report.description != null && report.description!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      report.description!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Map<String, List<StressLevelReport>> _groupReportsByDate(List<StressLevelReport> reports) {
+    Map<String, List<StressLevelReport>> groupedReports = {};
+    
+    for (var report in reports) {
+      // Extract only the date part (e.g., "2024-12-16")
+      String dateOnly = DateFormat('yyyy-MM-dd').format(DateTime.parse(report.date));
+      if (!groupedReports.containsKey(dateOnly)) {
+        groupedReports[dateOnly] = [];
+      }
+      groupedReports[dateOnly]!.add(report);
+    }
+
+    // Sort each group by the time within the day
+    groupedReports.forEach((date, reports) {
+      reports.sort((a, b) {
+        DateTime timeA = DateTime.parse(a.date);
+        DateTime timeB = DateTime.parse(b.date);
+        return timeA.compareTo(timeB); // Sort in ascending order of time
+      });
+    });
+
+    return groupedReports;
+  }
+
+
 
   void _generateData(List<StressLevelReport> reports) {
     barChartData = reports.asMap().entries.map((entry) {
@@ -324,7 +501,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
             fromY: 0,
             toY: report.level.toDouble(),
             color: const Color(0xFF96C1F9),
-            width: 40, // Reduced width for better spacing
+            width: 30, // Reduced width for better spacing
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(4),
               topRight: Radius.circular(4),
@@ -335,221 +512,121 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
     }).toList();
   }
 
-  Widget _buildChart(BuildContext context, List<StressLevelReport> reportData) {
+  Widget _buildChart(BuildContext context, List<StressLevelReport> reportData, String date) {
     int maxLevel = reportData.fold(0, (prev, element) {
       return (element.level > prev) ? element.level : prev;
     });
 
-    double chartMaxY = maxLevel >= 5 ? maxLevel.toDouble() : 5.0;
+    // Add padding above the maximum level for better visualization
+    double chartMaxY = maxLevel.toDouble() + 0.5; // Add a small padding above max value
+
+    // Generate data for the specific day
+    _generateData(reportData);
 
     return Column(
       children: [
-        SizedBox(
-          height: 350,
-          width: MediaQuery.of(context).size.width * 0.9,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
+        Text(
+          DateFormat('dd MMM yyyy').format(DateTime.parse(date)),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white, // Background color
+            borderRadius: BorderRadius.circular(12), // Rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1), // Light shadow
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16), // Padding around the chart
+          margin: const EdgeInsets.symmetric(horizontal: 16), // Margin for spacing
+          child: SizedBox(
+            height: 300, // Fixed height for the chart
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: chartMaxY, // Dynamic maxY with padding
+                barGroups: barChartData,
+                gridData: FlGridData(
+                  show: true,
+                  drawHorizontalLine: true,
+                  horizontalInterval: 1, // Lines at every integer value
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey.withOpacity(0.3), // Standard grey line
+                      strokeWidth: 1, // Normal line thickness
+                    );
+                  },
+                  drawVerticalLine: false,
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.all(16.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: chartMaxY + 1,
-                  barGroups: barChartData,
-                  gridData: FlGridData(
-                    show: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 1,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.grey.withOpacity(0.3),
-                        strokeWidth: 1,
-                      );
-                    },
-                    drawVerticalLine: false,
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
                   ),
-                  titlesData: FlTitlesData(
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 1,
-                        reservedSize: 30, // Adjust this value to add more space for labels
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          int index = value.toInt();
-                          if (index >= 0 && index < barChartData.length) {
-                            String date = DateFormat('dd MMM').format(
-                              DateTime.parse(reportData[index].date),
-                            );
-                            return Transform.rotate(
-                              angle: -0.5, // Rotate text by ~-28.6 degrees
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 8.0), // Add spacing
-                                child: Text(
-                                  date,
-                                  style: const TextStyle(fontSize: 10),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      reservedSize: 30,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        int index = value.toInt();
+                        if (index >= 0 && index < reportData.length) {
+                          String formattedTime = DateFormat('HH:mm').format(
+                            DateTime.parse(reportData[index].date),
+                          );
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Transform.rotate(
+                              angle: -0.5,
+                              child: Text(
+                                formattedTime,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: 'Inter',
                                 ),
                               ),
-                            );
-                          }
-                          return const SizedBox();
-                        },
-                      ),
-                    ),
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        interval: 1,
-                        getTitlesWidget: (double value, TitleMeta meta) {
-                          if (value % 1 == 0) {
-                            return Text(
-                              value.toStringAsFixed(0),
-                              style: const TextStyle(fontSize: 12),
-                            );
-                          }
-                          return const Text('');
-                        },
-                      ),
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
                     ),
                   ),
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border(
-                      top: BorderSide.none,
-                      right: BorderSide.none,
-                      bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                      left: BorderSide.none,
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        if (value % 1 == 0) {
+                          return Text(
+                            value.toStringAsFixed(0),
+                            style: const TextStyle(fontSize: 12),
+                          );
+                        }
+                        return const Text('');
+                      },
                     ),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border(
+                    top: BorderSide.none,
+                    right: BorderSide.none,
+                    bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                    left: BorderSide.none,
                   ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
-        ListView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: reportData.length,
-          itemBuilder: (context, index) {
-            String formattedDate = DateFormat('dd MMM yyyy')
-                .format(DateTime.parse(reportData[index].date));
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Circular container for the image
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 5,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: ClipOval(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Image.asset(
-                        reportData[index].getImagePath(),
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                      ),
-                    ),
-                  ),
-                ),
-                // Rectangular container for the list item content
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            formattedDate.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontFamily: 'InterSemiBold',
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            reportData[index].category,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'InterBold',
-                              color: Colors.black,
-                            ),
-                          ),
-                          if (reportData[index].stressor != null &&
-                              reportData[index].stressor!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              '${reportData[index].stressor}',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontFamily: 'InterSemiBold',
-                                fontStyle: FontStyle.italic, // To differentiate it
-                              ),
-                            ),
-                          ],
-                          if (reportData[index].description != null &&
-                              reportData[index].description!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              reportData[index].description!,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
         ),
       ],
     );
