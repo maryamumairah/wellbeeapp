@@ -19,6 +19,9 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
   DateTime? selectedDate;
   String? filterCategory;
   DateTime? filterDate;
+  String _sortOrder = "Last Updated"; // Default: Sort by last updated (descending)
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +50,19 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 children: [
                   const Spacer(),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.filter_list),
+                    icon: const Icon(Icons.filter_list, color: Colors.white),
                     label: const Text(
                       'Filters',
-                      style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+                      style: TextStyle(
+                        fontSize: 16, 
+                        color: Colors.white,
+                        fontFamily: 'InterSemiBold'),
                     ),
                     onPressed: () {
                       _showFilterDialog();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF9887FF),
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20.0),
@@ -91,10 +97,10 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           });
           switch (newIndex) {
             case 0:
-              Navigator.pushNamed(context, Routes.home);
+              Navigator.pushReplacementNamed(context, Routes.home);
               break;
             case 1:
-              Navigator.pushNamed(context, Routes.activity);
+              Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
               break;
@@ -315,6 +321,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           }).toList();
         }
 
+        _sortReports(reports);
 
           // Check if there are no results after filtering
         if (reports.isEmpty) {
@@ -354,19 +361,86 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     },
                   ),
                 ),
-                ListView.builder(
-                  shrinkWrap: true, // Let the ListView occupy only the needed space
-                  physics: const NeverScrollableScrollPhysics(), // Disable ListView's own scrolling
-                  itemCount: reports.length,
-                  itemBuilder: (context, index) {
-                    return _buildReportItem(context, reports[index]);
-                  },
+                Column(
+                  children: [
+                    _buildSortOptions(), // Add sort UI above ListView
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: reports.length,
+                      itemBuilder: (context, index) {
+                        return _buildReportItem(context, reports[index]);
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
           );
         }
       },
+    );
+  }
+
+  void _sortReports(List<StressLevelReport> reports) {
+    if (_sortOrder == "First Updated") {
+      reports.sort((a, b) {
+        return DateTime.parse(a.date).compareTo(DateTime.parse(b.date)); // Ascending
+      });
+    } else if (_sortOrder == "Last Updated") {
+      reports.sort((a, b) {
+        return DateTime.parse(b.date).compareTo(DateTime.parse(a.date)); // Descending
+      });
+    }
+  }
+
+  Widget _buildSortOptions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // const Text(
+          //   "Sort by:",
+          //   style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
+          // ),
+          const SizedBox(width: 8),
+          DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _sortOrder,
+              items: const [
+                DropdownMenuItem(
+                  value: "Last Updated",
+                  child: Text(
+                    "Newest First",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: "First Updated",
+                  child: Text(
+                    "Oldest First",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                  ),
+                ),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _sortOrder = value!;
+                });
+              },
+              dropdownColor: Colors.white, // Background color for dropdown menu
+              borderRadius: BorderRadius.circular(12), // Apply border radius
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -175,13 +175,13 @@ class _HomeScreenState extends State<HomeScreen> {
             const Text(
               'Wellbee',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontFamily: 'InterBold',
               ),
             ),
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
-                Navigator.pushNamed(context, Routes.userProfile).then((_) {
+                Navigator.pushReplacementNamed(context, Routes.userProfile).then((_) {
                   setState(() {
                     _reloadUser();
                   });
@@ -210,13 +210,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         'Hello, ${user?.displayName ?? 'User'}!',
                         style: const TextStyle(
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'InterSemiBold',
                         ),
                       ),
                       const Text(
                         'What are you planning to do today?',
                         style: TextStyle(
                           fontSize: 16,
+                          fontFamily: 'Inter',
                         ),
                       ),
                     ],
@@ -238,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           DateFormat('d MMM yyyy').format(DateTime.now()),
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontFamily: 'InterBold',
                           ),
                         ),
                         // display current time
@@ -248,14 +249,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               DateFormat('h:mm').format(DateTime.now()),
                               style: const TextStyle(
                                 fontSize: 50,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'InterBold',
                               ),
                             ),
                             Text(
                               DateFormat('a').format(DateTime.now()),
                               style: const TextStyle(
                                 fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'InterBold',
                               ),
                             ),
                           ],
@@ -273,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           'Features',
                           style: TextStyle(
                             fontSize: 16,
+                            fontFamily: 'Inter',
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -309,7 +311,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Track Activity'),
+                                        Text('Track Activity',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -346,7 +352,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Track Daily Goal'),
+                                        Text('Track Daily Goal',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -366,7 +376,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 5,
                                   ),
                                   onPressed: () {
-                                    Navigator.pushNamed(context, Routes.stress);
+                                    Navigator.pushReplacementNamed(context, Routes.stress);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
@@ -383,7 +393,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             size: 40,
                                           ),
                                         ),
-                                        Text('Report Stress Level'),
+                                        Text('Report Stress Level', 
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -413,16 +427,15 @@ class _HomeScreenState extends State<HomeScreen> {
           });
           switch (newIndex) {
             case 0:
-              Navigator.pushNamed(context, Routes.home);
               break;
             case 1:
-              Navigator.pushNamed(context, Routes.activity);
+              Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
               // Navigator.pushNamed(context, Routes. );
               break;
             case 3:
-              Navigator.pushNamed(context, Routes.stress);
+              Navigator.pushReplacementNamed(context, Routes.stress);
               break;
           }
         },
