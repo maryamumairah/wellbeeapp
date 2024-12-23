@@ -19,7 +19,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
   DateTime? selectedDate;
   String? filterCategory;
   DateTime? filterDate;
-  String _sortOrder = "Last Updated"; // Default: Sort by last updated (descending)
+  String? _sortOrder; // Default: Sort by last updated (descending)
 
 
 
@@ -396,25 +396,47 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
 
   Widget _buildSortOptions() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end, // Align to the far right
         children: [
-          // const Text(
-          //   "Sort by:",
-          //   style: TextStyle(fontSize: 16, fontFamily: 'InterSemiBold'),
-          // ),
-          const SizedBox(width: 8),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
+          SizedBox(
+            width: 150, // Adjust the width of the dropdown field
+            child: DropdownButtonFormField<String>(
               value: _sortOrder,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                filled: true, 
+                fillColor: Colors.white, 
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none, // Removes border color
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none, // Removes border color when focused
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                // Add shadow to the dropdown field
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              hint: const Text(
+                "Sort by", // Placeholder text
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'InterSemiBold',
+                  color: Colors.black, // Placeholder text color
+                ),
+              ),
               items: const [
                 DropdownMenuItem(
                   value: "Last Updated",
                   child: Text(
                     "Newest First",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'InterSemiBold',
                     ),
                   ),
@@ -424,7 +446,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   child: Text(
                     "Oldest First",
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontFamily: 'InterSemiBold',
                     ),
                   ),
@@ -436,7 +458,8 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 });
               },
               dropdownColor: Colors.white, // Background color for dropdown menu
-              borderRadius: BorderRadius.circular(12), // Apply border radius
+              borderRadius: BorderRadius.circular(15), // Border radius for dropdown items
+              alignment: Alignment.centerLeft, // Align dropdown options to the left
             ),
           ),
         ],

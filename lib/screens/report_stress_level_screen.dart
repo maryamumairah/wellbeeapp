@@ -235,7 +235,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
               ),
             ),
             const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text('1', style: TextStyle(fontSize: 12)),
                 Text('2', style: TextStyle(fontSize: 12)),
@@ -246,7 +246,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
             ),
             const SizedBox(height: 10),
             const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text('Calm', style: TextStyle(fontSize: 12)),
                 Text('Low Stress', style: TextStyle(fontSize: 12)),
@@ -261,7 +261,7 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                 labelText: 'Select a stressor',
                 labelStyle: const TextStyle(
                   color: Colors.black,
-                  fontFamily: 'InterRegular',),
+                  fontFamily: 'Inter',),
                 filled: true, // Enable the fill color
                 fillColor: _focusNode.hasFocus
                     ? Colors.white // White when focused
@@ -282,7 +282,12 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
               items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual']
                   .map((stressor) => DropdownMenuItem<String>(
                         value: stressor,
-                        child: Text(stressor),
+                        child: Text(stressor, 
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'InterSemiBold',
+                          )
+                        ),
                       ))
                   .toList(),
               onChanged: (value) {
@@ -297,6 +302,10 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
               controller: _descriptionController,
               decoration: const InputDecoration(
                 labelText: 'Describe here...',
+                labelStyle: TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'Inter',
+                ),
                 alignLabelWithHint: true, // This will position the label at the top
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12.0)),
