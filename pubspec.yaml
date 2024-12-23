@@ -49,6 +49,7 @@ dependencies:
   shared_preferences: ^2.3.3
   foundation: ^0.0.5
   flutter_background_service_android: ^6.3.0
+  syncfusion_flutter_charts: ^28.1.35
   
 
 dev_dependencies:

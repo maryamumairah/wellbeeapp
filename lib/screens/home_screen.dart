@@ -424,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushNamed(context, Routes.activity);
               break;
             case 2:
-              //Navigator.pushNamed(context, Routes.);
+              Navigator.pushNamed(context, Routes.dailyGoal);
               break;
             case 3:
               //Navigator.pushNamed(context, Routes.);

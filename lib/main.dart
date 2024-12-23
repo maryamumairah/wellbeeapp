@@ -9,6 +9,9 @@ import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'package:wellbeeapp/screens/edit_activity_screen.dart';
 import 'package:wellbeeapp/screens/timer_activity_screen.dart';
 import 'package:wellbeeapp/screens/activity_analytics_screen.dart';
+import 'package:wellbeeapp/screens/daily_goal_screen.dart';
+import 'package:wellbeeapp/screens/add_daily_goal_screen.dart';
+// import 'package:wellbeeapp/screens/daily_goal_analytics_screen.dart';
 import 'routes.dart';
 
 void main() async{
@@ -60,6 +63,9 @@ class MyApp extends StatelessWidget {
         // Routes.timerActivity: (context) => TimerActivityScreen(),
         // Routes.timerActivity: (context) => TimerActivityScreen(activityID: 'activityID'),
         Routes.analyticsActivity: (context) => ActivityAnalyticsScreen(),
+        Routes.dailyGoal: (context) => DailyGoalScreen(),
+        Routes.addDailyGoal: (context) => AddDailyGoalScreen(),
+        // Routes.analyticsDailyGoal: (context) => DailyGoalAnalyticsScreen(),
 
       },
       onGenerateRoute: (settings) {

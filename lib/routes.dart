@@ -5,5 +5,8 @@ class Routes {
   static const editActivity = '/editActivity';
   static const timerActivity = '/timerActivity';
   static const analyticsActivity = '/analyticsActivity';
+  static const dailyGoal = '/dailyGoal';
+  static const addDailyGoal = '/addDailyGoal';
+  // static const analyticsDailyGoal = '/analyticsDailyGoal';
 
 }
