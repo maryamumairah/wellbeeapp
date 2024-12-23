@@ -7,7 +7,8 @@ import 'package:wellbeeapp/screens/home_screen.dart';
 import 'package:wellbeeapp/screens/activity_screen.dart';
 import 'package:wellbeeapp/screens/add_activity_screen.dart';
 import 'package:wellbeeapp/screens/edit_activity_screen.dart';
-// import 'package:wellbeeapp/screens/timer_activity_screen.dart';
+import 'package:wellbeeapp/screens/timer_activity_screen.dart';
+import 'package:wellbeeapp/screens/activity_analytics_screen.dart';
 import 'routes.dart';
 
 void main() async{
@@ -57,6 +58,8 @@ class MyApp extends StatelessWidget {
         Routes.addActivity: (context) => AddActivityScreen(),
         // Routes.editActivity: (context) => EditActivityScreen( ), // error
         // Routes.timerActivity: (context) => TimerActivityScreen(),
+        // Routes.timerActivity: (context) => TimerActivityScreen(activityID: 'activityID'),
+        Routes.analyticsActivity: (context) => ActivityAnalyticsScreen(),
 
       },
       onGenerateRoute: (settings) {
@@ -66,6 +69,11 @@ class MyApp extends StatelessWidget {
             final args = settings.arguments as DocumentSnapshot;
             return MaterialPageRoute(
               builder: (context) => EditActivityScreen(activity: args),
+            );
+          case Routes.timerActivity:
+            final args = settings.arguments as String;
+            return MaterialPageRoute(
+              builder: (context) => TimerActivityScreen(activityID: args),
             );
           default:
             return null;

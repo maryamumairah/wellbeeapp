@@ -69,12 +69,12 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
       try {
         int hours = int.parse(hourController.text);
         int minutes = int.parse(minuteController.text);
-        int activityDuration = (hours * 60) + minutes;
+        // int activityDuration = (hours * 60) + minutes;
 
         Map<String, dynamic> activityInfoMap = {
           "activityName": activityController.text,
           "categoryName": categoryController.text,
-          "activityDuration": activityDuration,
+          // "activityDuration": activityDuration,
           "hour": hourController.text, //kiv
           "minute": minuteController.text, //kiv
           "date": dateController.text,

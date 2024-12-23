@@ -44,6 +44,12 @@ dependencies:
   random_string: ^2.3.1
   stop_watch_timer: ^3.2.1
   circular_countdown_timer: ^0.2.4
+  fl_chart: ^0.69.2
+  flutter_background_service: ^5.0.10
+  shared_preferences: ^2.3.3
+  foundation: ^0.0.5
+  flutter_background_service_android: ^6.3.0
+  
 
 dev_dependencies:
   flutter_test:

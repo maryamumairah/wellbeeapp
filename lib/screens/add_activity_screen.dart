@@ -210,6 +210,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                         // "activityDuration": activityDuration, // Combined hour and minute
                         "date": dateController.text, //kiv
                         "activityID": activityID, 
+                        "activityStatus": "Not Started",
                       };
                       await DatabaseMethods()                        
                         .addActivityDetails(activityInfoMap)
