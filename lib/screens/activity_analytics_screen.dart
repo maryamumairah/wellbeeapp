@@ -264,16 +264,16 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
           });
           switch (newIndex) {
             case 0:
-              Navigator.pushNamed(context, Routes.home);
+              Navigator.pushReplacementNamed(context, Routes.home);              
               break;
             case 1:
-              Navigator.pushNamed(context, Routes.activity);
+              Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
-              //Navigator.pushNamed(context, Routes.);
+              Navigator.pushReplacementNamed(context, Routes.dailyGoal);
               break;
             case 3:
-              //Navigator.pushNamed(context, Routes.);
+              Navigator.pushReplacementNamed(context, Routes.stress);
               break;
           }          
         },

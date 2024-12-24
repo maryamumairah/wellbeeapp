@@ -212,7 +212,9 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(width: 8.0),
+                  const SizedBox(width: 5.0),
+                  Text('hr'),
+                  const SizedBox(width: 15.0),
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       decoration: InputDecoration(
@@ -242,6 +244,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                       },
                     ),
                   ),
+                  const SizedBox(width: 5.0),
+                  Text('min'),                  
                 ],
               ),
               const SizedBox(height: 16.0),

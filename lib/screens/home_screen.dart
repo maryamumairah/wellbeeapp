@@ -432,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
-              Navigator.pushNamed(context, Routes.dailyGoal);
+              Navigator.pushReplacementNamed(context, Routes.dailyGoal);
               break;
             case 3:
               Navigator.pushReplacementNamed(context, Routes.stress);
