@@ -110,6 +110,31 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
                   for (DocumentSnapshot doc in stressReportsSnapshot.docs) {
                     await doc.reference.delete();
                   }
+
+                 CollectionReference activitiesRef = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user!.uid)
+                      .collection('activities');
+            
+                  // Get all documents in the activities subcollection
+                  QuerySnapshot activitiesSnapshot = await activitiesRef.get();
+            
+                  // Delete each document in the activities subcollection
+                  for (DocumentSnapshot activityDoc in activitiesSnapshot.docs) {
+                    // Get the reference to the timerLogs subcollection for each activity
+                    CollectionReference timerLogsRef = activityDoc.reference.collection('timerLogs');
+                    
+                    // Get all documents in the timerLogs subcollection
+                    QuerySnapshot timerLogsSnapshot = await timerLogsRef.get();
+                    
+                    // Delete each document in the timerLogs subcollection
+                    for (DocumentSnapshot timerLogDoc in timerLogsSnapshot.docs) {
+                      await timerLogDoc.reference.delete();
+                    }
+                    
+                    // Delete the activity document
+                    await activityDoc.reference.delete();
+                  }
             
                   // Delete the user document
                   await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
@@ -117,7 +142,7 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
             
                   Navigator.of(context).pop(); // Close the dialog
                   Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                  showToast(message: 'Profile and stress reports deleted successfully');
+                  showToast(message: 'User profile deleted successfully');
                 } catch (e) {
                   Navigator.of(context).pop(); // Close the dialog
                   showToast(message: 'Failed to delete profile and stress reports: $e');
