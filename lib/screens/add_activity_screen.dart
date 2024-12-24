@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:random_string/random_string.dart';
 import 'package:wellbeeapp/services/database.dart';
 import 'package:wellbeeapp/routes.dart';
 
@@ -191,12 +190,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     try {
                       if (Firebase.apps.isEmpty) {
                         await Firebase.initializeApp();
-                      }
-
-                      // String activityID = randomAlphaNumeric(10);
-                      // int hours = int.parse(hourController.text);
-                      // int minutes = int.parse(minuteController.text);
-                      // int activityDuration = (hours * 60) + minutes; // Convert hours to minutes and add to minutes 
+                      }                      
                       
                       int activityCount = await DatabaseMethods().getActivityCount();
                       String activityID = "A${activityCount.toString().padLeft(4, '0')}";
@@ -204,14 +198,12 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                       Map<String, dynamic> activityInfoMap = {
                         "activityName": activityController.text,
                         "categoryName": categoryController.text,
-                        "hour": hourController.text, //kiv
-                        "minute": minuteController.text, //kiv
-                        // "activityDuration": activityDuration, // Combined hour and minute
-                        "date": dateController.text, //kiv
+                        "hour": hourController.text, 
+                        "minute": minuteController.text,                         
+                        "date": dateController.text, 
                         "activityID": activityID,
                       };
-                      await DatabaseMethods()
-                        // .addActivityDetails(activityInfoMap, activityID)
+                      await DatabaseMethods()                        
                         .addActivityDetails(activityInfoMap)
                         .then((value) {
                           ScaffoldMessenger.of(context).showSnackBar(

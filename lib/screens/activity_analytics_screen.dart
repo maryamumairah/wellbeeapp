@@ -6,10 +6,15 @@ import 'package:wellbeeapp/routes.dart';
 import 'package:wellbeeapp/services/database.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+class ActivityPlan {
+  final String activity;
+  final double hours;
+
+  ActivityPlan(this.activity, this.hours);
+}
+
 class ActivityAnalyticsScreen extends StatefulWidget {
   const ActivityAnalyticsScreen({Key? key}) : super(key: key);
-
-  // final String activityID;
 
   @override
   _ActivityAnalyticsScreenState createState() => _ActivityAnalyticsScreenState();
@@ -17,13 +22,42 @@ class ActivityAnalyticsScreen extends StatefulWidget {
 
 class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
   int _currentIndex = 1; // BottomNavigationBar index for Activities
+  List<ActivityPlan> planData = [];
 
-  final List<ActivityPlan> planData = [
-    ActivityPlan('Design Prototype', 4),
-    ActivityPlan('Lunch', 1.5),
-    ActivityPlan('Revise Report', 2.5),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchActivities();
+  }   
 
+  Future<void> _fetchActivities() async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('activities').get();
+      
+      planData.clear(); // Clear any existing data
+
+      for (var doc in snapshot.docs) {
+        String activityName = doc['activityName']; 
+        String hourString = doc['hour']; 
+        String minuteString = doc['minute']; 
+        
+        double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+        
+        setState(() {
+          planData.add(ActivityPlan(activityName, hours)); 
+        });
+      }
+    } catch (e) {
+      print('Error fetching activities: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Failed to fetch activities data.'),
+        ),
+      );
+    }
+  }
+ 
   List<BarChartGroupData> _generateData(List<ActivityPlan> plans) {
     return plans.asMap().entries.map((entry) {
       int index = entry.key;
@@ -35,7 +69,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
             fromY: 0,
             toY: plan.hours,
             color: const Color(0xFF96C1F9),
-            width: 40, 
+            width: 40,
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(4),
               topRight: const Radius.circular(4),
@@ -44,18 +78,18 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         ],
       );
     }).toList();
-  }  
-
-Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
-    double maxHours = planData.fold(0, (prev, element) {
+  }
+  
+  Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
+    double maxHours = planData.fold(0, (prev, element) { // Find the maximum hours by iterating over the list of activities and comparing the hours with the previous maximum value 
       return (element.hours > prev) ? element.hours : prev;
     });
-
-    double chartMaxY = maxHours >= 8 ? maxHours : 8.0;
+    
+    double chartMaxY = maxHours - 0.3;
 
     return SizedBox(
       height: 350,
-      width: MediaQuery.of(context).size.width * 0.9, 
+      width: MediaQuery.of(context).size.width * 0.9,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -65,23 +99,22 @@ Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: const Offset(0, 3), 
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         padding: const EdgeInsets.all(16.0),
-        // padding: const EdgeInsets.only(left: 5.0, right: 16.0, top: 16.0, bottom: 16.0),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
-              maxY: chartMaxY + 1, 
+              maxY: chartMaxY + 1,
               barGroups: _generateData(planData),
               gridData: FlGridData(
                 show: true,
                 drawHorizontalLine: true,
-                horizontalInterval: 1, // display horizontal line
+                horizontalInterval: 1,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
                     color: Colors.grey.withOpacity(0.3),
@@ -100,17 +133,27 @@ Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 1,               
-                    getTitlesWidget: (double value, TitleMeta meta) {
-                      int index = value.toInt();
-                      if (index >= 0 && index < planData.length) {
-                        return Text(
-                          planData[index].activity,
-                          style: const TextStyle(fontSize: 10), 
-                        );
-                      }
-                      return const Text('');
-                    },
+                    interval: 1,                    
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        int index = value.toInt();
+                        if (index >= 0 && index < planData.length) {
+                          List<String> words = planData[index].activity.split(' '); // Split the activity name into words
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: words.map((word) {
+                              return Transform.rotate(
+                                angle: -0.5, 
+                                child: Text(
+                                  word,
+                                  style: const TextStyle(fontSize: 10),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                          );
+                        }
+                        return const Text('');
+                      },
                   ),
                 ),
                 leftTitles: AxisTitles(
@@ -133,7 +176,7 @@ Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
                       }
                       return SideTitleWidget(
                         axisSide: meta.axisSide,
-                        space: 1, // space from axis y line to text
+                        space: 1,
                         child: Text(text, style: style),
                       );
                     },
@@ -148,86 +191,36 @@ Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
     );
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: const Text(
-          'Activities',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Activity Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: Container(
-        margin: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Center(
-              child: Text( 
-                // kiv use date from firebase                                    
-                    DateFormat('d MMM yyyy').format(DateTime.now()), 
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ), 
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(10.0),             
+      body: planData.isEmpty
+          ? const Center(child: CircularProgressIndicator()) 
+          : SingleChildScrollView(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Plan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline  
-                    ),
+                  Center(
+                    child: Text( 
+                      // kiv use date from firebase                                    
+                          DateFormat('d MMM yyyy').format(DateTime.now()), 
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ), 
                   ),
-                  const SizedBox(height: 10),
-                  // Container(
-                  //   height: 100,
-                  //   decoration: BoxDecoration(
-                  //     color: Colors.white,
-                  //     // border: Border.all(color: Colors.grey),
-                  //     borderRadius: BorderRadius.circular(10.0),
-                  //   ),                    
-                  // ),
-                  _buildChartPlan(context, planData),
+                  const SizedBox(height: 20),
+
+                  _buildChartPlan(context, planData),                  
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(10.0),              
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Progress',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.underline  
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,                      
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
+
+        bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).primaryColor,
         unselectedItemColor: const Color(0xFF378DF9),
@@ -274,11 +267,4 @@ Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
       ),
     );
   }
-}
-
-class ActivityPlan {
-  final String activity;
-  final double hours;
-
-  ActivityPlan(this.activity, this.hours);
 }

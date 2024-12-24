@@ -34,8 +34,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
 
     super.initState(); // to initialize the text controllers with the existing activity details
   }
-
-  // to dispose the text controllers which means to clear the memory
+  
   @override
   void dispose() {
     activityController.dispose();
@@ -44,7 +43,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     minuteController.dispose();
     dateController.dispose();
 
-    super.dispose(); // to clear the memory
+    super.dispose(); 
   }  
 
   Future<void> _updateActivity() async {
@@ -56,12 +55,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
 
         Map<String, dynamic> activityInfoMap = {
           "activityName": activityController.text,
-          "categoryName": categoryController.text,
-          "activityDuration": activityDuration,
-          "hour": hourController.text, //kiv
-          "minute": minuteController.text, //kiv
-          "date": dateController.text,
-          // "activityID": widget.activity["activityID"],
+          "categoryName": categoryController.text,         
+          "hour": hourController.text, 
+          "minute": minuteController.text, 
+          "date": dateController.text,          
         };
 
         await DatabaseMethods().updateActivityDetails(activityInfoMap, widget.activity["activityID"]).then((value) {
