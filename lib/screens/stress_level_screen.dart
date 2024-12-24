@@ -363,7 +363,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 ),
                 Column(
                   children: [
-                    _buildSortOptions(), // Add sort UI above ListView
+                    // _buildSortOptions(), // Add sort UI above ListView
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),

@@ -97,23 +97,34 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
             TextButton(
               onPressed: () async {
                 try {
+                  // Get the reference to the user's stressReports subcollection
+                  CollectionReference stressReportsRef = FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user!.uid)
+                      .collection('stressReports');
+            
+                  // Get all documents in the stressReports subcollection
+                  QuerySnapshot stressReportsSnapshot = await stressReportsRef.get();
+            
+                  // Delete each document in the stressReports subcollection
+                  for (DocumentSnapshot doc in stressReportsSnapshot.docs) {
+                    await doc.reference.delete();
+                  }
+            
+                  // Delete the user document
                   await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
                   await user?.delete();
+            
                   Navigator.of(context).pop(); // Close the dialog
                   Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(content: Text('Profile deleted successfully')),
-                  // );
-                  showToast(message: 'Profile deleted successfully');
+                  showToast(message: 'Profile and stress reports deleted successfully');
                 } catch (e) {
                   Navigator.of(context).pop(); // Close the dialog
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text('Failed to delete profile: $e')),
-                  // );
-                  showToast(message: 'Failed to delete profile: $e');
+                  showToast(message: 'Failed to delete profile and stress reports: $e');
                 }
               },
-              child: const Text('Delete',
+              child: const Text(
+                'Delete',
                 style: TextStyle(
                   color: Colors.red,
                 ),

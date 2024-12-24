@@ -42,6 +42,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -57,21 +59,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     top: 50,
                     left: 20,
                     child: Container(
-                      child: const Image(
-                        image: AssetImage('assets/bee1.png'),
-                        width: 100,
-                        height: 100,
+                      child: Image(
+                        image: const AssetImage('assets/bee1.png'),
+                        width: screenWidth * 0.20, // 25% of screen width
+                        height: screenWidth * 0.20, // 25% of screen width
                       ),
                     ),
                   ),
+                  // Responsive Image 2
                   Positioned(
                     bottom: 50,
                     right: 20,
                     child: Container(
-                      child: const Image(
-                        image: AssetImage('assets/bee2.png'),
-                        width: 125,
-                        height: 125,
+                      child: Image(
+                        image: const AssetImage('assets/bee2.png'),
+                        width: screenWidth * 0.25, // 30% of screen width
+                        height: screenWidth * 0.25, // 30% of screen width
                       ),
                     ),
                   ),

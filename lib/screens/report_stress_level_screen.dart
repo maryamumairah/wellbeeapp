@@ -185,165 +185,224 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 50),
-            const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'How are you',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'InterBold',
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50),
+              const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'How are you',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterBold',
+                    ),
                   ),
-                ),
-                Text(
-                  'feeling today?',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'InterBold',
+                  Text(
+                    'feeling today?',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterBold',
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 50),
-            SliderTheme(
-              data: SliderThemeData(
-                activeTrackColor: Colors.blue,
-                inactiveTrackColor: Colors.white,
-                thumbColor: Colors.blue,
-                overlayColor: Colors.blue.withOpacity(0.2),
-                trackHeight: 4.0,
+                ],
               ),
-              child: Slider(
-                value: _stressLevel,
-                min: 1,
-                max: 5,
-                divisions: 4,
-                label: getCategory(_stressLevel),
+              const SizedBox(height: 50),
+              SliderTheme(
+                data: SliderThemeData(
+                  activeTrackColor: Colors.blue,
+                  inactiveTrackColor: Colors.white,
+                  thumbColor: Colors.blue,
+                  overlayColor: Colors.blue.withOpacity(0.2),
+                  trackHeight: 4.0,
+                ),
+                child: Container(
+                  width: 500,
+                  child: Slider(
+                    value: _stressLevel,
+                    min: 1,
+                    max: 5,
+                    divisions: 4,
+                    label: getCategory(_stressLevel),
+                    onChanged: (value) {
+                      setState(() {
+                        _stressLevel = value;
+                      });
+                    },
+                  ),
+                  )
+              ),
+              const SizedBox(height: 5),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('1', style: TextStyle(fontSize: 12)),
+                          SizedBox(height: 20),
+                          Text('Calm', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('2', style: TextStyle(fontSize: 12)),
+                          SizedBox(height: 5),
+                          Text('Low', style: TextStyle(fontSize: 12)),
+                          Text('Stress', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('3', style: TextStyle(fontSize: 12)),
+                          SizedBox(height: 5),
+                          Text('Moderate', style: TextStyle(fontSize: 12)),
+                          Text('Stress', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('4', style: TextStyle(fontSize: 12)),
+                          SizedBox(height: 5),
+                          Text('High', style: TextStyle(fontSize: 12)),
+                          Text('Stress', style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('5', style: TextStyle(fontSize: 12)),
+                          SizedBox(height: 26),
+                          Text('Overwhelmed', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Select a stressor',
+                  labelStyle: const TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Inter',),
+                  filled: true, // Enable the fill color
+                  fillColor: _focusNode.hasFocus
+                      ? Colors.white // White when focused
+                      : Colors.grey.shade300, // Set the grey color for the default state (unfocused)
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0), // Border radius
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none, // Grey border when not focused
+                  ),
+                ),
+                items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual']
+                    .map((stressor) => DropdownMenuItem<String>(
+                          value: stressor,
+                          child: Text(stressor, 
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'InterSemiBold',
+                            )
+                          ),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _stressLevel = value;
+                    _selectedStressor = value;
                   });
                 },
               ),
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text('1', style: TextStyle(fontSize: 12)),
-                Text('2', style: TextStyle(fontSize: 12)),
-                Text('3', style: TextStyle(fontSize: 12)),
-                Text('4', style: TextStyle(fontSize: 12)),
-                Text('5', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text('Calm', style: TextStyle(fontSize: 12)),
-                Text('Low Stress', style: TextStyle(fontSize: 12)),
-                Text('Moderate Stress', style: TextStyle(fontSize: 12)),
-                Text('High Stress', style: TextStyle(fontSize: 12)),
-                Text('Overwhelmed', style: TextStyle(fontSize: 12)),
-              ],
-            ),
-            const SizedBox(height: 20),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Select a stressor',
-                labelStyle: const TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Inter',),
-                filled: true, // Enable the fill color
-                fillColor: _focusNode.hasFocus
-                    ? Colors.white // White when focused
-                    : Colors.grey.shade300, // Set the grey color for the default state (unfocused)
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0), // Border radius
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide.none,
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide.none, // Grey border when not focused
-                ),
-              ),
-              items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual']
-                  .map((stressor) => DropdownMenuItem<String>(
-                        value: stressor,
-                        child: Text(stressor, 
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'InterSemiBold',
-                          )
-                        ),
-                      ))
-                  .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedStressor = value;
-                });
-              },
-            ),
 
-            const SizedBox(height: 20),
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(
-                labelText: 'Describe here...',
-                labelStyle: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Inter',
+              const SizedBox(height: 20),
+              TextField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Describe here...',
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Inter',
+                  ),
+                  alignLabelWithHint: true, // This will position the label at the top
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
-                alignLabelWithHint: true, // This will position the label at the top
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12.0)),
-                  borderSide: BorderSide.none,
-                ),
-                filled: true,
-                fillColor: Colors.white,
+                maxLines: 5,
+                textAlign: TextAlign.start, // Align text to the left
               ),
-              maxLines: 5,
-              textAlign: TextAlign.start, // Align text to the left
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: SizedBox(
-                width: 300, // Set the desired width for the button
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _showConfirmationDialog, // Show confirmation dialog when the button is pressed
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.secondary, // Set the button color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+              const SizedBox(height: 30),
+              Center(
+                child: SizedBox(
+                  width: 300, // Set the desired width for the button
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _showConfirmationDialog, // Show confirmation dialog when the button is pressed
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary, // Set the button color
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(
+                        fontSize: 20, // Adjust the font size
+                        fontWeight: FontWeight.bold, // Set the text weight to bold
+                        fontFamily: 'InterSemiBold', // Set the font family (if needed)
+                        color: Colors.black, // Set the text color to white
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontSize: 20, // Adjust the font size
-                      fontWeight: FontWeight.bold, // Set the text weight to bold
-                      fontFamily: 'InterSemiBold', // Set the font family (if needed)
-                      color: Colors.black, // Set the text color to white
-                    ),
-                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        )
       ),
     );
   }
