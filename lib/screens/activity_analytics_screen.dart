@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:wellbeeapp/services/database.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ActivityPlan {
   final String activity;
@@ -21,32 +22,63 @@ class ActivityAnalyticsScreen extends StatefulWidget {
 }
 
 class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  bool isLoading = true;
   int _currentIndex = 1; // BottomNavigationBar index for Activities
   List<ActivityPlan> planData = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchActivities();
+    currentUser = FirebaseAuth.instance.currentUser;
+    _retrieveData();
   }   
 
-  Future<void> _fetchActivities() async {
+  Future<void> _retrieveData() async {
     try {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('activities').get();
-      
-      planData.clear(); // Clear any existing data
+      if (currentUser != null) {
+        QuerySnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .get();
 
-      for (var doc in snapshot.docs) {
-        String activityName = doc['activityName']; 
-        String hourString = doc['hour']; 
-        String minuteString = doc['minute']; 
-        
-        double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
-        
+        planData.clear(); // Clear any existing data
+
+        for (var doc in snapshot.docs) {
+          String activityName = doc['activityName'];
+          String hourString = doc['hour'];
+          String minuteString = doc['minute'];
+
+          double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+
+          setState(() {
+            planData.add(ActivityPlan(activityName, hours));
+          });
+        }
+
         setState(() {
-          planData.add(ActivityPlan(activityName, hours)); 
+          isLoading = false; // Data has been loaded
         });
+      } else {
+        print('User not logged in');
       }
+
+      // QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('activities').get();
+      
+      // planData.clear(); // Clear any existing data
+
+      // for (var doc in snapshot.docs) {
+      //   String activityName = doc['activityName']; 
+      //   String hourString = doc['hour']; 
+      //   String minuteString = doc['minute']; 
+        
+      //   double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+        
+      //   setState(() {
+      //     planData.add(ActivityPlan(activityName, hours)); 
+      //   });
+      // }
     } catch (e) {
       print('Error fetching activities: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,14 +236,14 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
               child: Column(
                 children: [
                   Center(
-                    child: Text( 
-                      // kiv use date from firebase                                    
-                          DateFormat('d MMM yyyy').format(DateTime.now()), 
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ), 
+                    // child: Text( 
+                    //   // kiv use date from firebase                                    
+                    //   DateFormat('d MMM yyyy').format(DateTime.now()), 
+                    //   style: const TextStyle(
+                    //     fontSize: 14,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ), 
                   ),
                   const SizedBox(height: 20),
 

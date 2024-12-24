@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:wellbeeapp/services/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TimerActivityScreen extends StatefulWidget {
   final String activityID;
@@ -15,6 +16,9 @@ class TimerActivityScreen extends StatefulWidget {
 }
 
 class _TimerActivityScreenState extends State<TimerActivityScreen> {
+  final DatabaseMethods databaseMethods = DatabaseMethods();
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
   int _currentIndex = 1;
   Timer? _timer;
   int _counter = 0;
@@ -40,25 +44,32 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
   Future<void> retrieveActivityTime(String activityID) async {
     try {
-      DocumentSnapshot ds = await FirebaseFirestore.instance.collection('activities').doc(activityID).get();
-
-      if (ds.exists) {
-        int hour = int.parse(ds['hour']);
-        int minute = int.parse(ds['minute']);
-
-        setState(() {
-          _counter = (hour * 3600) + (minute * 60);
-          _initialCounter = _counter;
-        });
-
-        QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance
+      if (currentUser != null) {
+        DocumentSnapshot ds = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
             .collection('activities')
             .doc(activityID)
-            .collection('timerLogs')
-            .orderBy('startTime', descending: true)
             .get();
 
-        if (timerLogsSnapshot.docs.isNotEmpty) {
+        if (ds.exists) {
+          int hour = int.parse(ds['hour']);
+          int minute = int.parse(ds['minute']);
+
+          setState(() {
+            _counter = (hour * 3600) + (minute * 60);
+            _initialCounter = _counter;
+          });
+
+          QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser!.uid)
+              .collection('activities')
+              .doc(activityID)
+              .collection('timerLogs')
+              .get();
+
+          if (timerLogsSnapshot.docs.isNotEmpty) {
           List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
             return {
               'playDuration': doc['playDuration'],
@@ -71,8 +82,12 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
             _timeRecords = fetchedRecords;
           });
         }
+          // Process timer logs if needed
+        } else {
+          print('Activity document does not exist');
+        }
       } else {
-        print('Activity document does not exist');
+        print('User not logged in');
       }
     } catch (e) {
       print('Error retrieving activity time: $e');
@@ -85,7 +100,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
     // Create timerLogID if it doesn't exist
     if (_timerLogID == null) {
-      int timerLogCount = await DatabaseMethods().getTimerLogCount(widget.activityID) + 1;
+      int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
       _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
     }
 
@@ -108,12 +123,12 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
       'timerLogID': _timerLogID,
     };
 
-    await DatabaseMethods().addTimerLogDetails(widget.activityID, timerLogInfoMap).then((value) {
+    await DatabaseMethods().addTimerLogDetails(currentUser!, widget.activityID, timerLogInfoMap).then((value) {
       print('Timer log details (timerLogID and startTime) added successfully');
     }).catchError((error) {
       print('Error adding timer log details (timerLogID and startTime): $error');
     });
-  }
+  } 
 
   Future<void> _pauseTimer() async {
     print('Pausing timer...');
@@ -135,34 +150,42 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
         // Update Firestore
         try {
-          QuerySnapshot latestLogSnapshot = await FirebaseFirestore.instance
-              .collection('activities')
-              .doc(widget.activityID)
-              .collection('timerLogs')
-              .orderBy('startTime', descending: true)
-              .limit(1)
-              .get();
-
-          if (latestLogSnapshot.docs.isNotEmpty) {
-            DocumentSnapshot latestLog = latestLogSnapshot.docs.first;
-
-            await FirebaseFirestore.instance
+          if (currentUser != null) {
+            QuerySnapshot latestLogSnapshot = await FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUser!.uid)
                 .collection('activities')
                 .doc(widget.activityID)
                 .collection('timerLogs')
-                .doc(latestLog.id)
-                .update(timerLogInfoMap);
+                .orderBy('startTime', descending: true)
+                .limit(1)
+                .get();
 
-            print('Timer log updated: playDuration: $playDuration, endTime: $_endTime');
+            if (latestLogSnapshot.docs.isNotEmpty) {
+              DocumentSnapshot latestLog = latestLogSnapshot.docs.first;
 
-            // Update UI records
-            setState(() {
-              _timeRecords.add({
-                'playDuration': playDuration.toString(),
-                'start': DateFormat('h:mm a').format(_startTime!),
-                'end': DateFormat('h:mm a').format(_endTime!),
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUser!.uid)
+                  .collection('activities')
+                  .doc(widget.activityID)
+                  .collection('timerLogs')
+                  .doc(latestLog.id)
+                  .update(timerLogInfoMap);
+
+              print('Timer log updated: playDuration: $playDuration, endTime: $_endTime');
+
+              // Update UI records
+              setState(() {
+                _timeRecords.add({
+                  'playDuration': playDuration.toString(),
+                  'start': DateFormat('h:mm a').format(_startTime!),
+                  'end': DateFormat('h:mm a').format(_endTime!),
+                });
               });
-            });
+            }
+          } else {
+            print('User not logged in');
           }
         } catch (e) {
           print('Error updating Firestore: $e');
@@ -175,7 +198,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
   void _resumeTimer() async {
     print('Resuming timer...');
     if (_timerLogID == null) { 
-      int timerLogCount = await DatabaseMethods().getTimerLogCount(widget.activityID) + 1;
+      int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
       _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
     }
 
@@ -236,7 +259,10 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text(
@@ -378,5 +404,15 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
         ],
       ),
     );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Timer Activity'),
+        ),
+        body: Center(
+          child: Text('Please log in to start a timer.'),
+        ),
+      );
+    }
   }
 }

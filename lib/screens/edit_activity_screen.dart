@@ -5,9 +5,12 @@ import 'package:random_string/random_string.dart';
 import 'package:wellbeeapp/services/database.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class EditActivityScreen extends StatefulWidget {  
-  final DocumentSnapshot activity; 
+  final Map<String, dynamic> activity;
+  // final DocumentSnapshot activity; 
 
   EditActivityScreen({Key? key, required this.activity}) : super(key: key); // constructor to receive activity details
 
@@ -24,6 +27,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   late TextEditingController minuteController = TextEditingController();
   late TextEditingController dateController = TextEditingController();
 
+  final DatabaseMethods databaseMethods = DatabaseMethods();
+
   @override
   void initState() {
     activityController.text = widget.activity['activityName'];
@@ -32,7 +37,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     minuteController.text = widget.activity['minute'];
     dateController.text = widget.activity['date'];
 
-    super.initState(); // to initialize the text controllers with the existing activity details
+    // super.initState(); // to initialize the text controllers with the existing activity details
   }
   
   @override
@@ -49,27 +54,38 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   Future<void> _updateActivity() async {
     if (_formKey.currentState!.validate()) {
       try {
-        int hours = int.parse(hourController.text);
-        int minutes = int.parse(minuteController.text);
-        int activityDuration = (hours * 60) + minutes;
+        User? currentUser = FirebaseAuth.instance.currentUser; // Added line to get current user
 
-        Map<String, dynamic> activityInfoMap = {
-          "activityName": activityController.text,
-          "categoryName": categoryController.text,         
-          "hour": hourController.text, 
-          "minute": minuteController.text, 
-          "date": dateController.text,          
-        };
+        if (currentUser != null) { // Added check for current user
+          int hours = int.parse(hourController.text);
+          int minutes = int.parse(minuteController.text);
+          // int activityDuration = (hours * 60) + minutes;
 
-        await DatabaseMethods().updateActivityDetails(activityInfoMap, widget.activity["activityID"]).then((value) {
+          Map<String, dynamic> activityInfoMap = {
+            "activityName": activityController.text,
+            "categoryName": categoryController.text,
+            "hour": hourController.text,
+            "minute": minuteController.text,
+            "date": dateController.text,
+          };
+
+          await DatabaseMethods().updateActivityDetails(currentUser, activityInfoMap, widget.activity["activityID"]).then((value) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                content: const Text('Activity updated successfully!'),
+              ),
+            );
+            Navigator.pop(context);
+          });
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Theme.of(context).colorScheme.secondary,
-              content: const Text('Activity updated successfully!'),
+            const SnackBar(
+              backgroundColor: Colors.red,
+              content: Text('User not logged in.'),
             ),
           );
-          Navigator.pop(context);
-        });
+        }
       } catch (e) {
         print('Error updating activity: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -256,14 +272,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
 
               // create activity button
               Center(  
-                child: ElevatedButton(   
+                child: ElevatedButton(
                   onPressed: _updateActivity,
-                  child: const Text(
-                    'Update Activity',
-                    
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),                                                    
-                ),
+                  child: const Text('Update Activity'),
+              ),
               ),
             ],
           ),

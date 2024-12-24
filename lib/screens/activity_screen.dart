@@ -3,6 +3,7 @@ import 'package:wellbeeapp/services/database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ActivityScreen extends StatefulWidget {  
   const ActivityScreen({Key? key}) : super(key: key);
@@ -15,6 +16,7 @@ enum MenuItem { edit, delete }
 
 class _ActivityScreenState extends State<ActivityScreen> {  
   int _currentIndex = 1;
+  Stream? activityStream;
 
   @override
   void initState() {
@@ -23,11 +25,16 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   getontheload()async{ 
-    activityStream = await DatabaseMethods().getActivityDetails();
-    setState(() {}); 
+    // activityStream = await DatabaseMethods().getActivityDetails();
+    // setState(() {}); 
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      activityStream = await DatabaseMethods().getActivityDetails(currentUser); // Pass currentUser as argument
+      setState(() {});
+    }
   }
 
-  Stream? activityStream;
+  // Stream? activityStream;
 
   Widget showActivitiesList(){
     return StreamBuilder(stream: activityStream, builder:(context, AsyncSnapshot snapshots){
@@ -37,7 +44,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         scrollDirection: Axis.vertical,
         itemCount: snapshots.data.docs.length, itemBuilder: (BuildContext context, int index) { // get number of documents in the collection of activities
           DocumentSnapshot ds = snapshots.data.docs[index]; 
-
+          String activityID = ds.id;
           // body         
           return Container(
             margin: const EdgeInsets.all(20.0),        
@@ -86,7 +93,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                     break;
                                   case MenuItem.delete:
                                     // Navigator.pushNamed(context, Routes.home); // to be changed
-                                    _showDeleteConfirmationDialog(context, ds["activityID"]);
+                                    // _showDeleteConfirmationDialog(context, ds["activityID"]);
+                                    // pass currentUser and activity ID
+                                    // _showDeleteConfirmationDialog(context, ds)
+                                    _showDeleteConfirmationDialog(context, activityID);
+
                                     break;
                                 }
                               },
@@ -288,6 +299,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   void _showDeleteConfirmationDialog(BuildContext context, String activityID) {
+    User? currentUser = FirebaseAuth.instance.currentUser; 
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -336,16 +349,30 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   TextButton(
                     onPressed: () async {
                       try {
-                        await DatabaseMethods().deleteActivity(activityID); // delete from database
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Activity deleted'),
-                            duration: Duration(seconds: 3),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        Navigator.pop(context); // Close the dialog
-                        Navigator.pushNamed(context, Routes.activity); // Redirect to home screen
+                        if (currentUser != null) {
+                          await DatabaseMethods().deleteActivity(currentUser, activityID); // delete from database
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Activity deleted'),
+                              duration: Duration(seconds: 3),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          Navigator.pop(context); // Close the dialog
+                          Navigator.pushNamed(context, Routes.activity); // Redirect to home screen
+                        } else {
+                          throw Exception('User not logged in');
+                        }
+                        // await DatabaseMethods().deleteActivity(currentUser, activityID); // delete from database
+                        // ScaffoldMessenger.of(context).showSnackBar(
+                        //   const SnackBar(
+                        //     content: Text('Activity deleted'),
+                        //     duration: Duration(seconds: 3),
+                        //     backgroundColor: Colors.red,
+                        //   ),
+                        // );
+                        // Navigator.pop(context); // Close the dialog
+                        // Navigator.pushNamed(context, Routes.activity); // Redirect to home screen
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

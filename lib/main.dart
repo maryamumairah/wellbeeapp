@@ -77,7 +77,8 @@ class MyApp extends StatelessWidget {
           case Routes.editActivity:           
             final args = settings.arguments as DocumentSnapshot;
             return MaterialPageRoute(
-              builder: (context) => EditActivityScreen(activity: args),
+              // builder: (context) => EditActivityScreen(activity: args),
+              builder: (context) => EditActivityScreen(activity: args.data() as Map<String, dynamic>), 
             );
           case Routes.timerActivity:
             final args = settings.arguments as String;

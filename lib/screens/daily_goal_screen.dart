@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DailyGoalScreen extends StatefulWidget {
   const DailyGoalScreen({Key? key}) : super(key: key);
@@ -14,6 +15,9 @@ class DailyGoalScreen extends StatefulWidget {
 }
 
 class _DailyGoalScreenState extends State<DailyGoalScreen> {
+  final DatabaseMethods databaseMethods = DatabaseMethods();
+  User? currentUser = FirebaseAuth.instance.currentUser;
+
   int _currentIndex = 2;
 
   // Variables to hold the total durations
@@ -31,100 +35,109 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
   @override
   void initState() {
     super.initState();
+    currentUser = FirebaseAuth.instance.currentUser;
     _retrieveData(); 
   }
   
     // Retrieve data from Firebase
   Future<void> _retrieveData() async {
-    // Get activities collection
-    var activitiesSnapshot = await FirebaseFirestore.instance.collection('activities').get();
-
-    //print all activityCategories in the activities collection
-    for (var doc in activitiesSnapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      print('Data from Firestore: $data');
-      final category = data['categoryName'] ?? '';
-      print('Category: $category');
-    }
-
-    // Variables to hold the calculated durations and play durations
-    double workDuration = 0;
-    double mealDuration = 0;    
-    double spiritualDuration = 0;
-
-    double workPlayDuration = 0;
-    double mealPlayDuration = 0;   
-    double spiritualPlayDuration = 0;
-
-    // Iterate over all activities
-    for (var doc in activitiesSnapshot.docs) {
-      final data = doc.data() as Map<String, dynamic>;
-      print('Data from Firestore: $data');
-
-      final category = data['categoryName'] ?? '';
-      final hour = data['hour'] ?? 0;
-      final minute = data['minute'] ?? 0;
-      // final duration = (data['hour'] ?? 0) * 60 + (data['minute'] ?? 0);
-      final duration = (hour is num ? hour : int.parse(hour.toString())) * 60 + (minute is num ? minute : int.parse(minute.toString()));
-      
-      // Fetch timer logs subcollection
-      var timerLogsSnapshot = await FirebaseFirestore.instance
+    if (currentUser != null) {
+      // Get activities collection for the current user
+      var activitiesSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
           .collection('activities')
-          .doc(doc.id)
-          .collection('timerLogs')
-          .orderBy('timerLogID')
           .get();
-        
-      // final timerLog = data['timerLogs'] ?? [];
-      final timerLog = timerLogsSnapshot.docs.map((doc) => doc.data()).toList();
 
-      print('Timer Log: $timerLog');
-
-      // Sort timerLog by timerLogID
-      timerLog.sort((a, b) {
-        final aID = a['timerLogID'] ?? '';
-        final bID = b['timerLogID'] ?? '';
-        return aID.compareTo(bID);
-      });  
-
-      final latestPlayDuration = (timerLog.isNotEmpty ? timerLog.last['playDuration'] ?? 0 : 0) / 60;
-      
-      print('Category: $category, Duration: $duration, Latest Play Duration: $latestPlayDuration');
-
-      switch (category) {
-        case 'Work':
-          workDuration += duration;
-          workPlayDuration += latestPlayDuration;
-          break;
-        case 'Meal':
-          mealDuration += duration;
-          mealPlayDuration += latestPlayDuration;
-          break;
-        case 'Spiritual':
-          spiritualDuration += duration;
-          spiritualPlayDuration += latestPlayDuration;
-          break;
-        default:
-          break;
+      // Print all activityCategories in the activities collection
+      for (var doc in activitiesSnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        print('Data from Firestore: $data');
+        final category = data['categoryName'] ?? '';
+        print('Category: $category');
       }
+
+      // Variables to hold the calculated durations and play durations
+      double workDuration = 0;
+      double mealDuration = 0;
+      double spiritualDuration = 0;
+
+      double workPlayDuration = 0;
+      double mealPlayDuration = 0;
+      double spiritualPlayDuration = 0;
+
+      // Iterate over all activities
+      for (var doc in activitiesSnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        print('Data from Firestore: $data');
+
+        final category = data['categoryName'] ?? '';
+        final hour = data['hour'] ?? 0;
+        final minute = data['minute'] ?? 0;
+        final duration = (hour is num ? hour : int.parse(hour.toString())) * 60 + (minute is num ? minute : int.parse(minute.toString()));
+
+        // Fetch timer logs subcollection
+        var timerLogsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(doc.id)
+            .collection('timerLogs')
+            .orderBy('timerLogID')
+            .get();
+
+        final timerLog = timerLogsSnapshot.docs.map((doc) => doc.data()).toList();
+
+        print('Timer Log: $timerLog');
+
+        // Sort timerLog by timerLogID
+        timerLog.sort((a, b) {
+          final aID = a['timerLogID'] ?? '';
+          final bID = b['timerLogID'] ?? '';
+          return aID.compareTo(bID);
+        });
+
+        final latestPlayDuration = (timerLog.isNotEmpty ? timerLog.last['playDuration'] ?? 0 : 0) / 60;
+
+        print('Category: $category, Duration: $duration, Latest Play Duration: $latestPlayDuration');
+
+        switch (category) {
+          case 'Work':
+            workDuration += duration;
+            workPlayDuration += latestPlayDuration;
+            break;
+          case 'Meal':
+            mealDuration += duration;
+            mealPlayDuration += latestPlayDuration;
+            break;
+          case 'Spiritual':
+            spiritualDuration += duration;
+            spiritualPlayDuration += latestPlayDuration;
+            break;
+          default:
+            break;
+        }
+      }
+
+      print('Total Duration Work: $workDuration, Total Play Duration Work: $workPlayDuration');
+      print('Total Duration Meal: $mealDuration, Total Play Duration Meal: $mealPlayDuration');
+      print('Total Duration Spiritual: $spiritualDuration, Total Play Duration Spiritual: $spiritualPlayDuration');
+
+      // Update the UI with the calculated values
+      setState(() {
+        durationWork = workDuration;
+        durationMeal = mealDuration;
+        durationSpiritual = spiritualDuration;
+
+        playDurationWork = workPlayDuration;
+        playDurationMeal = mealPlayDuration;
+        playDurationSpiritual = spiritualPlayDuration;
+
+        isLoading = false; // Data has been loaded
+      });
+    } else {
+      print('User not logged in');
     }
-   
-    print('Total Duration Work: $workDuration, Total Play Duration Work: $workPlayDuration');
-    print('Total Duration Meal: $mealDuration, Total Play Duration Meal: $mealPlayDuration');    
-    print('Total Duration Spiritual: $spiritualDuration, Total Play Duration Spiritual: $spiritualPlayDuration');
-
-    // Update the UI with the calculated values
-    setState(() {
-      durationWork = workDuration;
-      durationMeal = mealDuration;
-      durationSpiritual = spiritualDuration;
-
-      playDurationWork = workPlayDuration;
-      playDurationMeal = mealPlayDuration;
-      playDurationSpiritual = spiritualPlayDuration;
-
-      isLoading = false; // Data has been loaded
-    });
   }
 
   @override
@@ -191,7 +204,13 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                             ],
                             xValueMapper: (ChartData data, _) => data.x,
                             yValueMapper: (ChartData data, _) => data.y,                            
-                            dataLabelSettings: DataLabelSettings(isVisible: true),                            
+                            // dataLabelSettings: DataLabelSettings(isVisible: true), 
+                            dataLabelMapper: (ChartData data, _) => '${(data.y * 100).toStringAsFixed(1)}%',                           
+                            dataLabelSettings: DataLabelSettings(
+                              isVisible: true,
+                              labelPosition: ChartDataLabelPosition.outside,
+                              textStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),                              
+                            ),
                             pointColorMapper: (ChartData data, _) {
                               switch (data.x) {
                                 case 'Work':
