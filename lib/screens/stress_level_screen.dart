@@ -20,7 +20,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
   String? filterCategory;
   DateTime? filterDate;
   String? _sortOrder; // Default: Sort by last updated (descending)
-
+  bool _isFilterApplied = false;
 
 
   @override
@@ -50,7 +50,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 children: [
                   const Spacer(),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.filter_list, color: Colors.white),
+                    icon: Icon(_isFilterApplied ? Icons.filter_alt : Icons.filter_alt_outlined, color: Colors.white),
                     label: const Text(
                       'Filters',
                       style: TextStyle(
@@ -215,6 +215,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   setState(() {
                     filterCategory = selectedCategory;
                     filterDate = selectedDate;
+                    _isFilterApplied = !_isFilterApplied;
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -241,6 +242,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     selectedDate = null;
                     filterCategory = null;
                     filterDate = null;
+                    _isFilterApplied = !_isFilterApplied;
                   });
                   Navigator.of(context).pop();
                 },

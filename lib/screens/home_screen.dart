@@ -60,78 +60,82 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: const EdgeInsets.all(20), // Adjust content padding for more space
-          content: Container(
-            width: 400, // Adjust the width of the white container
-            height: 200, // Adjust the height of the white container
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
-              crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
-              children: [
-                const Image(
-                  image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
-                  // width: 60, // Adjust the image size
-                  // height: 60, // Adjust the image size
-                ),
-                const SizedBox(height: 15), // Space between the image and the text
-                const Text(
-                  'Please report your stress level.',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontFamily: 'InterBold',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 15), // Add space between the text and buttons
-                // Centered Row with Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center buttons horizontally
+          content: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Container(
+                width: constraints.maxWidth * 0.8, // Adjust the width based on screen size
+                child: Column(
+                  mainAxisSize: MainAxisSize.min, // Adjust the height based on content
+                  mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+                  crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        side: const BorderSide(color: Colors.black),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context); // Dismiss dialog
-                      },
-                      child: const Text(
-                        'Dismiss',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontFamily: 'InterSemiBold',
-                        ),
-                      ),
+                    const Image(
+                      image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
+                      // width: 60, // Adjust the image size
+                      // height: 60, // Adjust the image size
                     ),
-                    const SizedBox(width: 20), // Space between the buttons
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        side: const BorderSide(color: Colors.black),
+                    const SizedBox(height: 15), // Space between the image and the text
+                    const Text(
+                      'Please report your stress level.',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                        fontFamily: 'InterBold',
                       ),
-                      onPressed: () {
-                        Navigator.pop(context); // Dismiss dialog
-                        Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
-                        _saveLastReportDate(); // Save the current date when proceeding with the report
-                      },
-                      child: const Text(
-                        'Proceed',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'InterSemiBold',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 15), // Add space between the text and buttons
+                    // Centered Row with Buttons
+                    Wrap(
+                      spacing: 10, // Space between the buttons
+                      alignment: WrapAlignment.center, // Center buttons horizontally
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: const BorderSide(color: Colors.black),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context); // Dismiss dialog
+                          },
+                          child: const Text(
+                            'Dismiss',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontFamily: 'InterSemiBold',
+                            ),
+                          ),
                         ),
-                      ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            side: const BorderSide(color: Colors.black),
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context); // Dismiss dialog
+                            Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
+                            _saveLastReportDate(); // Save the current date when proceeding with the report
+                          },
+                          child: const Text(
+                            'Proceed',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'InterSemiBold',
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         );
       },
@@ -234,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // display current date
+                        // Display current date
                         Text(
                           DateFormat('d MMM yyyy').format(DateTime.now()),
                           style: const TextStyle(
@@ -242,24 +246,36 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontFamily: 'InterBold',
                           ),
                         ),
-                        // display current time
-                        Row(
-                          children: [
-                            Text(
-                              DateFormat('h:mm').format(DateTime.now()),
-                              style: const TextStyle(
-                                fontSize: 50,
-                                fontFamily: 'InterBold',
-                              ),
-                            ),
-                            Text(
-                              DateFormat('a').format(DateTime.now()),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontFamily: 'InterBold',
-                              ),
-                            ),
-                          ],
+                        // Display current time
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Calculate responsive font sizes based on container width
+                            double timeFontSize = constraints.maxWidth * 0.25;
+                            double amPmFontSize = constraints.maxWidth * 0.1;
+
+                            return Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  DateFormat('h:mm').format(DateTime.now()), // Time text
+                                  style: TextStyle(
+                                    fontSize: timeFontSize.clamp(30, 50),
+                                    fontFamily: 'InterBold',
+                                  ),
+                                  overflow: TextOverflow.ellipsis, // Prevent overflow
+                                ),
+                                const SizedBox(width: 4), // Small spacing between time and AM/PM
+                                Text(
+                                  DateFormat('a').format(DateTime.now()), // AM/PM text
+                                  style: TextStyle(
+                                    fontSize: amPmFontSize.clamp(16, 20),
+                                    fontFamily: 'InterBold',
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -278,12 +294,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            // button Track Activity
-                            Column(
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Calculate the width of each button based on the available space
+                            int itemCount = 3; // Number of items
+                            double spacing = 10; // Spacing between items
+                            double totalSpacing = (itemCount - 1) * spacing;
+                            double itemWidth = (constraints.maxWidth - totalSpacing) / itemCount;
+
+                            // Adjust font size and icon size proportionally to itemWidth
+                            double fontSize = itemWidth * 0.12; // Example: 12% of itemWidth
+                            double iconSize = itemWidth * 0.35; // Example: 35% of itemWidth
+
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
+                                // Track Activity Button
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -298,33 +324,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: 115,
-                                    height: 120,
-                                    child: const Column(
+                                    width: itemWidth,
+                                    height: itemWidth * 1.04, // Adjust height proportionally
+                                    child: Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.task_rounded,
-                                            color: Color(0xFF378DF9),
-                                            size: 40,
+                                            color: const Color(0xFF378DF9),
+                                            size: iconSize,
                                           ),
                                         ),
-                                        Text('Track Activity',
+                                        Text(
+                                          'Track Activity',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                            // button Track Daily Goal
-                            Column(
-                              children: [
+                                // Track Daily Goal Button
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -339,33 +363,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: 115,
-                                    height: 120,
-                                    child: const Column(
+                                    width: itemWidth,
+                                    height: itemWidth * 1.04,
+                                    child: Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.track_changes_rounded,
-                                            color: Color(0xFF378DF9),
-                                            size: 40,
+                                            color: const Color(0xFF378DF9),
+                                            size: iconSize,
                                           ),
                                         ),
-                                        Text('Track Daily Goal',
+                                        Text(
+                                          'Track Daily Goal',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                            // button Report Stress Level
-                            Column(
-                              children: [
+                                // Report Stress Level Button
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -380,22 +402,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: 115,
-                                    height: 120,
-                                    child: const Column(
+                                    width: itemWidth,
+                                    height: itemWidth * 1.04,
+                                    child: Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.sentiment_satisfied_alt,
-                                            color: Color(0xFF378DF9),
-                                            size: 40,
+                                            color: const Color(0xFF378DF9),
+                                            size: iconSize,
                                           ),
                                         ),
-                                        Text('Report Stress Level', 
+                                        Text(
+                                          'Report Stress Level',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
+                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
@@ -403,8 +427,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ],
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ],
                     ),
