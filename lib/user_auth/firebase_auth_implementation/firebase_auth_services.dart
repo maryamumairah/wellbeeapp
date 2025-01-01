@@ -2,10 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 
-
 class FirebaseAuthServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   Future<User?> signUpWithEmailAndPassword(String email, String password) async {
     try {
@@ -33,13 +31,7 @@ class FirebaseAuthServices {
           errorMessage = 'An error occurred: ${e.code}';
           break;
       }
-      // showToast(message: errorMessage);
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(errorMessage),
-        ),
-      );
+      showToast(message: errorMessage);
     }
     return null;
   }
@@ -75,13 +67,7 @@ class FirebaseAuthServices {
           errorMessage = 'An error occurred: ${e.code}';
           break;
       }
-      // showToast(message: errorMessage);
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(errorMessage),
-        ),
-      );
+      showToast(message: errorMessage);
       rethrow; // Rethrow the exception to handle it in the calling function if needed
     }
   }
