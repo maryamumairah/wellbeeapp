@@ -51,8 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       child: Image(
                         image: const AssetImage('assets/bee1.png'),
-                        width: screenWidth * 0.20, // 25% of screen width
-                        height: screenWidth * 0.20, // 25% of screen width
+                        width: screenWidth * 0.25, // 25% of screen width
+                        height: screenWidth * 0.25, // 25% of screen width
                       ),
                     ),
                   ),
@@ -63,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       child: Image(
                         image: const AssetImage('assets/bee2.png'),
-                        width: screenWidth * 0.25, // 30% of screen width
-                        height: screenWidth * 0.25, // 30% of screen width
+                        width: screenWidth * 0.30, // 30% of screen width
+                        height: screenWidth * 0.30, // 30% of screen width
                       ),
                     ),
                   ),

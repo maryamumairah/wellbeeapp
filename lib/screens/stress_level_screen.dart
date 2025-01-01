@@ -214,9 +214,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
-                    filterCategory = selectedCategory;
-                    filterDate = selectedDate;
-                    _isFilterApplied = !_isFilterApplied;
+                    if (selectedCategory != null || selectedDate != null) {
+                      filterCategory = selectedCategory;
+                      filterDate = selectedDate;
+                      _isFilterApplied = true;
+                    }
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -243,7 +245,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     selectedDate = null;
                     filterCategory = null;
                     filterDate = null;
-                    _isFilterApplied = !_isFilterApplied;
+                    _isFilterApplied = false;
                   });
                   Navigator.of(context).pop();
                 },

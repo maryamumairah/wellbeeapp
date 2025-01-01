@@ -250,19 +250,20 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
               ),
               const SizedBox(height: 5),
               const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('1', style: TextStyle(fontSize: 12)),
-                          SizedBox(height: 20),
-                          Text('Calm', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('1', style: TextStyle(fontSize: 12)),
+                            SizedBox(height: 5),
+                            Text('Calm', style: TextStyle(fontSize: 12)),
+                            Text('', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
                     ),
                   ),
                   Expanded(
@@ -314,8 +315,9 @@ class _ReportStressLevelScreenState extends State<ReportStressLevelScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text('5', style: TextStyle(fontSize: 12)),
-                          SizedBox(height: 26),
-                          Text('Overwhelmed', style: TextStyle(fontSize: 10)),
+                          SizedBox(height: 5),
+                          Text('Over', style: TextStyle(fontSize: 12)),
+                          Text('Whelmed', style: TextStyle(fontSize: 12)),
                         ],
                       ),
                     ),
