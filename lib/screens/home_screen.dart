@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wellbeeapp/global/common/toast.dart';
 import 'package:wellbeeapp/routes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -49,8 +50,22 @@ class _HomeScreenState extends State<HomeScreen> {
         lastReportDate!.year == DateTime.now().year;
   }
 
+  // Method to check if a report has already been submitted today in Firestore
+  Future<bool> _hasReportInFirestore() async {
+    if (user == null) return false;
+
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('stressReports')
+        .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(DateTime.now()))
+        .get();
+
+    return snapshot.docs.isNotEmpty;
+  }
+
   Future<void> _showStressLevelDialog() async {
-    if (_hasSubmittedReportToday()) {
+    if (_hasSubmittedReportToday() || await _hasReportInFirestore()) {
       return; // Skip showing the dialog if the report was submitted today
     }
 
@@ -60,82 +75,78 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           contentPadding: const EdgeInsets.all(20), // Adjust content padding for more space
-          content: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return Container(
-                width: constraints.maxWidth * 0.8, // Adjust the width based on screen size
-                child: Column(
-                  mainAxisSize: MainAxisSize.min, // Adjust the height based on content
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
-                  crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+          content: Container(
+            width: 400, // Adjust the width of the white container
+            height: 200, // Adjust the height of the white container
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, // Center the content vertically
+              crossAxisAlignment: CrossAxisAlignment.center, // Center the content horizontally
+              children: [
+                const Image(
+                  image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
+                  // width: 60, // Adjust the image size
+                  // height: 60, // Adjust the image size
+                ),
+                const SizedBox(height: 15), // Space between the image and the text
+                const Text(
+                  'Please report your stress level.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.black,
+                    fontFamily: 'InterBold',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 15), // Add space between the text and buttons
+                // Centered Row with Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // Center buttons horizontally
                   children: [
-                    const Image(
-                      image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
-                      // width: 60, // Adjust the image size
-                      // height: 60, // Adjust the image size
-                    ),
-                    const SizedBox(height: 15), // Space between the image and the text
-                    const Text(
-                      'Please report your stress level.',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                        fontFamily: 'InterBold',
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        side: const BorderSide(color: Colors.black),
                       ),
-                      textAlign: TextAlign.center,
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                      },
+                      child: const Text(
+                        'Dismiss',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 15), // Add space between the text and buttons
-                    // Centered Row with Buttons
-                    Wrap(
-                      spacing: 10, // Space between the buttons
-                      alignment: WrapAlignment.center, // Center buttons horizontally
-                      children: [
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            side: const BorderSide(color: Colors.black),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context); // Dismiss dialog
-                          },
-                          child: const Text(
-                            'Dismiss',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'InterSemiBold',
-                            ),
-                          ),
+                    const SizedBox(width: 20), // Space between the buttons
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            side: const BorderSide(color: Colors.black),
-                          ),
-                          onPressed: () {
-                            Navigator.pop(context); // Dismiss dialog
-                            Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
-                            _saveLastReportDate(); // Save the current date when proceeding with the report
-                          },
-                          child: const Text(
-                            'Proceed',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontFamily: 'InterSemiBold',
-                            ),
-                          ),
+                        side: const BorderSide(color: Colors.black),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context); // Dismiss dialog
+                        Navigator.pushNamed(context, Routes.report); // Navigate to Stress Report page
+                        _saveLastReportDate(); // Save the current date when proceeding with the report
+                      },
+                      child: const Text(
+                        'Proceed',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: 'InterSemiBold',
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              );
-            },
+              ],
+            ),
           ),
         );
       },
@@ -238,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Display current date
+                        // display current date
                         Text(
                           DateFormat('d MMM yyyy').format(DateTime.now()),
                           style: const TextStyle(
@@ -246,36 +257,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontFamily: 'InterBold',
                           ),
                         ),
-                        // Display current time
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            // Calculate responsive font sizes based on container width
-                            double timeFontSize = constraints.maxWidth * 0.25;
-                            double amPmFontSize = constraints.maxWidth * 0.1;
-
-                            return Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  DateFormat('h:mm').format(DateTime.now()), // Time text
-                                  style: TextStyle(
-                                    fontSize: timeFontSize.clamp(30, 50),
-                                    fontFamily: 'InterBold',
-                                  ),
-                                  overflow: TextOverflow.ellipsis, // Prevent overflow
-                                ),
-                                const SizedBox(width: 4), // Small spacing between time and AM/PM
-                                Text(
-                                  DateFormat('a').format(DateTime.now()), // AM/PM text
-                                  style: TextStyle(
-                                    fontSize: amPmFontSize.clamp(16, 20),
-                                    fontFamily: 'InterBold',
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                        // display current time
+                        Row(
+                          children: [
+                            Text(
+                              DateFormat('h:mm').format(DateTime.now()),
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontFamily: 'InterBold',
+                              ),
+                            ),
+                            Text(
+                              DateFormat('a').format(DateTime.now()),
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'InterBold',
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -294,22 +293,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        LayoutBuilder(
-                          builder: (context, constraints) {
-                            // Calculate the width of each button based on the available space
-                            int itemCount = 3; // Number of items
-                            double spacing = 10; // Spacing between items
-                            double totalSpacing = (itemCount - 1) * spacing;
-                            double itemWidth = (constraints.maxWidth - totalSpacing) / itemCount;
-
-                            // Adjust font size and icon size proportionally to itemWidth
-                            double fontSize = itemWidth * 0.12; // Example: 12% of itemWidth
-                            double iconSize = itemWidth * 0.35; // Example: 35% of itemWidth
-
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            // button Track Activity
+                            Column(
                               children: [
-                                // Track Activity Button
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -324,31 +313,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: itemWidth,
-                                    height: itemWidth * 1.04, // Adjust height proportionally
-                                    child: Column(
+                                    width: 115,
+                                    height: 120,
+                                    child: const Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.task_rounded,
-                                            color: const Color(0xFF378DF9),
-                                            size: iconSize,
+                                            color: Color(0xFF378DF9),
+                                            size: 40,
                                           ),
                                         ),
-                                        Text(
-                                          'Track Activity',
+                                        Text('Track Activity',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                // Track Daily Goal Button
+                              ],
+                            ),
+                            // button Track Daily Goal
+                            Column(
+                              children: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -363,31 +354,33 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: itemWidth,
-                                    height: itemWidth * 1.04,
-                                    child: Column(
+                                    width: 115,
+                                    height: 120,
+                                    child: const Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.track_changes_rounded,
-                                            color: const Color(0xFF378DF9),
-                                            size: iconSize,
+                                            color: Color(0xFF378DF9),
+                                            size: 40,
                                           ),
                                         ),
-                                        Text(
-                                          'Track Daily Goal',
+                                        Text('Track Daily Goal',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                                // Report Stress Level Button
+                              ],
+                            ),
+                            // button Report Stress Level
+                            Column(
+                              children: [
                                 ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -402,24 +395,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
-                                    width: itemWidth,
-                                    height: itemWidth * 1.04,
-                                    child: Column(
+                                    width: 115,
+                                    height: 120,
+                                    child: const Column(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Icon(
                                             Icons.sentiment_satisfied_alt,
-                                            color: const Color(0xFF378DF9),
-                                            size: iconSize,
+                                            color: Color(0xFF378DF9),
+                                            size: 40,
                                           ),
                                         ),
-                                        Text(
-                                          'Report Stress Level',
+                                        Text('Report Stress Level', 
                                           style: TextStyle(
                                             fontFamily: 'Inter',
-                                            fontSize: fontSize,
                                           ),
                                         ),
                                       ],
@@ -427,8 +418,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                               ],
-                            );
-                          },
+                            ),
+                          ],
                         ),
                       ],
                     ),

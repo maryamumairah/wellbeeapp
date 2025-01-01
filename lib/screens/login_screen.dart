@@ -262,7 +262,13 @@ class _LoginScreenState extends State<LoginScreen> {
         });
 
         if (user != null) {
-          showToast(message: 'User is successfully logged in');
+          // showToast(message: 'User is successfully logged in');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text('User is successfully logged in'),
+            ),
+          );
 
           // Navigate to home screen and clear navigation stack
           Navigator.pushAndRemoveUntil(
@@ -336,12 +342,29 @@ class _LoginScreenState extends State<LoginScreen> {
   void _sendPasswordResetEmail(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      showToast(message: 'Password reset email sent');
+      // showToast(message: 'Password reset email sent');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password reset email sent'),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        showToast(message: 'No user found with this email');
+        // showToast(message: 'No user found with this email');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('No user found with this email'),
+          ),
+        );
       } else {
-        showToast(message: 'An error occurred. Please try again.');
+        // showToast(message: 'An error occurred. Please try again.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('An error occurred. Please try again.'),
+          ),
+        );
       }
     }
   }

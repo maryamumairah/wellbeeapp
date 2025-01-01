@@ -57,20 +57,26 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
           'jobPosition': jobPositionController.text,
         });
         await user?.reload();
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(content: Text('Profile updated successfully')),
-        // );
-        showToast(message: 'Profile updated successfully');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Profile updated successfully')
+          ),
+        );
+        // showToast(message: 'Profile updated successfully');
         Navigator.pop(context, {
           'displayName': usernameController.text,
           'email': emailController.text,
           'jobPosition': jobPositionController.text,
         });
       } catch (e) {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(content: Text('Failed to update profile: $e')),
-        // );
-        showToast(message: 'Failed to update profile: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text('Failed to update profile: $e')
+          ),
+        );
+        // showToast(message: 'Failed to update profile: $e');
       }
     }
   }
@@ -142,10 +148,21 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
             
                   Navigator.of(context).pop(); // Close the dialog
                   Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                  showToast(message: 'User profile deleted successfully');
+                  // showToast(message: 'User profile deleted successfully');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('User profile deleted successfully')
+                    ),
+                  );
                 } catch (e) {
                   Navigator.of(context).pop(); // Close the dialog
-                  showToast(message: 'Failed to delete profile and stress reports: $e');
+                  // showToast(message: 'Failed to delete profile and stress reports: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text('Failed to delete user profile')
+                    ),
+                  );
                 }
               },
               child: const Text(
@@ -307,51 +324,51 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
         ),
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Theme.of(context).primaryColor,
-        unselectedItemColor: const Color(0xFF378DF9),
-        selectedItemColor: Colors.black,
-        currentIndex: _currentIndex,
-        onTap: (int newIndex) {
-          setState(() {
-            _currentIndex = newIndex;
-          });
-          switch (newIndex) {
-            case 0:
-              Navigator.pushNamed(context, Routes.home);
-              break;
-            case 1:
-              Navigator.pushNamed(context, Routes.activity);
-              break;
-            case 2:
-              //Navigator.pushNamed(context, Routes.);
-              break;
-            case 3:
-              //Navigator.pushNamed(context, Routes.);
-              break;
-          }          
-        },
+      // bottomNavigationBar: BottomNavigationBar(
+      //   type: BottomNavigationBarType.fixed,
+      //   backgroundColor: Theme.of(context).primaryColor,
+      //   unselectedItemColor: const Color(0xFF378DF9),
+      //   selectedItemColor: Colors.black,
+      //   currentIndex: _currentIndex,
+      //   onTap: (int newIndex) {
+      //     setState(() {
+      //       _currentIndex = newIndex;
+      //     });
+      //     switch (newIndex) {
+      //       case 0:
+      //         Navigator.pushReplacementNamed(context, Routes.home);
+      //         break;
+      //       case 1:
+      //         Navigator.pushReplacementNamed(context, Routes.activity);
+      //         break;
+      //       case 2:
+      //         Navigator.pushReplacementNamed(context, Routes.dailyGoal);
+      //         break;
+      //       case 3:
+      //         Navigator.pushReplacementNamed(context, Routes.stress);
+      //         break;
+      //     }          
+      //   },
 
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.task_rounded),
-            label: 'Activities',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes_rounded),
-            label: 'Goals',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.sentiment_satisfied_alt),
-            label: 'Stress',
-          ),
-        ],        
-      ),
+      //   items: const <BottomNavigationBarItem>[
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.home_rounded),
+      //       label: 'Home',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.task_rounded),
+      //       label: 'Activities',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.track_changes_rounded),
+      //       label: 'Goals',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.sentiment_satisfied_alt),
+      //       label: 'Stress',
+      //     ),
+      //   ],        
+      // ),
     );
   }
 }

@@ -332,7 +332,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      showToast(message: 'User registered successfully');
+      // showToast(message: 'User registered successfully');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('User registered successfully'),
+        ),
+      );
 
       Navigator.pushAndRemoveUntil(
         context,

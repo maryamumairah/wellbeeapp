@@ -14,6 +14,7 @@ class StressLevelScreen extends StatefulWidget {
 
 class _StressLevelScreenState extends State<StressLevelScreen> {
   List<BarChartGroupData> barChartData = [];
+  List<FlSpot> lineChartData = [];
   int _currentIndex = 3;
   String? selectedCategory;
   DateTime? selectedDate;
@@ -604,33 +605,16 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
 
 
   void _generateData(List<StressLevelReport> reports) {
-    barChartData = reports.asMap().entries.map((entry) {
+    lineChartData = reports.asMap().entries.map((entry) {
       int index = entry.key;
       StressLevelReport report = entry.value;
-      return BarChartGroupData(
-        x: index,
-        barRods: [
-          BarChartRodData(
-            fromY: 0,
-            toY: report.level.toDouble(),
-            color: const Color(0xFF96C1F9),
-            width: 20, // Reduced width for better spacing
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(4),
-              topRight: Radius.circular(4),
-            ),
-          ),
-        ],
-      );
+      return FlSpot(index.toDouble(), report.level.toDouble());
     }).toList();
   }
 
   Widget _buildChart(BuildContext context, List<StressLevelReport> reportData, String date) {
-    int maxLevel = reportData.fold(0, (prev, element) {
-      return (element.level > prev) ? element.level : prev;
-    });
-
-    double chartMaxY = maxLevel.toDouble() + 0.5;
+    // Ensure y-axis shows full values (1, 2, 3, 4, 5)
+    double chartMaxY = 5.5;
 
     // Generate data for the specific day
     _generateData(reportData);
@@ -672,15 +656,32 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 ),
               ),
               const SizedBox(width: 16), // Space between title and chart
-              // BarChart inside the container
+              // LineChart inside the container
               Expanded(
                 child: SizedBox(
                   height: 350, // Fixed height for the chart
-                  child: BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: chartMaxY, // Dynamic maxY with padding
-                      barGroups: barChartData,
+                  child: LineChart(
+                    LineChartData(
+                      maxY: chartMaxY, // Ensure maxY is 5.5 to show full y-axis values
+                      minY: 1, // Ensure minY is 0 to show full y-axis values
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: lineChartData,
+                          isCurved: true,
+                          color: const Color(0xFF96C1F9),
+                          barWidth: 4,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) {
+                            return FlDotCirclePainter(
+                              radius: 4,
+                              color: const Color(0xFF96C1F9),
+                              strokeWidth: 0,
+                              strokeColor: Colors.white,
+                            );
+                          }),
+                          belowBarData: BarAreaData(show: false),
+                        ),
+                      ],
                       gridData: FlGridData(
                         show: true,
                         drawHorizontalLine: true,
@@ -692,34 +693,6 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                           );
                         },
                         drawVerticalLine: false,
-                      ),
-                      barTouchData: BarTouchData(
-                        touchTooltipData: BarTouchTooltipData(
-                          tooltipPadding: const EdgeInsets.all(8.0), // Correct parameter for padding
-                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                            final stressLevelReport = reportData[groupIndex];
-                            String category;
-                            if (stressLevelReport.level == 1) {
-                              category = "Calm";
-                            } else if (stressLevelReport.level == 2) {
-                              category = "Low Stress";
-                            } else if (stressLevelReport.level == 3) {
-                              category = "Moderate Stress";
-                            } else if (stressLevelReport.level == 4) {
-                              category = "High Stress";
-                            } else {
-                              category = "Overwhelmed";
-                            }
-                            return BarTooltipItem(
-                              category, // Show category instead of level
-                              const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontFamily: 'InterSemiBold',
-                              ),
-                            );
-                          },
-                        ),
                       ),
                       titlesData: FlTitlesData(
                         topTitles: const AxisTitles(
@@ -762,7 +735,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                             showTitles: true,
                             interval: 1,
                             getTitlesWidget: (double value, TitleMeta meta) {
-                              if (value % 1 == 0) {
+                              if (value % 1 == 0 && value >= 1 && value <= 5) {
                                 return Text(
                                   value.toStringAsFixed(0),
                                   style: const TextStyle(fontSize: 12),
@@ -780,6 +753,23 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                           right: BorderSide.none,
                           bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
                           left: BorderSide.none,
+                        ),
+                      ),
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          // tooltipBgColor: Colors.blueAccent,
+                          getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                            return touchedSpots.map((touchedSpot) {
+                              final report = reportData[touchedSpot.spotIndex];
+                              return LineTooltipItem(
+                                report.category,
+                                const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'InterSemiBold',
+                                ),
+                              );
+                            }).toList();
+                          },
                         ),
                       ),
                     ),

@@ -35,8 +35,7 @@ class _UserProfileState extends State<UserProfile> {
     try {
       await FirebaseAuth.instance.signOut(); // Sign out the user
       Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()), // Replace with your login screen widget
+        context, MaterialPageRoute(builder: (context) => const LoginScreen()), // Replace with your login screen widget
         (route) => false, // Remove all previous routes
       );
     } catch (e) {
@@ -53,7 +52,7 @@ class _UserProfileState extends State<UserProfile> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: SingleChildScrollView( // Ensure content is scrollable
+      body: SingleChildScrollView(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -67,6 +66,10 @@ class _UserProfileState extends State<UserProfile> {
                   height: 200,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
+                    // border: Border.all(
+                    //   color: Colors.black,
+                    //   width: 2.0,
+                    // ),
                   ),
                   child: CircleAvatar(
                     radius: 100,
@@ -101,63 +104,46 @@ class _UserProfileState extends State<UserProfile> {
                   ),
                 ),
                 const SizedBox(height: 50.0),
-                Column(
-                  children: [
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        double buttonWidth = constraints.maxWidth * 0.8; // 80% of screen width
-                        double fontSize = buttonWidth * 0.06; // Text size relative to button width
-
-                        return Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: () async {
-                                final result = await Navigator.pushNamed(context, Routes.updateUserProfile);
-                                if (result != null && result is Map<String, String>) {
-                                  setState(() {
-                                    user = FirebaseAuth.instance.currentUser;
-                                    user?.updateProfile(displayName: result['displayName'] ?? user!.displayName!);
-                                    user?.verifyBeforeUpdateEmail(result['email'] ?? user!.email!);
-                                    jobPosition = result['jobPosition'] ?? jobPosition;
-                                  });
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 20),
-                                textStyle: TextStyle(
-                                  fontSize: fontSize.clamp(16, 24),
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'InterSemiBold',
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                minimumSize: Size(buttonWidth, 60),
-                              ),
-                              child: const Text('Update Profile'),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed: _logout,
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16), // Reduced padding for better fit
-                                textStyle: TextStyle(
-                                  fontSize: fontSize.clamp(16, 24), // Font size remains responsive
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'InterSemiBold',
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                minimumSize: Size(buttonWidth, 60), // Use minimumSize instead of fixedSize
-                              ),
-                              child: const Text('Logout'),
-                            ),
-                          ],
-                        );
-                      },
+                ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(context, Routes.updateUserProfile);
+                    if (result != null && result is Map<String, String>) {
+                      setState(() {
+                        user = FirebaseAuth.instance.currentUser;
+                        user?.updateProfile(displayName: result['displayName'] ?? user!.displayName!);
+                        user?.verifyBeforeUpdateEmail(result['email'] ?? user!.email!);
+                        jobPosition = result['jobPosition'] ?? jobPosition;
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterSemiBold',
                     ),
-                  ],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text('Update Profile'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _logout,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterSemiBold',
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: const Text('Logout'),
                 ),
               ],
             ),
@@ -182,6 +168,7 @@ class _UserProfileState extends State<UserProfile> {
               Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
+              Navigator.pushReplacementNamed(context, Routes.dailyGoal);
               break;
             case 3:
               Navigator.pushReplacementNamed(context, Routes.stress);
