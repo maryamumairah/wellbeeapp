@@ -255,14 +255,13 @@ class _LoginScreenState extends State<LoginScreen> {
       String password = passwordController.text;
 
       try {
-        User? user = await _auth.signInWithEmailAndPassword(email, password);
+        User? user = await _auth.signInWithEmailAndPassword(context, email, password);
 
         setState(() {
           _isSigningIn = false;
         });
 
         if (user != null) {
-          // showToast(message: 'User is successfully logged in');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.green,
@@ -280,13 +279,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } on FirebaseAuthException catch (e) {
         setState(() {
           _isSigningIn = false;
-          if (e.code == 'user-not-found') {
-            errorMessage = 'User not found';
-          } else if (e.code == 'wrong-password') {
-            errorMessage = 'Incorrect password';
-          } else {
-            errorMessage = 'Invalid email or password. Please try again.';
-          }
+          // if (e.code == 'user-not-found') {
+          //   errorMessage = 'User not found';
+          // } else if (e.code == 'wrong-password') {
+          //   errorMessage = 'Incorrect password';
+          // } else {
+          //   errorMessage = 'Invalid email or password. Please try again.';
+          // }
         });
       } catch (e) {
         setState(() {

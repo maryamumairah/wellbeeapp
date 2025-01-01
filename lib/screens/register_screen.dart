@@ -280,24 +280,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String confirmPassword = confirmPasswordController.text;
 
     // Check password validity
-    if (password.isEmpty) {
-      setState(() {
-        passwordError = 'Please enter a password';
-        isSigningUp = false;
-      });
-      return;
-    }
-    if (password.length < 6) {
-      setState(() {
-        passwordError = 'Password must be at least 6 characters';
-        isSigningUp = false;
-      });
-      return;
-    } else {
-      setState(() {
-        passwordError = 'Password is strong';
-      });
-    }
+    // if (password.isEmpty) {
+    //   setState(() {
+    //     passwordError = 'Please enter a password';
+    //     isSigningUp = false;
+    //   });
+    //   return;
+    // }
+    // if (password.length < 6) {
+    //   setState(() {
+    //     passwordError = 'Password must be at least 6 characters';
+    //     isSigningUp = false;
+    //   });
+    //   return;
+    // } else {
+    //   setState(() {
+    //     passwordError = 'Password is strong';
+    //   });
+    // }
 
     if (password != confirmPassword) {
       setState(() {
@@ -312,7 +312,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     // Creating user via Firebase Authentication
-    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+    User? user = await _auth.signUpWithEmailAndPassword(context, email, password);
 
     if (user != null) {
       int userCount = await FirebaseFirestore.instance
@@ -332,7 +332,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // showToast(message: 'User registered successfully');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.green,

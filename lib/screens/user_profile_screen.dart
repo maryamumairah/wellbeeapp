@@ -34,6 +34,9 @@ class _UserProfileState extends State<UserProfile> {
   Future<void> _logout() async {
     try {
       await FirebaseAuth.instance.signOut(); // Sign out the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User is logged out successfully')),
+      );
       Navigator.pushAndRemoveUntil(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()), // Replace with your login screen widget
         (route) => false, // Remove all previous routes
