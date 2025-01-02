@@ -377,6 +377,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                         return _buildReportItem(context, reports[index]);
                       },
                     ),
+                    const SizedBox(height: 100), // Extra space at the bottom
                   ],
                 ),
               ],

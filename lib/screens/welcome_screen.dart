@@ -87,7 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
             const Divider(height: 32.0, thickness: 2.0),
-            const SizedBox(height: 90.0),
+            const SizedBox(height: 70.0),
             CustomButton(
               text: 'Register',
               onPressed: () {

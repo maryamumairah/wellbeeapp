@@ -35,208 +35,222 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
         ),
         body: Container(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // activity name input field
-                const Text(
-                  'Activity',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                TextFormField(
-                  controller: activityController,
-                  decoration: InputDecoration(
-                    hintText: 'Enter activity name',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter activity name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-
-                // category input field
-                const Text(
-                  'Category',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  hint: const Text('Select category'),
-                  items: ['Work', 'Meal', 'Spiritual'].map((String category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    categoryController.text = newValue!;
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a category';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-
-                // duration input field
-                const Text(
-                  'Duration',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                Row(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        hint: const Text('Hour'),
-                        items: List.generate(24, (index) => index).map((int value) {
-                          return DropdownMenuItem<int>(
-                            value: value,
-                            child: Text(value.toString()),
-                          );
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          hourController.text = newValue.toString();
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select an hour';
-                          }
-                          return null;
-                        },
-                      ),
+                    // activity name input field
+                    const Text(
+                      'Activity',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      controller: activityController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter activity name',
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter activity name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // category input field
+                    const Text(
+                      'Category',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8.0),
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      hint: const Text('Select category'),
+                      items: ['Work', 'Meal', 'Spiritual'].map((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        categoryController.text = newValue!;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a category';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // duration input field
+                    const Text(
+                      'Duration',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            hint: const Text('Hour'),
+                            items: List.generate(24, (index) => index).map((int value) {
+                              return DropdownMenuItem<int>(
+                                value: value,
+                                child: Text(value.toString()),
+                              );
+                            }).toList(),
+                            onChanged: (int? newValue) {
+                              hourController.text = newValue.toString();
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please select an hour';
+                              }
+                              return null;
+                            },
                           ),
                         ),
-                        hint: const Text('Minute'),
-                        items: List.generate(60, (index) => index).map((int value) {
-                          return DropdownMenuItem<int>(
-                            value: value,
-                            child: Text(value.toString()),
-                          );
-                        }).toList(),
-                        onChanged: (int? newValue) {
-                          minuteController.text = newValue.toString();
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select a minute';
+                        const SizedBox(width: 8.0),
+                        Expanded(
+                          child: DropdownButtonFormField<int>(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            hint: const Text('Minute'),
+                            items: List.generate(60, (index) => index).map((int value) {
+                              return DropdownMenuItem<int>(
+                                value: value,
+                                child: Text(value.toString()),
+                              );
+                            }).toList(),
+                            onChanged: (int? newValue) {
+                              minuteController.text = newValue.toString();
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please select a minute';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // date input field
+                    const Text(
+                      'Date',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8.0),
+                    TextField(
+                      controller: dateController,
+                      decoration: InputDecoration(
+                        hintText: 'Select date',
+                        filled: true,
+                        fillColor: Colors.white,
+                        prefixIcon: const Icon(Icons.calendar_today),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      readOnly: true,
+                      onTap: () {
+                        _selectDate();
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+
+                    // create activity button
+                    Center(  
+                      child: ElevatedButton(                                     
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              if (Firebase.apps.isEmpty) {
+                                await Firebase.initializeApp();
+                              }                      
+                              
+                              int activityCount = await DatabaseMethods().getActivityCount(currentUser);
+                              String activityID = "A${activityCount.toString().padLeft(4, '0')}";
+                                            
+                              Map<String, dynamic> activityInfoMap = {
+                                "activityName": activityController.text,
+                                "categoryName": categoryController.text,
+                                "hour": hourController.text, 
+                                "minute": minuteController.text,                         
+                                "date": dateController.text, 
+                                "activityID": activityID,
+                              };
+                              await DatabaseMethods()                        
+                                .addActivityDetails(currentUser, activityInfoMap)
+                                .then((value) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                                      content: const Text('Activity created successfully!'),
+                                    ),
+                                  );
+                                  Navigator.pushNamed(context, Routes.activity);                                                      
+                                });
+                            } catch (e) {
+                              print('Error creating activity: $e');
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text('Failed to create activity.'),
+                                ),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.red,
+                                content: Text('Please fill all fields.'),
+                              ),
+                            );
                           }
-                          return null;
-                        },
+                        },                  
+                        child: const Text(
+                          'Create Activity',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16.0),
-
-                // date input field
-                const Text(
-                  'Date',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8.0),
-                TextField(
-                  controller: dateController,
-                  decoration: InputDecoration(
-                    hintText: 'Select date',
-                    filled: true,
-                    fillColor: Colors.white,
-                    prefixIcon: const Icon(Icons.calendar_today),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  readOnly: true,
-                  onTap: () {
-                    _selectDate();
-                  },
-                ),
-                const SizedBox(height: 16.0),
-
-                // create activity button
-                Center(  
-                  child: ElevatedButton(                                     
-                    onPressed: () async {
-                      try {
-                        if (Firebase.apps.isEmpty) {
-                          await Firebase.initializeApp();
-                        }                      
-                        
-                        int activityCount = await DatabaseMethods().getActivityCount(currentUser);
-                        String activityID = "A${activityCount.toString().padLeft(4, '0')}";
-                                      
-                        Map<String, dynamic> activityInfoMap = {
-                          "activityName": activityController.text,
-                          "categoryName": categoryController.text,
-                          "hour": hourController.text, 
-                          "minute": minuteController.text,                         
-                          "date": dateController.text, 
-                          "activityID": activityID,
-                        };
-                        await DatabaseMethods()                        
-                          .addActivityDetails(currentUser, activityInfoMap)
-                          .then((value) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                backgroundColor: Theme.of(context).colorScheme.secondary,
-                                content: const Text('Activity created successfully!'),
-                              ),
-                            );
-                            Navigator.pushNamed(context, Routes.activity);                                                      
-                          });
-                      } catch (e) {
-                        print('Error creating activity: $e');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text('Failed to create activity.'),
-                          ),
-                        );
-                      }
-                    },                  
-                    child: const Text(
-                      'Create Activity',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

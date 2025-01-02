@@ -241,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(16),
-                    width: 200,
+                    width: 210,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.circular(20),
@@ -309,7 +309,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 5,
                                   ),
                                   onPressed: () {
-                                    Navigator.pushNamed(context, Routes.activity);
+                                    Navigator.pushReplacementNamed(context, Routes.activity);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),
@@ -350,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     elevation: 5,
                                   ),
                                   onPressed: () {
-                                    Navigator.pushNamed(context, Routes.dailyGoal);
+                                    Navigator.pushReplacementNamed(context, Routes.dailyGoal);
                                   },
                                   child: Container(
                                     padding: const EdgeInsets.all(10),

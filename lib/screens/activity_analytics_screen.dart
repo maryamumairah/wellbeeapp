@@ -26,6 +26,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
   bool isLoading = true;
   int _currentIndex = 1; // BottomNavigationBar index for Activities
   List<ActivityPlan> planData = [];
+  DateTime activityDate = DateTime.now(); // Add this line to store the activity date
 
   @override
   void initState() {
@@ -37,53 +38,45 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
   Future<void> _retrieveData() async {
     try {
       if (currentUser != null) {
+        // Get activities for the current date (activityDate)
+        String formattedDate = DateFormat('yyyy-MM-dd').format(activityDate);
+
         QuerySnapshot snapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(currentUser!.uid)
             .collection('activities')
+            .where('date', isEqualTo: formattedDate) // Compare against the formatted date
             .get();
 
-        planData.clear(); // Clear any existing data
+        planData.clear();
 
         for (var doc in snapshot.docs) {
           String activityName = doc['activityName'];
           String hourString = doc['hour'];
           String minuteString = doc['minute'];
-
           double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
-
-          setState(() {
-            planData.add(ActivityPlan(activityName, hours));
-          });
+          planData.add(ActivityPlan(activityName, hours));
         }
 
         setState(() {
-          isLoading = false; // Data has been loaded
+          isLoading = false;
         });
+
+        // Show a message if no activities are found
+        if (planData.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No activities found for ${DateFormat('d MMM yyyy').format(activityDate)}.'),
+            ),
+          );
+        }
       } else {
         print('User not logged in');
       }
-
-      // QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('activities').get();
-      
-      // planData.clear(); // Clear any existing data
-
-      // for (var doc in snapshot.docs) {
-      //   String activityName = doc['activityName']; 
-      //   String hourString = doc['hour']; 
-      //   String minuteString = doc['minute']; 
-        
-      //   double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
-        
-      //   setState(() {
-      //     planData.add(ActivityPlan(activityName, hours)); 
-      //   });
-      // }
     } catch (e) {
       print('Error fetching activities: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          backgroundColor: Colors.red,
           content: Text('Failed to fetch activities data.'),
         ),
       );
@@ -233,13 +226,27 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text('Activity Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: planData.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+      body: isLoading
+      ? const Center(child: CircularProgressIndicator())
+      : planData.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'No activities found for ${DateFormat('d MMM yyyy').format(activityDate)}.',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            )
           : SingleChildScrollView(
               child: Column(
                 children: [
                   const SizedBox(height: 30),
-                  // Filter button
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
@@ -247,16 +254,13 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                       children: [
                         ElevatedButton.icon(
                           icon: const Icon(Icons.filter_list, color: Colors.white),
-                          label: const Text("Filter", 
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontFamily: 'InterSemiBold',
-                            ),
-                          ),
+                          label: const Text("Filter",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                              )),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF9887FF),
-                            foregroundColor: Colors.black,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
@@ -269,13 +273,22 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  // Display the date below the filter button
+                  const Text(
+                    'Plan',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Display the date of the activity below the filter button
                   Text(
-                    DateFormat('d MMM yyyy').format(DateTime.now()),
+                    DateFormat('d MMM yyyy').format(activityDate),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -338,61 +351,40 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        String? selectedCategory;
+        DateTime selectedDate = DateTime.now();
 
         return AlertDialog(
           title: const Text("Filter Activities"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RadioListTile<String>(
-                title: const Text("Work"),
-                value: "Work",
-                groupValue: selectedCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                    Navigator.pop(context);
-                    _filterActivities(value!);
-                  });
+              ElevatedButton(
+                onPressed: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null && pickedDate != selectedDate) {
+                    setState(() {
+                      selectedDate = pickedDate;
+                      Navigator.pop(context);
+                      _filterActivitiesByDate(selectedDate);
+                    });
+                  }
                 },
-              ),
-              RadioListTile<String>(
-                title: const Text("Meal"),
-                value: "Meal",
-                groupValue: selectedCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                    Navigator.pop(context);
-                    _filterActivities(value!);
-                  });
-                },
-              ),
-              RadioListTile<String>(
-                title: const Text("Spiritual"),
-                value: "Spiritual",
-                groupValue: selectedCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                    Navigator.pop(context);
-                    _filterActivities(value!);
-                  });
-                },
+                child: const Text("Select Date"),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
-                    selectedCategory = null; // Clear selected category
-                    Navigator.pop(context);
-                    _retrieveData(); // Reload all activities
+                    activityDate = DateTime.now(); // Reset to the current date
                   });
+                  Navigator.pop(context);
+                  _retrieveData(); // Fetch activities for the current date
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                ),
                 child: const Text("Reset Filter"),
               ),
             ],
@@ -402,26 +394,84 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
     );
   }
 
-  // Filter activities based on category
-  void _filterActivities(String category) async {
+  void _filterActivitiesByDate(DateTime date) async {
     if (currentUser != null) {
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser!.uid)
-          .collection('activities')
-          .where('categoryName', isEqualTo: category)
-          .get();
+      try {
+        // Format the selected date to match the format in the database
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-      setState(() {
-        planData.clear();
-        for (var doc in snapshot.docs) {
-          String activityName = doc['activityName'];
-          String hourString = doc['hour'];
-          String minuteString = doc['minute'];
-          double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
-          planData.add(ActivityPlan(activityName, hours));
-        }
-      });
+        QuerySnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .where('date', isEqualTo: formattedDate) // Compare the date field directly
+            .get();
+
+        setState(() {
+          if (snapshot.docs.isNotEmpty) {
+            // If activities are found, update the planData and activityDate
+            planData.clear();
+            for (var doc in snapshot.docs) {
+              String activityName = doc['activityName'];
+              String hourString = doc['hour'];
+              String minuteString = doc['minute'];
+              double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+              planData.add(ActivityPlan(activityName, hours));
+            }
+            activityDate = date;
+          } else {
+            // If no activities are found, retain the current date's data
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.red,
+                content: Text('No activities found for ${DateFormat('d MMM yyyy').format(date)}.'),
+              ),
+            );
+          }
+        });
+      } catch (e) {
+        print('Error filtering activities by date: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to fetch activities for the selected date.'),
+          ),
+        );
+      }
     }
   }
+
+
+  // Filter activities based on category
+  // void _filterActivities(String category) async {
+  //   if (currentUser != null) {
+  //     QuerySnapshot snapshot = await FirebaseFirestore.instance
+  //         .collection('users')
+  //         .doc(currentUser!.uid)
+  //         .collection('activities')
+  //         .where('categoryName', isEqualTo: category)
+  //         .get();
+
+  //     setState(() {
+  //       planData.clear();
+  //       for (var doc in snapshot.docs) {
+  //         String activityName = doc['activityName'];
+  //         String hourString = doc['hour'];
+  //         String minuteString = doc['minute'];
+  //         double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+  //         planData.add(ActivityPlan(activityName, hours));
+  //       }
+
+  //       // Display a message if no data matches the filter
+  //       if (planData.isEmpty) {
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(
+  //             backgroundColor: Colors.red,
+  //             content: Text('No activities found for the selected category: $category'),
+  //           ),
+  //         );
+  //         _retrieveData(); // Reload all activities to show the default screen
+  //       }
+  //     });
+  //   }
+  // }
 }

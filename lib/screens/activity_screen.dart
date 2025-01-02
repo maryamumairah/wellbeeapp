@@ -39,7 +39,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget showActivitiesList(){
     return StreamBuilder(stream: activityStream, builder:(context, AsyncSnapshot snapshots){
       return snapshots.hasData? ListView.builder( // if there is data in the collection of activities
-        padding: EdgeInsets.zero,
+        padding: const EdgeInsets.only(bottom: 150.0), // Add extra space at the bottom
         // shrinkWrap: true,
         scrollDirection: Axis.vertical,
         itemCount: snapshots.data.docs.length, itemBuilder: (BuildContext context, int index) { // get number of documents in the collection of activities
