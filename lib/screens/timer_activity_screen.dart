@@ -23,24 +23,28 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
   Timer? _timer;
   int _counter = 0;
   int _initialCounter = 0; // Store the initial counter value for progress calculation
+  int initialCounterActivity = 0;
   bool _isPaused = true; // Initially paused
   DateTime? _startTime;
   DateTime? _endTime;
   String? _timerLogID;
   List<Map<String, dynamic>> _timeRecords = []; // List to store duration, start time, and end time
+  int initialCounterProgress = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadCounter();
+    // _loadCounter();
     retrieveActivityTime(widget.activityID); 
+    retrieveTimerLogs(widget.activityID);
+    retrieveInitialCounterProgress(widget.activityID);
   }
 
-  Future<void> _loadCounter() async {    
-    setState(() {
-      _counter = 0; // initial counter
-    });
-  }
+  // Future<void> _loadCounter() async {    
+  //   setState(() {
+  //     _counter = 0; // initial counter
+  //   });
+  // }
 
   Future<void> retrieveActivityTime(String activityID) async {
     try {
@@ -53,15 +57,54 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
             .get();
 
         if (ds.exists) {
+
           int hour = int.parse(ds['hour']);
           int minute = int.parse(ds['minute']);
 
+          int initialCounterActivity = (hour * 3600) + (minute * 60);
+
           setState(() {
-            _counter = (hour * 3600) + (minute * 60);
+            // initialCounterActivity = (hour * 3600) + (minute * 60);
+            _counter = initialCounterActivity;
             _initialCounter = _counter;
           });
 
-          QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance
+          // setState(() {
+          //   _counter = (hour * 3600) + (minute * 60);
+          //   _initialCounter = _counter;
+          // });
+
+          QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
+              .collection('users')
+              .doc(currentUser!.uid)
+              .collection('activities')
+              .doc(activityID)
+              .collection('timerLogs')
+              .orderBy('startTime', descending: true)
+              .limit(1)
+              .get();
+
+          if (timerLogsSnapshot.docs.isEmpty) {
+            // 3. If timer logs don't exist (haven't played at all)
+            setState(() {
+              _counter = initialCounterActivity;
+              _initialCounter = _counter;
+            });
+          } else { // timerLogsSnapshot.docs.isNotEmpty (timer logs exist)
+            DocumentSnapshot latestLog = timerLogsSnapshot.docs.first;
+            Map<String, dynamic> data = latestLog.data() as Map<String, dynamic>;
+            
+            DateTime startTime = (data['startTime'] as Timestamp).toDate();
+            print('Latest timerLogID startTime: $startTime');
+            DateTime? endTime = data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null;
+            // int playDuration = data['playDuration'] ?? 0;
+            int playDuration = data.containsKey('playDuration') ? data['playDuration'].toInt() : 0; // if the key exists, get the value, else return 0
+
+
+            if (endTime == null) {
+              // 4a. If endTime doesn't exist (means that they are playing the timer and haven't paused)
+
+              QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
               .collection('users')
               .doc(currentUser!.uid)
               .collection('activities')
@@ -69,19 +112,122 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
               .collection('timerLogs')
               .get();
 
-          if (timerLogsSnapshot.docs.isNotEmpty) {
-          List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
-            return {
-              'playDuration': doc['playDuration'],
-              'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-              'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A',
-            };
-          }).toList();
+              // DocumentSnapshot ds = await FirebaseFirestore.instance
+              //     .collection('users')
+              //     .doc(currentUser!.uid)
+              //     .collection('activities')
+              //     .doc(activityID)
+              //     .get();
 
-          setState(() {
-            _timeRecords = fetchedRecords;
-          });
-        }
+              setState(() {
+                //total of all playDuration from all timerlogs
+                int totalPlayDuration = 0;
+                for (var doc in timerLogsSnapshot.docs) {
+                  Map<String, dynamic> logData = doc.data() as Map<String, dynamic>;
+                  if (logData.containsKey('playDuration')) {
+                    totalPlayDuration += (logData['playDuration'] as num).toInt();
+                  }
+                  print('playDuration: ${logData['playDuration']}');
+                }                
+                
+                _counter = initialCounterActivity - totalPlayDuration - DateTime.now().difference(startTime).inSeconds;   
+                print('counter: $_counter');
+                print('initialCounterActivity: $initialCounterActivity');
+                print('totalPlayDuration: $totalPlayDuration'); //kiv               
+                     
+                print(DateTime.now());
+                print('startTime: $startTime');
+
+                print(DateTime.now().difference(startTime).inSeconds);
+
+                // _counter = latestCounter - DateTime.now().difference(startTime).inSeconds; 
+
+                // _counter = initialCounterActivity - DateTime.now().difference(startTime).inSeconds;          
+                // _initialCounter = _counter;
+                // print(DateTime.now().difference(startTime).inSeconds);
+
+                // _isPaused = false; // Initially play
+                // _startTimer();
+                _resumeTimer();
+              });
+            } else {
+              // 4b. If endTime exists (means that they already played and paused timer)
+              setState(() {
+                int playDuration = data.containsKey('playDuration') ? data['playDuration'] : 0; // if the key exists, get the value, else return 0
+                // _counter = ((hour * 3600) + (minute * 60)) - playDuration;
+                _counter = initialCounterActivity - playDuration;
+                _initialCounter = _counter;                
+              });
+            }
+          
+          // QuerySnapshot allTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
+          //     .collection('users')
+          //     .doc(currentUser!.uid)
+          //     .collection('activities')
+          //     .doc(widget.activityID)
+          //     .collection('timerLogs')
+          //     .get();
+
+          // // List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
+          // List<Map<String, dynamic>> fetchedRecords = allTimerLogsSnapshot.docs.map((doc) {
+          //   return {
+          //     // 'playDuration': doc['playDuration'],
+          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
+          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
+          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
+          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
+          //   };
+          // }).toList();
+
+          // setState(() {
+          //   _timeRecords = fetchedRecords;
+          // });
+
+          // print('_timeRecords: $_timeRecords');
+
+
+
+          }  
+//161-184
+          // QuerySnapshot allTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
+          //     .collection('users')
+          //     .doc(currentUser!.uid)
+          //     .collection('activities')
+          //     .doc(widget.activityID)
+          //     .collection('timerLogs')
+          //     .get();
+
+          // List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
+          // // List<Map<String, dynamic>> fetchedRecords = allTimerLogsSnapshot.docs.map((doc) {
+          //   return {
+          //     // 'playDuration': doc['playDuration'],
+          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
+          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
+          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
+          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
+          //   };
+          // }).toList();
+
+          // setState(() {
+          //   _timeRecords = fetchedRecords;
+          // });
+
+          // print('_timeRecords: $_timeRecords');
+
+          // if (timerLogsSnapshot.docs.isNotEmpty) {
+          //   List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
+          //     return {
+          //       'playDuration': doc['playDuration'],
+          //       'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
+          //       'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A',
+          //     };
+          //   }).toList();
+
+          //   setState(() {
+          //     _timeRecords = fetchedRecords;
+          //   });
+          // }        
+
           // Process timer logs if needed
         } else {
           print('Activity document does not exist');
@@ -94,121 +240,334 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
     }
   }
 
+  Future<void> retrieveTimerLogs(String activityID) async {
+    try {
+      if (currentUser != null) {
+        QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(activityID)
+            .collection('timerLogs')
+            .get();
+
+        if (timerLogsSnapshot.docs.isNotEmpty) {
+          List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>?; // Ensure data is not null
+
+            return {
+              // 'playDuration': doc['playDuration'],
+              // 'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
+              // 'playDuration': doc.data().containsKey('playDuration') ? doc['playDuration'] : 0,
+              // // 'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
+              // 'start': doc['startTime'] != null ? DateFormat('h:mm a').format(doc['startTime'].toDate()) : 'N/A',
+              // 'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A',
+            'playDuration': data != null && data.containsKey('playDuration') ? data['playDuration'] : 0,
+            'start': data != null && data.containsKey('startTime') ? DateFormat('h:mm a').format((data['startTime'] as Timestamp).toDate()) : '              ',
+            'end': data != null && data.containsKey('endTime') ? DateFormat('h:mm a').format((data['endTime'] as Timestamp).toDate()) : '              ',
+            };
+          }).toList();
+
+          setState(() {
+            _timeRecords = fetchedRecords;
+          });
+        }        
+      } else {
+        print('User not logged in');
+      }
+    } catch (e) {
+      print('Error retrieving timer logs: $e');
+    }
+  }
+
+  // Future<void> retrieveInitialCounterProgress(String activityID) async {
+  //   try {
+  //     if (currentUser != null) {
+  //       DocumentSnapshot ds = await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(currentUser!.uid)
+  //           .collection('activities')
+  //           .doc(activityID)
+  //           .get();
+
+  //       if (ds.exists) {
+  //         int hour = int.parse(ds['hour']);
+  //         int minute = int.parse(ds['minute']);
+
+  //         // int initialCounterProgress = (hour * 3600) + (minute * 60);
+
+  //         setState(() {
+  //           initialCounterProgress = (hour * 3600) + (minute * 60);
+  //         });
+
+  //         print('hour: $hour');
+  //         print('minute: $minute');
+  //         print('initialCounterProgress: $initialCounterProgress');
+
+  //       } else {
+  //         print('initialCounterProgress does not exist');
+  //       }
+  //     } else {
+  //       print('User not logged in');
+  //     }
+  //   } catch (e) {
+  //     print('Error retrieving timer logs: $e');
+  //   }
+  // }
+
+  Future<int> retrieveInitialCounterProgress(String activityID) async {
+    try {
+      if (currentUser != null) {
+        DocumentSnapshot ds = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(activityID)
+            .get();
+
+        if (ds.exists) {
+          int hour = int.parse(ds['hour']);
+          int minute = int.parse(ds['minute']);
+          int initialCounterProgress = (hour * 3600) + (minute * 60);
+          // print('hour: $hour');
+          // print('minute: $minute');
+          // print('initialCounterProgress: $initialCounterProgress');
+          return initialCounterProgress;
+        } else {
+          print('initialCounterProgress does not exist');
+          return 0;
+        }
+      } else {
+        print('User not logged in');
+        return 0;
+      }
+    } catch (e) {
+      print('Error retrieving timer logs: $e');
+      return 0;
+    }
+  }
+
   Future<void> _startTimer() async {
     print('Starting timer...');
-    _startTime = DateTime.now(); 
+    try {
+      if (currentUser != null) {
+        // check timerLogDetails exist
+        QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(widget.activityID)
+            .collection('timerLogs')
+            .orderBy('startTime', descending: true)
+            .limit(1)
+            .get();
 
-    // Create timerLogID if it doesn't exist
-    if (_timerLogID == null) {
-      int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
-      _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
+        if (timerLogsSnapshot.docs.isEmpty) {
+          // timerLogDetails null
+
+          setState(() {
+            _isPaused = false; // resume timer
+            _startTime = DateTime.now(); 
+          });
+
+          Map<String, dynamic> timerLogInfoMap = {
+            'activityID': widget.activityID,
+            'startTime': _startTime,
+            'timerLogID': _timerLogID,
+          };
+
+          // add new timerLogID with its new timerLogDetails
+          int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
+          _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
+
+          await DatabaseMethods().addTimerLogDetails(currentUser!, widget.activityID, timerLogInfoMap).then((value) {
+            print('Timer log details (timerLogID and startTime) added successfully');
+          }).catchError((error) {
+            print('Error adding timer log details (timerLogID and startTime): $error');
+          });          
+
+          _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+            setState(() {
+              if (_counter > 0) {
+                _counter--;
+                print('Timer running: $_counter seconds left');
+              } else { // if _counter is 0
+                _timer!.cancel();
+                _showCompletionDialog();
+                print('Timer completed');
+              }
+            });
+          });          
+        } else { // timerLogsSnapshot.docs.isNotEmpty          
+          // timerLogDetails exist
+          _pauseTimer();
+        }         
+      } else {
+        print('User not logged in');
+      }
+    } catch (e) {
+      print('Error starting timer: $e');
     }
-
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_counter > 0) {
-          _counter--;
-          print('Timer running: $_counter seconds left');
-        } else {
-          _timer!.cancel();
-          // _showCompletionDialog();
-          print('Timer completed');
-        }
-      });
-    });
-   
-    Map<String, dynamic> timerLogInfoMap = {
-      'activityID': widget.activityID,
-      'startTime': _startTime,
-      'timerLogID': _timerLogID,
-    };
-
-    await DatabaseMethods().addTimerLogDetails(currentUser!, widget.activityID, timerLogInfoMap).then((value) {
-      print('Timer log details (timerLogID and startTime) added successfully');
-    }).catchError((error) {
-      print('Error adding timer log details (timerLogID and startTime): $error');
-    });
   } 
 
   Future<void> _pauseTimer() async {
     print('Pausing timer...');
-    if (_timer != null) {
-      _timer!.cancel();
-      _endTime = DateTime.now();
+    try{
+      if (currentUser != null){
+        _timer!.cancel();
+        _endTime = DateTime.now();
 
-      setState(() {
-        _isPaused = true; // Pause the timer
-      });
+        setState(() {
+          _isPaused = true; // Pause the timer
+        });      
 
-      if (_startTime != null && _endTime != null) {
-        int playDuration = _initialCounter - _counter;
+        DocumentSnapshot ds = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('activities')
+          .doc(widget.activityID)
+          .get();
+
+        int hour = int.parse(ds['hour']);
+        int minute = int.parse(ds['minute']);
+
+        int playDuration = ((hour * 3600) + (minute * 60)) - _counter;
+        // int playDuration = _initialCounter - _counter;
 
         Map<String, dynamic> timerLogInfoMap = {
           'playDuration': FieldValue.increment(playDuration),
           'endTime': _endTime,
-        };
+        };          
 
-        // Update Firestore
-        try {
-          if (currentUser != null) {
-            QuerySnapshot latestLogSnapshot = await FirebaseFirestore.instance
-                .collection('users')
-                .doc(currentUser!.uid)
-                .collection('activities')
-                .doc(widget.activityID)
-                .collection('timerLogs')
-                .orderBy('startTime', descending: true)
-                .limit(1)
-                .get();
+        // check latest timerLogID
+        QuerySnapshot latestLogSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(widget.activityID)
+            .collection('timerLogs')
+            .orderBy('startTime', descending: true)
+            .limit(1)
+            .get(); 
 
-            if (latestLogSnapshot.docs.isNotEmpty) {
-              DocumentSnapshot latestLog = latestLogSnapshot.docs.first;
+        DocumentSnapshot latestLog = latestLogSnapshot.docs.first;
 
-              await FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(currentUser!.uid)
-                  .collection('activities')
-                  .doc(widget.activityID)
-                  .collection('timerLogs')
-                  .doc(latestLog.id)
-                  .update(timerLogInfoMap);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(widget.activityID)
+            .collection('timerLogs')
+            .doc(latestLog.id)
+            .update(timerLogInfoMap);        
+   
+        print('in pauseTimer, Timer log updated: playDuration: $playDuration, endTime: $_endTime');  
 
-              print('Timer log updated: playDuration: $playDuration, endTime: $_endTime');
+        // update fetched records
+        retrieveTimerLogs(widget.activityID);
 
-              // Update UI records
-              setState(() {
-                _timeRecords.add({
-                  'playDuration': playDuration.toString(),
-                  'start': DateFormat('h:mm a').format(_startTime!),
-                  'end': DateFormat('h:mm a').format(_endTime!),
-                });
-              });
-            }
-          } else {
-            print('User not logged in');
-          }
-        } catch (e) {
-          print('Error updating Firestore: $e');
-        }
+
+        // _timeRecords
+          // QuerySnapshot pausedTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
+          //     .collection('users')
+          //     .doc(currentUser!.uid)
+          //     .collection('activities')
+          //     .doc(widget.activityID)
+          //     .collection('timerLogs')
+          //     .get();
+
+          // List<Map<String, dynamic>> fetchedRecords = pausedTimerLogsSnapshot.docs.map((doc) {
+          //   return {
+          //     // 'playDuration': doc['playDuration'],
+          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
+          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
+          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
+          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
+          //   };
+          // }).toList();
+
+          // setState(() {
+          //   _timeRecords = fetchedRecords;
+          // });
+
+          // print('in pauseTimer, _timeRecords: $_timeRecords');
+              
+
+      } else {
+        print('User not logged in');
       }
+
+
+    } catch (e) {
+      print('Error pausing timer: $e');
     }
   }
 
 
   void _resumeTimer() async {
     print('Resuming timer...');
-    if (_timerLogID == null) { 
-      int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
-      _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
-    }
+    try {
+      if (currentUser != null) {
+        // check timerLogDetails exist
+        QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('activities')
+            .doc(widget.activityID)
+            .collection('timerLogs')
+            .orderBy('startTime', descending: true)
+            .limit(1)
+            .get();
 
-    _startTimer();
-    setState(() {
-      _isPaused = false; // set the timer to resumed
-      _startTime = DateTime.now(); 
-    });
-    // _startTimer();
-    print('Timer resumed');
+        if (timerLogsSnapshot.docs.isNotEmpty) {
+          // timerLogDetails exist
+
+          setState(() {
+            _isPaused = false; // resume timer
+            _startTime = DateTime.now(); 
+          });
+
+          Map<String, dynamic> timerLogInfoMap = {
+            'activityID': widget.activityID,
+            'startTime': _startTime,
+            'timerLogID': _timerLogID,
+          };
+
+          // check latest timerLogID
+          // DocumentSnapshot latestLog = timerLogsSnapshot.docs.first; // get the latest timer log
+          int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
+          _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
+          print('in resumeTimer, Timer log ID created: $_timerLogID');
+          
+          await DatabaseMethods().addTimerLogDetails(currentUser!, widget.activityID, timerLogInfoMap).then((value) {
+            print('in resumeTimer, Timer log details (timerLogID and startTime) added successfully');
+          }).catchError((error) {
+            print('in resumeTimer, Error adding timer log details (timerLogID and startTime): $error');
+          });
+
+          _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+            setState(() {
+              if (_counter > 0) {
+                _counter--;
+                print('Timer running: $_counter seconds left');
+              } else { // if _counter is 0
+                _timer!.cancel();
+                _showCompletionDialog();
+                print('Timer completed');
+              }
+            });
+          });                    
+
+        } else { // timerLogsSnapshot.docs.isEmpty          
+          // timerLogDetails is null
+          _startTimer();
+        }         
+      } else {
+        print('User not logged in');
+      }
+    } catch (e) {
+      print('Error resuming timer: $e');
+    }
   }
 
   void _showCompletionDialog() {
@@ -283,11 +642,44 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   child: SizedBox(
                     width: 260,
                     height: 260,
-                    child: CircularProgressIndicator(
-                      value: _initialCounter > 0 ? _counter / _initialCounter : 1.0,
-                      strokeWidth: 10,
-                      valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                    child: FutureBuilder<int>(
+                      future: retrieveInitialCounterProgress(widget.activityID),
+                      builder: (context, snapshot) {
+                        // if (snapshot.connectionState == ConnectionState.waiting) {
+                        //   return CircularProgressIndicator(
+                        //     value: 1.0
+                        //   );
+                        // } else if (snapshot.hasError) {
+                        //   return Text('Error: ${snapshot.error}');
+                        // } else {
+                        //   int initialCounterProgress = snapshot.data ?? 0;
+                        //   // return Text('Initial Counter Progress: $initialCounterProgress');
+                        //   return CircularProgressIndicator(                        
+                        //     value: initialCounterProgress > 0 ? _counter / initialCounterProgress : 1.0, // 1.0 is the default value if initialCounterProgress is 0
+                        //     strokeWidth: 10,
+                        //     valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                        //     backgroundColor: Colors.white,
+                        //   );      
+                        // }
+                        //here
+                          int initialCounterProgress = snapshot.data ?? 0;
+                          return CircularProgressIndicator(                        
+                            value: initialCounterProgress > 0 ? _counter / initialCounterProgress : 1.0, // 1.0 is the default value if initialCounterProgress is 0
+                            strokeWidth: 10,
+                            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                            backgroundColor: Colors.white,
+                          );      
+                      },
                     ),
+                    // child: CircularProgressIndicator(
+                    //   // value: _initialCounter > 0 ? _counter / _initialCounter : 1.0,
+                    //   // value: initialCounterActivity > 0 ? _counter / _initialCounter : 1.0,
+                    //   // value: initialCounterActivity > 0 ? _counter / initialCounterActivity : 1.0,
+                    //   value: initialCounterActivity > 0 ? _counter / initialCounterProgress : 1.0, // if initialCounterProgress is 0, set value to 1.0, else set value to _counter / initialCounterProgress
+                    //   strokeWidth: 10,
+                    //   valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
+                    //   backgroundColor: Colors.white,
+                    // ),                                  
                   ),
                 ),
                 Text(
@@ -305,7 +697,8 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   backgroundColor: Colors.blue,
                   child: IconButton(
                     icon: const Icon(Icons.pause, color: Colors.white),
-                    onPressed: _isPaused ? null : _pauseTimer,
+                    onPressed: _isPaused ? null : _pauseTimer, // if paused, disable the button, else enable, and call _pauseTimer, else call _resumeTimer, and disable the button. even though there is no _resumeTimer in this line, call resumetimer because it is in the else statement below (line 320). line 320 has ] which means resumetimer is at the end of the else statement at line 
+                    // onPressed: _pauseTimer,
                   ),
                 ),
                 SizedBox(width: 20),
@@ -315,6 +708,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.play_arrow, color: Colors.white),
                     onPressed: _isPaused ? _resumeTimer : null,
+                    // onPressed: _resumeTimer,
                   ),
                 ),
               ],

@@ -36,6 +36,7 @@ class DatabaseMethods {
       .collection('timerLogs')
       .doc(timerLogID)
       .set(timerLogInfoMap);
+      // .set(timerLogInfoMap, SetOptions(merge: true)); // if the document already exists, the new data will be merged with the existing data
       
   }
 
