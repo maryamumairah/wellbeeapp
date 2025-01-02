@@ -113,14 +113,14 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
   }
   
   Widget _buildChartPlan(BuildContext context, List<ActivityPlan> planData) {
-    double maxHours = planData.fold(0, (prev, element) { // Find the maximum hours by iterating over the list of activities and comparing the hours with the previous maximum value 
+    double maxHours = planData.fold(0, (prev, element) {
       return (element.hours > prev) ? element.hours : prev;
     });
-    
+
     double chartMaxY = maxHours - 0.3;
 
     return SizedBox(
-      height: 350,
+      height: 400,
       width: MediaQuery.of(context).size.width * 0.9,
       child: Container(
         decoration: BoxDecoration(
@@ -141,6 +141,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
           child: BarChart(
             BarChartData(
               alignment: BarChartAlignment.spaceAround,
+              minY: 0, // Ensure the horizontal grid lines start at 0
               maxY: chartMaxY + 1,
               barGroups: _generateData(planData),
               gridData: FlGridData(
@@ -165,27 +166,29 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    interval: 1,                    
-                      getTitlesWidget: (double value, TitleMeta meta) {
-                        int index = value.toInt();
-                        if (index >= 0 && index < planData.length) {
-                          List<String> words = planData[index].activity.split(' '); // Split the activity name into words
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                    interval: 1,
+                    reservedSize: 40, // Adjusted to prevent overflow
+                    getTitlesWidget: (double value, TitleMeta meta) {
+                      int index = value.toInt();
+                      if (index >= 0 && index < planData.length) {
+                        // Split the activity name into words and arrange them vertically
+                        List<String> words = planData[index].activity.split(' ');
+                        return Transform.rotate(
+                          angle: -0.5, // Rotate the entire column
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: words.map((word) {
-                              return Transform.rotate(
-                                angle: -0.5, 
-                                child: Text(
-                                  word,
-                                  style: const TextStyle(fontSize: 10),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                              return Text(
+                                word,
+                                style: const TextStyle(fontSize: 10),
+                                overflow: TextOverflow.ellipsis,
                               );
                             }).toList(),
-                          );
-                        }
-                        return const Text('');
-                      },
+                          ),
+                        );
+                      }
+                      return const Text('');
+                    },
                   ),
                 ),
                 leftTitles: AxisTitles(
@@ -223,7 +226,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
     );
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -231,28 +234,59 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         title: const Text('Activity Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: planData.isEmpty
-          ? const Center(child: CircularProgressIndicator()) 
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  Center(
-                    // child: Text( 
-                    //   // kiv use date from firebase                                    
-                    //   DateFormat('d MMM yyyy').format(DateTime.now()), 
-                    //   style: const TextStyle(
-                    //     fontSize: 14,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ), 
+                  const SizedBox(height: 30),
+                  // Filter button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.filter_list, color: Colors.white),
+                          label: const Text("Filter", 
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontFamily: 'InterSemiBold',
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF9887FF),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                          ),
+                          onPressed: () {
+                            _showFilterDialog(context);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-
-                  _buildChartPlan(context, planData),                  
+                  const SizedBox(height: 10),
+                  // Display the date below the filter button
+                  Text(
+                    DateFormat('d MMM yyyy').format(DateTime.now()),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Center the chart
+                  Center(
+                    child: _buildChartPlan(context, planData),
+                  ),
                 ],
               ),
             ),
-
-        bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).primaryColor,
         unselectedItemColor: const Color(0xFF378DF9),
@@ -264,7 +298,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
           });
           switch (newIndex) {
             case 0:
-              Navigator.pushReplacementNamed(context, Routes.home);              
+              Navigator.pushReplacementNamed(context, Routes.home);
               break;
             case 1:
               Navigator.pushReplacementNamed(context, Routes.activity);
@@ -275,9 +309,8 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
             case 3:
               Navigator.pushReplacementNamed(context, Routes.stress);
               break;
-          }          
+          }
         },
-
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
@@ -291,12 +324,104 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
             icon: Icon(Icons.track_changes_rounded),
             label: 'Goals',
           ),
-                    BottomNavigationBarItem(
+          BottomNavigationBarItem(
             icon: Icon(Icons.sentiment_satisfied_alt),
             label: 'Stress',
           ),
-        ],        
+        ],
       ),
     );
+  }
+
+  // Show filter dialog
+  void _showFilterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String? selectedCategory;
+
+        return AlertDialog(
+          title: const Text("Filter Activities"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: const Text("Work"),
+                value: "Work",
+                groupValue: selectedCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value;
+                    Navigator.pop(context);
+                    _filterActivities(value!);
+                  });
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text("Meal"),
+                value: "Meal",
+                groupValue: selectedCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value;
+                    Navigator.pop(context);
+                    _filterActivities(value!);
+                  });
+                },
+              ),
+              RadioListTile<String>(
+                title: const Text("Spiritual"),
+                value: "Spiritual",
+                groupValue: selectedCategory,
+                onChanged: (value) {
+                  setState(() {
+                    selectedCategory = value;
+                    Navigator.pop(context);
+                    _filterActivities(value!);
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    selectedCategory = null; // Clear selected category
+                    Navigator.pop(context);
+                    _retrieveData(); // Reload all activities
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
+                child: const Text("Reset Filter"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Filter activities based on category
+  void _filterActivities(String category) async {
+    if (currentUser != null) {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .collection('activities')
+          .where('categoryName', isEqualTo: category)
+          .get();
+
+      setState(() {
+        planData.clear();
+        for (var doc in snapshot.docs) {
+          String activityName = doc['activityName'];
+          String hourString = doc['hour'];
+          String minuteString = doc['minute'];
+          double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
+          planData.add(ActivityPlan(activityName, hours));
+        }
+      });
+    }
   }
 }
