@@ -51,8 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       child: Image(
                         image: const AssetImage('assets/bee1.png'),
-                        width: screenWidth * 0.20, // 25% of screen width
-                        height: screenWidth * 0.20, // 25% of screen width
+                        width: screenWidth * 0.25, // 25% of screen width
+                        height: screenWidth * 0.25, // 25% of screen width
                       ),
                     ),
                   ),
@@ -63,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Container(
                       child: Image(
                         image: const AssetImage('assets/bee2.png'),
-                        width: screenWidth * 0.25, // 30% of screen width
-                        height: screenWidth * 0.25, // 30% of screen width
+                        width: screenWidth * 0.30, // 30% of screen width
+                        height: screenWidth * 0.30, // 30% of screen width
                       ),
                     ),
                   ),
@@ -255,14 +255,13 @@ class _LoginScreenState extends State<LoginScreen> {
       String password = passwordController.text;
 
       try {
-        User? user = await _auth.signInWithEmailAndPassword(email, password);
+        User? user = await _auth.signInWithEmailAndPassword(context, email, password);
 
         setState(() {
           _isSigningIn = false;
         });
 
         if (user != null) {
-          // showToast(message: 'User is successfully logged in');
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               backgroundColor: Colors.green,
@@ -280,13 +279,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } on FirebaseAuthException catch (e) {
         setState(() {
           _isSigningIn = false;
-          if (e.code == 'user-not-found') {
-            errorMessage = 'User not found';
-          } else if (e.code == 'wrong-password') {
-            errorMessage = 'Incorrect password';
-          } else {
-            errorMessage = 'Invalid email or password. Please try again.';
-          }
+          // if (e.code == 'user-not-found') {
+          //   errorMessage = 'User not found';
+          // } else if (e.code == 'wrong-password') {
+          //   errorMessage = 'Incorrect password';
+          // } else {
+          //   errorMessage = 'Invalid email or password. Please try again.';
+          // }
         });
       } catch (e) {
         setState(() {

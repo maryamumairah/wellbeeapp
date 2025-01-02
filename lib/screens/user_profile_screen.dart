@@ -34,6 +34,9 @@ class _UserProfileState extends State<UserProfile> {
   Future<void> _logout() async {
     try {
       await FirebaseAuth.instance.signOut(); // Sign out the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User is logged out successfully')),
+      );
       Navigator.pushAndRemoveUntil(
         context, MaterialPageRoute(builder: (context) => const LoginScreen()), // Replace with your login screen widget
         (route) => false, // Remove all previous routes
@@ -52,103 +55,109 @@ class _UserProfileState extends State<UserProfile> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 100.0),
-                Container(
-                  width: 200,
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    // border: Border.all(
-                    //   color: Colors.black,
-                    //   width: 2.0,
-                    // ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 100,
-                    backgroundColor: Colors.transparent,
-                    backgroundImage: user?.photoURL != null
-                        ? NetworkImage(user!.photoURL!)
-                        : const AssetImage('assets/profile.png') as ImageProvider,
-                  ),
-                ),
-                const SizedBox(height: 30.0),
-                Text(
-                  user?.displayName ?? 'Username',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'InterBold',
-                  ),
-                ),
-                const SizedBox(height: 10.0),
-                Text(
-                  user?.email ?? 'Email',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'Inter',
-                  ),
-                ),
-                const SizedBox(height: 10.0),
-                Text(
-                  jobPosition,
-                  style: const TextStyle(
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 50.0),
-                ElevatedButton(
-                  onPressed: () async {
-                    final result = await Navigator.pushNamed(context, Routes.updateUserProfile);
-                    if (result != null && result is Map<String, String>) {
-                      setState(() {
-                        user = FirebaseAuth.instance.currentUser;
-                        user?.updateProfile(displayName: result['displayName'] ?? user!.displayName!);
-                        user?.verifyBeforeUpdateEmail(result['email'] ?? user!.email!);
-                        jobPosition = result['jobPosition'] ?? jobPosition;
-                      });
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
-                    textStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'InterSemiBold',
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(height: constraints.maxHeight * 0.1),
+                    Container(
+                      width: constraints.maxWidth * 0.5,
+                      height: constraints.maxWidth * 0.5,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        radius: constraints.maxWidth * 0.25,
+                        backgroundColor: Colors.transparent,
+                        backgroundImage: user?.photoURL != null
+                            ? NetworkImage(user!.photoURL!)
+                            : const AssetImage('assets/profile.png') as ImageProvider,
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                    SizedBox(height: constraints.maxHeight * 0.05),
+                    Text(
+                      user?.displayName ?? 'Username',
+                      style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.06,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'InterBold',
+                      ),
                     ),
-                  ),
-                  child: const Text('Update Profile'),
+                    SizedBox(height: constraints.maxHeight * 0.02),
+                    Text(
+                      user?.email ?? 'Email',
+                      style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.045,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                    SizedBox(height: constraints.maxHeight * 0.02),
+                    Text(
+                      jobPosition,
+                      style: TextStyle(
+                        fontSize: constraints.maxWidth * 0.045,
+                      ),
+                    ),
+                    SizedBox(height: constraints.maxHeight * 0.05),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final result = await Navigator.pushNamed(context, Routes.updateUserProfile);
+                        if (result != null && result is Map<String, String>) {
+                          setState(() {
+                            user = FirebaseAuth.instance.currentUser;
+                            user?.updateProfile(displayName: result['displayName'] ?? user!.displayName!);
+                            user?.verifyBeforeUpdateEmail(result['email'] ?? user!.email!);
+                            jobPosition = result['jobPosition'] ?? jobPosition;
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: constraints.maxWidth * 0.2,
+                          vertical: constraints.maxHeight * 0.03,
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: constraints.maxWidth * 0.06,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text('Update Profile'),
+                    ),
+                    SizedBox(height: constraints.maxHeight * 0.02),
+                    ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: constraints.maxWidth * 0.2,
+                          vertical: constraints.maxHeight * 0.03,
+                        ),
+                        textStyle: TextStyle(
+                          fontSize: constraints.maxWidth * 0.06,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'InterSemiBold',
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text('Logout'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: _logout,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
-                    textStyle: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'InterSemiBold',
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  child: const Text('Logout'),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

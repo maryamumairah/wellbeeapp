@@ -214,9 +214,11 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
-                    filterCategory = selectedCategory;
-                    filterDate = selectedDate;
-                    _isFilterApplied = !_isFilterApplied;
+                    if (selectedCategory != null || selectedDate != null) {
+                      filterCategory = selectedCategory;
+                      filterDate = selectedDate;
+                      _isFilterApplied = true;
+                    }
                   });
                 },
                 style: ElevatedButton.styleFrom(
@@ -243,7 +245,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                     selectedDate = null;
                     filterCategory = null;
                     filterDate = null;
-                    _isFilterApplied = !_isFilterApplied;
+                    _isFilterApplied = false;
                   });
                   Navigator.of(context).pop();
                 },
@@ -663,7 +665,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                   child: LineChart(
                     LineChartData(
                       maxY: chartMaxY, // Ensure maxY is 5.5 to show full y-axis values
-                      minY: 1, // Ensure minY is 0 to show full y-axis values
+                      minY: 1, // Ensure minY is 1 to show full y-axis values
                       lineBarsData: [
                         LineChartBarData(
                           spots: lineChartData,
@@ -674,7 +676,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                           dotData: FlDotData(show: true, getDotPainter: (spot, percent, barData, index) {
                             return FlDotCirclePainter(
                               radius: 4,
-                              color: const Color(0xFF96C1F9),
+                              color: Colors.blueAccent,
                               strokeWidth: 0,
                               strokeColor: Colors.white,
                             );
@@ -757,7 +759,10 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                       ),
                       lineTouchData: LineTouchData(
                         touchTooltipData: LineTouchTooltipData(
-                          // tooltipBgColor: Colors.blueAccent,
+                          getTooltipColor: (LineBarSpot touchedSpot) {
+                            // Customize color dynamically if needed
+                            return const Color(0xFF96C1F9); // Replace with logic if dynamic colors are needed
+                          },
                           getTooltipItems: (List<LineBarSpot> touchedSpots) {
                             return touchedSpots.map((touchedSpot) {
                               final report = reportData[touchedSpot.spotIndex];
@@ -770,6 +775,8 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
                               );
                             }).toList();
                           },
+                          fitInsideHorizontally: true, // Ensure tooltip fits inside the chart horizontally
+                          fitInsideVertically: true, // Ensure tooltip fits inside the chart vertically
                         ),
                       ),
                     ),

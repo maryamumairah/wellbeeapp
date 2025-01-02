@@ -1,13 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wellbeeapp/global/common/toast.dart';
-
 
 class FirebaseAuthServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  Future<User?> signUpWithEmailAndPassword(String email, String password) async {
+  Future<User?> signUpWithEmailAndPassword(BuildContext context, String email, String password) async {
     try {
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -27,14 +24,13 @@ class FirebaseAuthServices {
           errorMessage = 'Email/password accounts are not enabled.';
           break;
         case 'weak-password':
-          errorMessage = 'The password is too weak.';
+          errorMessage = 'The password must be 6 characters long or more.';
           break;
         default:
           errorMessage = 'An error occurred: ${e.code}';
           break;
       }
-      // showToast(message: errorMessage);
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
           content: Text(errorMessage),
@@ -44,7 +40,7 @@ class FirebaseAuthServices {
     return null;
   }
 
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
+  Future<User?> signInWithEmailAndPassword(BuildContext context, String email, String password) async {
     try {
       UserCredential credential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -75,8 +71,7 @@ class FirebaseAuthServices {
           errorMessage = 'An error occurred: ${e.code}';
           break;
       }
-      // showToast(message: errorMessage);
-      ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
           content: Text(errorMessage),
