@@ -636,7 +636,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   children: [
                     Text(
                       "TIME'S UP!",
-                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(fontSize: 30, fontFamily: 'InterSemiBold', color: Colors.blue),
                     ),
                     const SizedBox(height: 9),
                     const Icon(Icons.timer, size: 50, color: Colors.blue),
@@ -698,7 +698,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text(
           'Timer Activity',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'InterBold',),
         ),
       ),
       body: Center(
@@ -794,9 +794,9 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Text('Play Duration', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text('End Time', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Play Duration', style: TextStyle(fontFamily: 'InterSemiBold',)),
+                      Text('Start Time', style: TextStyle(fontFamily: 'InterSemiBold',)),
+                      Text('End Time', style: TextStyle(fontFamily: 'InterSemiBold',)),
                     ],
                   ),
                   const Divider(thickness: 2, indent: 20, endIndent: 20),

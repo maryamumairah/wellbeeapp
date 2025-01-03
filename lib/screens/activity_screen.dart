@@ -75,7 +75,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               ds["activityName"],
                               style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'InterSemiBold',
                               ),
                             ),
 
@@ -104,11 +104,19 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuItem>>[
                                 const PopupMenuItem<MenuItem>(
                                   value: MenuItem.edit,
-                                  child: Text('Edit'),
+                                  child: Text('Edit',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'InterSemiBold',
+                                  )),
                                 ),
                                 const PopupMenuItem<MenuItem>(
                                   value: MenuItem.delete,
-                                  child: Text('Delete'),
+                                  child: Text('Delete',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'InterSemiBold',
+                                  )),
                                 ),
                               ],
                             ),                            
@@ -126,7 +134,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             ds["categoryName"],
                             style: const TextStyle(
                               fontSize: 16,     
-                              color: Colors.white                       
+                              color: Colors.white,
+                              fontFamily: 'Inter',                       
                             ),
                           ),
                         ),
@@ -136,6 +145,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           DateFormat('d MMM yyyy').format(DateTime.parse(ds["date"])),                                                
                           style: const TextStyle(
                             fontSize: 14,
+                            fontFamily: 'Inter', 
                           ),                    
                         ),                 
                         Row(
@@ -144,12 +154,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               ds["hour"],
                               style: const TextStyle(
                                 fontSize: 14,
+                                fontFamily: 'Inter', 
                               ),                    
                             ),
                             const Text(
                               ' hrs',
                               style: TextStyle(
                                 fontSize: 14,
+                                fontFamily: 'Inter', 
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -157,12 +169,14 @@ class _ActivityScreenState extends State<ActivityScreen> {
                               ds["minute"],
                               style: const TextStyle(
                                 fontSize: 14,
+                                fontFamily: 'Inter', 
                               ),                    
                             ),
                             const Text(
                               ' mins',
                               style: TextStyle(
                                 fontSize: 14,
+                                fontFamily: 'Inter', 
                               ),
                             ),
                             
@@ -217,7 +231,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             Text(
               'Activities',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+              fontFamily: 'InterBold',
               ),
             ),            
           ],
@@ -322,9 +336,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
           content: const Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('This will delete the activity permanently.'),
+              Text('This will delete the activity permanently.', 
+              style: TextStyle(color: Colors.black,
+              fontFamily: 'Inter',)),
               SizedBox(height: 2),
-              Text('You cannot undo this action.'),
+              Text('You cannot undo this action.',
+              style: TextStyle(color: Colors.black,
+              fontFamily: 'Inter',)),
             ],
           ),
           actions: <Widget>[
@@ -344,7 +362,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       ),
                     ),
                     child:
-                      const Text('Cancel',style: TextStyle(color: Colors.black)),
+                      const Text('Cancel',style: TextStyle(color: Colors.black, fontFamily: 'InterSemiBold')),
                   ),
                   TextButton(
                     onPressed: () async {
@@ -353,7 +371,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           await DatabaseMethods().deleteActivity(currentUser, activityID); // delete from database
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Activity deleted'),
+                              content: Text('Activity deleted', style: TextStyle(color: Colors.white, fontFamily: 'Inter')),
                               duration: Duration(seconds: 3),
                               backgroundColor: Colors.red,
                             ),
@@ -376,7 +394,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Failed to delete activity: $e'),
+                            content: Text('Failed to delete activity: $e', style: const TextStyle(color: Colors.white, fontFamily: 'Inter')),
                             duration: const Duration(seconds: 3),
                             backgroundColor: Colors.red,
                           ),
@@ -392,7 +410,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text('Delete', style: TextStyle(color: Colors.white)),
+                    child: const Text('Delete', style: TextStyle(color: Colors.white, fontFamily: 'InterSemiBold')),
                   ),
                 ],
               ),

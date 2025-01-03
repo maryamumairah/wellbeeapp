@@ -215,7 +215,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
             Text(
               'Daily Goal',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
+                fontFamily: 'InterBold',
               ),
             ),            
           ],
@@ -513,7 +513,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
               Container(
                 width: 60,
                 height: 60,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
@@ -527,7 +527,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                   children: [
                     Text(
                       category,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: 18, fontFamily: 'InterSemiBold',),
                     ),
                     const SizedBox(height: 8.0),
                     LinearProgressIndicator(
@@ -539,7 +539,8 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                     const SizedBox(height: 8.0),
                     Text(
                       'Duration: ${hour > 0 ? '${hour}hr ' : ''}${minute > 0 ? '${minute}m' : ''}', // Modified line
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16, 
+                      fontFamily: 'Inter',),
                     ),                    
                   ],
                 ),

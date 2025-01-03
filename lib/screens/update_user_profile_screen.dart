@@ -90,88 +90,109 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
           title: const Text('Are you sure?'),
           content: const Text('This will delete the profile permanently. You cannot undo this action.'),
           actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Cancel',
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                try {
-                  // Get the reference to the user's stressReports subcollection
-                  CollectionReference stressReportsRef = FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user!.uid)
-                      .collection('stressReports');
-            
-                  // Get all documents in the stressReports subcollection
-                  QuerySnapshot stressReportsSnapshot = await stressReportsRef.get();
-            
-                  // Delete each document in the stressReports subcollection
-                  for (DocumentSnapshot doc in stressReportsSnapshot.docs) {
-                    await doc.reference.delete();
-                  }
+            Center(
+              child:  Row(
+                mainAxisAlignment: MainAxisAlignment.values[5],
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'Cancel'),
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.black),
+                      shadowColor: Colors.black,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child:
+                      const Text('Cancel',style: TextStyle(color: Colors.black, fontFamily: 'InterSemiBold')),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      try {
+                        // Get the reference to the user's stressReports subcollection
+                        CollectionReference stressReportsRef = FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(user!.uid)
+                            .collection('stressReports');
+                  
+                        // Get all documents in the stressReports subcollection
+                        QuerySnapshot stressReportsSnapshot = await stressReportsRef.get();
+                  
+                        // Delete each document in the stressReports subcollection
+                        for (DocumentSnapshot doc in stressReportsSnapshot.docs) {
+                          await doc.reference.delete();
+                        }
 
-                 CollectionReference activitiesRef = FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(user!.uid)
-                      .collection('activities');
-            
-                  // Get all documents in the activities subcollection
-                  QuerySnapshot activitiesSnapshot = await activitiesRef.get();
-            
-                  // Delete each document in the activities subcollection
-                  for (DocumentSnapshot activityDoc in activitiesSnapshot.docs) {
-                    // Get the reference to the timerLogs subcollection for each activity
-                    CollectionReference timerLogsRef = activityDoc.reference.collection('timerLogs');
-                    
-                    // Get all documents in the timerLogs subcollection
-                    QuerySnapshot timerLogsSnapshot = await timerLogsRef.get();
-                    
-                    // Delete each document in the timerLogs subcollection
-                    for (DocumentSnapshot timerLogDoc in timerLogsSnapshot.docs) {
-                      await timerLogDoc.reference.delete();
-                    }
-                    
-                    // Delete the activity document
-                    await activityDoc.reference.delete();
-                  }
-            
-                  // Delete the user document
-                  await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
-                  await user?.delete();
-            
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
-                  // showToast(message: 'User profile deleted successfully');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('User profile deleted successfully')
-                    ),
-                  );
-                } catch (e) {
-                  Navigator.of(context).pop(); // Close the dialog
-                  // showToast(message: 'Failed to delete profile and stress reports: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
+                      CollectionReference activitiesRef = FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(user!.uid)
+                            .collection('activities');
+                  
+                        // Get all documents in the activities subcollection
+                        QuerySnapshot activitiesSnapshot = await activitiesRef.get();
+                  
+                        // Delete each document in the activities subcollection
+                        for (DocumentSnapshot activityDoc in activitiesSnapshot.docs) {
+                          // Get the reference to the timerLogs subcollection for each activity
+                          CollectionReference timerLogsRef = activityDoc.reference.collection('timerLogs');
+                          
+                          // Get all documents in the timerLogs subcollection
+                          QuerySnapshot timerLogsSnapshot = await timerLogsRef.get();
+                          
+                          // Delete each document in the timerLogs subcollection
+                          for (DocumentSnapshot timerLogDoc in timerLogsSnapshot.docs) {
+                            await timerLogDoc.reference.delete();
+                          }
+                          
+                          // Delete the activity document
+                          await activityDoc.reference.delete();
+                        }
+                  
+                        // Delete the user document
+                        await FirebaseFirestore.instance.collection('users').doc(user!.uid).delete();
+                        await user?.delete();
+                  
+                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.pushNamedAndRemoveUntil(context, Routes.login, (route) => false);
+                        // showToast(message: 'User profile deleted successfully');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('User profile deleted successfully')
+                          ),
+                        );
+                      } catch (e) {
+                        Navigator.of(context).pop(); // Close the dialog
+                        // showToast(message: 'Failed to delete profile and stress reports: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text('Failed to delete user profile')
+                          ),
+                        );
+                      }
+                    },
+                    style: TextButton.styleFrom(
                       backgroundColor: Colors.red,
-                      content: Text('Failed to delete user profile')
+                      side: const BorderSide(color: Colors.black),
+                      shadowColor: Colors.black,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  );
-                }
-              },
-              child: const Text(
-                'Delete',
-                style: TextStyle(
-                  color: Colors.red,
-                ),
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'InterSemiBold',
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+            )
           ],
         );
       },
@@ -183,8 +204,8 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: const Text('Update Profile'),
-        centerTitle: true,
+        title: const Text('Update Profile', style: TextStyle(color: Colors.black, fontFamily: 'InterBold')),
+        centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

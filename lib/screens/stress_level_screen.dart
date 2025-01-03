@@ -29,6 +29,17 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [            
+            Text(
+              'Stress Level',
+              style: TextStyle(
+                fontFamily: 'InterBold',
+              ),
+            ),            
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -36,16 +47,16 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0),
-                child: Text(
-                  'Stress Level',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'InterBold',
-                  ),
-                ),
-              ),
+              // const Padding(
+              //   padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0),
+              //   child: Text(
+              //     'Stress Level',
+              //     style: TextStyle(
+              //       fontSize: 24,
+              //       fontFamily: 'InterBold',
+              //     ),
+              //   ),
+              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -104,7 +115,7 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
               Navigator.pushReplacementNamed(context, Routes.activity);
               break;
             case 2:
-              break;
+              Navigator.pushReplacementNamed(context, Routes.dailyGoal);
             case 3:
               break;
           }

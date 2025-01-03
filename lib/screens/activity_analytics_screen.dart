@@ -66,7 +66,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         if (planData.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('No activities found for ${DateFormat('d MMM yyyy').format(activityDate)}.'),
+              content: Text('No activities found for ${DateFormat('d MMM yyyy').format(activityDate)}.', 
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Inter',
+                )
+              ),
             ),
           );
         }
@@ -77,7 +82,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
       print('Error fetching activities: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Failed to fetch activities data.'),
+          content: Text('Failed to fetch activities data.', 
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: 'Inter',
+            )
+          ),
         ),
       );
     }
@@ -191,8 +201,8 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                     getTitlesWidget: (double value, TitleMeta meta) {
                       const style = TextStyle(
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8.5,
+                        fontFamily: 'InterSemiBold',
+                        fontSize: 8,
                       );
                       String text;
                       if (value == 0) {
@@ -224,7 +234,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: const Text('Activity Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Activity Analytics', 
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: 'InterBold',
+            )
+        ),
       ),
       body: isLoading
       ? const Center(child: CircularProgressIndicator())
@@ -237,7 +252,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                     'No activities found for ${DateFormat('d MMM yyyy').format(activityDate)}.',
                     style: const TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterSemiBold',
                     ),
                   ),
                 ],
@@ -258,6 +273,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.white,
+                                fontFamily: 'InterSemiBold',
                               )),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF9887FF),
@@ -276,8 +292,8 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                   const Text(
                     'Plan',
                     style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontFamily: 'InterBold',
                       color: Colors.black,
                       decoration: TextDecoration.underline,
                     ),
@@ -288,7 +304,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                     DateFormat('d MMM yyyy').format(activityDate),
                     style: const TextStyle(
                       fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontFamily: 'InterSemiBold',
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -354,7 +370,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         DateTime selectedDate = DateTime.now();
 
         return AlertDialog(
-          title: const Text("Filter Activities"),
+          title: const Text("Filter Activities", 
+            style: TextStyle(
+              fontSize: 20,
+              fontFamily: 'InterSemiBold',
+            )
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -374,7 +395,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                     });
                   }
                 },
-                child: const Text("Select Date"),
+                child: const Text("Select Date",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'InterSemiBold',
+                  )
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
@@ -385,7 +411,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
                   Navigator.pop(context);
                   _retrieveData(); // Fetch activities for the current date
                 },
-                child: const Text("Reset Filter"),
+                child: const Text("Reset Filter",
+                style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'InterSemiBold',
+                  )
+                ),
               ),
             ],
           ),
@@ -424,7 +455,12 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Colors.red,
-                content: Text('No activities found for ${DateFormat('d MMM yyyy').format(date)}.'),
+                content: Text('No activities found for ${DateFormat('d MMM yyyy').format(date)}.', 
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Inter',
+                  )
+                ),
               ),
             );
           }
@@ -433,45 +469,15 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
         print('Error filtering activities by date: $e');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to fetch activities for the selected date.'),
+            content: Text('Failed to fetch activities for the selected date.', 
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'Inter',
+              )
+            ),
           ),
         );
       }
     }
   }
-
-
-  // Filter activities based on category
-  // void _filterActivities(String category) async {
-  //   if (currentUser != null) {
-  //     QuerySnapshot snapshot = await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(currentUser!.uid)
-  //         .collection('activities')
-  //         .where('categoryName', isEqualTo: category)
-  //         .get();
-
-  //     setState(() {
-  //       planData.clear();
-  //       for (var doc in snapshot.docs) {
-  //         String activityName = doc['activityName'];
-  //         String hourString = doc['hour'];
-  //         String minuteString = doc['minute'];
-  //         double hours = double.parse(hourString) + (double.parse(minuteString) / 60);
-  //         planData.add(ActivityPlan(activityName, hours));
-  //       }
-
-  //       // Display a message if no data matches the filter
-  //       if (planData.isEmpty) {
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(
-  //             backgroundColor: Colors.red,
-  //             content: Text('No activities found for the selected category: $category'),
-  //           ),
-  //         );
-  //         _retrieveData(); // Reload all activities to show the default screen
-  //       }
-  //     });
-  //   }
-  // }
 }

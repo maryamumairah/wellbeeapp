@@ -30,7 +30,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
           backgroundColor: Theme.of(context).primaryColor,
           title: const Text(
             'Add New Activity',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontFamily: 'InterBold',),
           ),
         ),
         body: Container(
@@ -46,13 +46,14 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     // activity name input field
                     const Text(
                       'Activity',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'InterSemiBold',),
                     ),
                     const SizedBox(height: 8.0),
                     TextFormField(
                       controller: activityController,
                       decoration: InputDecoration(
                         hintText: 'Enter activity name',
+                        hintStyle: const TextStyle(fontFamily: 'Inter',),
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
@@ -71,7 +72,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     // category input field
                     const Text(
                       'Category',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'InterSemiBold',),
                     ),
                     const SizedBox(height: 8.0),
                     DropdownButtonFormField<String>(
@@ -82,7 +83,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                       ),
-                      hint: const Text('Select category'),
+                      hint: const Text('Select category', 
+                        style: TextStyle(fontFamily: 'Inter',),
+                      ),
                       items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual'].map((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
@@ -104,7 +107,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     // duration input field
                     const Text(
                       'Duration',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'InterSemiBold',),
                     ),
                     const SizedBox(height: 8.0),
                     Row(
@@ -118,7 +121,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                            hint: const Text('Hour'),
+                            hint: const Text('Hour',
+                              style: TextStyle(fontFamily: 'Inter',),
+                            ),
                             items: List.generate(24, (index) => index).map((int value) {
                               return DropdownMenuItem<int>(
                                 value: value,
@@ -146,7 +151,9 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                            hint: const Text('Minute'),
+                            hint: const Text('Minute',
+                              style: TextStyle(fontFamily: 'Inter',),
+                            ),
                             items: List.generate(60, (index) => index).map((int value) {
                               return DropdownMenuItem<int>(
                                 value: value,
@@ -171,13 +178,14 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                     // date input field
                     const Text(
                       'Date',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(fontFamily: 'InterSemiBold',),
                     ),
                     const SizedBox(height: 8.0),
                     TextField(
                       controller: dateController,
                       decoration: InputDecoration(
                         hintText: 'Select date',
+                        hintStyle: const TextStyle(fontFamily: 'Inter',),
                         filled: true,
                         fillColor: Colors.white,
                         prefixIcon: const Icon(Icons.calendar_today),
@@ -244,7 +252,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                         },                  
                         child: const Text(
                           'Create Activity',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontFamily: 'InterSemiBold',),
                         ),
                       ),
                     ),
@@ -262,7 +270,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text(
           'Add New Activity',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'InterSemiBold',),
         ),
       ),
       body: Center(

@@ -105,7 +105,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         backgroundColor: Theme.of(context).primaryColor,
         title: const Text(
           'Edit Activity',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontFamily: 'InterBold',),
         ),
       ),
       body: Container(
@@ -118,13 +118,14 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               // activity name input field
               const Text(
                 'Activity',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'InterSemiBold',),
               ),
               const SizedBox(height: 8.0),
               TextFormField(
                 controller: activityController,
                 decoration: InputDecoration(
                   hintText: 'Enter activity name',
+                  hintStyle: const TextStyle(fontFamily: 'Inter',),
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -143,7 +144,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               // category input field
               const Text(
                 'Category',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'InterSemiBold',),
               ),
               const SizedBox(height: 8.0),
               DropdownButtonFormField<String>(
@@ -155,7 +156,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                   ),
                 ),
                 //display the selected category
-                hint: const Text('Select category'),
+                hint: const Text('Select category', style: TextStyle(fontFamily: 'Inter',),),
                 value: categoryController.text,        
                 // items: ['Work', 'Meal', 'Spiritual'].map((String category) {
                 items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual'].map((String category) {
@@ -179,7 +180,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               // duration input field
               const Text(
                 'Duration',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'InterSemiBold',),
               ),
               const SizedBox(height: 8.0),
               Row(
@@ -194,7 +195,9 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                         ),
                       ),
                       // display the selected hour
-                      hint: const Text('Hour'),
+                      hint: const Text('Hour', 
+                        style: TextStyle(fontFamily: 'Inter',),
+                      ),
                       value: int.parse(hourController.text),                      
                       items: List.generate(24, (index) => index).map((int value) {
                         return DropdownMenuItem<int>(
@@ -226,7 +229,9 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                         ),
                       ),
                       // display the selected minute
-                      hint: const Text('Minute'),
+                      hint: const Text('Minute',
+                        style: TextStyle(fontFamily: 'Inter',),
+                      ),
                       value: int.parse(minuteController.text),
                       items: List.generate(60, (index) => index).map((int value) {
                         return DropdownMenuItem<int>(
@@ -246,7 +251,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                     ),
                   ),
                   const SizedBox(width: 5.0),
-                  Text('min'),                  
+                  const Text('min', style: const TextStyle(fontFamily: 'Inter',),),                  
                 ],
               ),
               const SizedBox(height: 16.0),
@@ -254,13 +259,14 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               // date input field
               const Text(
                 'Date',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontFamily: 'InterSemiBold',),
               ),
               const SizedBox(height: 8.0),
               TextField(
                 controller: dateController,
                 decoration: InputDecoration(
                   hintText: 'Select date',
+                  hintStyle: const TextStyle(fontFamily: 'Inter',),
                   filled: true,
                   fillColor: Colors.white,
                   prefixIcon: const Icon(Icons.calendar_today),
@@ -279,7 +285,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
               Center(  
                 child: ElevatedButton(
                   onPressed: _updateActivity,
-                  child: const Text('Update Activity'),
+                  child: const Text('Update Activity', style: TextStyle(fontFamily: 'InterSemiBold',),),
               ),
               ),
             ],
