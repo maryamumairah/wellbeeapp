@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wellbeeapp/routes.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class DailyGoalScreen extends StatefulWidget {
