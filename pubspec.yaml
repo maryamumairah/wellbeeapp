@@ -36,14 +36,16 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   intl: ^0.19.0
-  firebase_auth: ^5.3.0
-  # cloud_firestore: ^5.4.2
-  cloud_firestore: ^5.5.0
-  # firebase_core: ^3.6.0
-  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.4
+  cloud_firestore: ^5.4.2
+  firebase_core: ^3.6.0
   random_string: ^2.3.1
   stop_watch_timer: ^3.2.1
   circular_countdown_timer: ^0.2.4
+  fluttertoast: ^8.2.8
+  fl_chart: ^0.69.2
+  shared_preferences: ^2.3.4
+  syncfusion_flutter_charts: ^28.1.35
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +72,14 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:  
   - assets/profile.png
+  - assets/bee1.png
+  - assets/bee2.png
+  - assets/regular_face-smile.png
+  - assets/calm.png
+  - assets/low_stress.png
+  - assets/moderate_stress.png
+  - assets/high_stress.png
+  - assets/overwhelmed.png
 
   
   
@@ -85,17 +95,23 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter_18pt-Regular.ttf
+
+    - family: InterBold
+      fonts:
+        - asset: fonts/Inter_18pt-Bold.ttf
+    
+    - family: InterSemiBold
+      fonts:
+        - asset: fonts/Inter_18pt-SemiBold.ttf
+        
+    - family: InterExtraBold
+      fonts:
+        - asset: fonts/Inter_18pt-ExtraBold.ttf
+    
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
