@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:wellbeeapp/firebase_options.dart';
 import 'package:wellbeeapp/screens/user_profile_screen.dart';
@@ -57,7 +56,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
 
-      initialRoute: Routes.welcome, //to be changed
+      initialRoute: Routes.welcome,
       routes: {
         Routes.welcome: (context) => const WelcomeScreen(), 
         Routes.register: (context) => const RegisterScreen(), 
@@ -76,8 +75,7 @@ class MyApp extends StatelessWidget {
         switch (settings.name) {
           case Routes.editActivity:           
             final args = settings.arguments as DocumentSnapshot;
-            return MaterialPageRoute(
-              // builder: (context) => EditActivityScreen(activity: args),
+            return MaterialPageRoute(              
               builder: (context) => EditActivityScreen(activity: args.data() as Map<String, dynamic>), 
             );
           case Routes.timerActivity:

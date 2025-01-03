@@ -34,18 +34,10 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
   @override
   void initState() {
     super.initState();
-    // _loadCounter();
     retrieveActivityTime(widget.activityID); 
     retrieveTimerLogs(widget.activityID);
-    // checkTimerCompletion(widget.activityID);
     retrieveInitialCounterProgress(widget.activityID);
   }
-
-  // Future<void> _loadCounter() async {    
-  //   setState(() {
-  //     _counter = 0; // initial counter
-  //   });
-  // }
 
   Future<void> retrieveActivityTime(String activityID) async {
     try {
@@ -65,15 +57,9 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
           int initialCounterActivity = (hour * 3600) + (minute * 60);
 
           setState(() {
-            // initialCounterActivity = (hour * 3600) + (minute * 60);
             _counter = initialCounterActivity;
             _initialCounter = _counter;
           });
-
-          // setState(() {
-          //   _counter = (hour * 3600) + (minute * 60);
-          //   _initialCounter = _counter;
-          // });
 
           QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
               .collection('users')
@@ -86,24 +72,23 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
               .get();
 
           if (timerLogsSnapshot.docs.isEmpty) {
-            // 3. If timer logs don't exist (haven't played at all)
+            // If timer logs don't exist
             setState(() {
               _counter = initialCounterActivity;
               _initialCounter = _counter;
             });
-          } else { // timerLogsSnapshot.docs.isNotEmpty (timer logs exist)
+          } else { // timer logs exist
             DocumentSnapshot latestLog = timerLogsSnapshot.docs.first;
             Map<String, dynamic> data = latestLog.data() as Map<String, dynamic>;
             
             DateTime startTime = (data['startTime'] as Timestamp).toDate();
             print('Latest timerLogID startTime: $startTime');
             DateTime? endTime = data['endTime'] != null ? (data['endTime'] as Timestamp).toDate() : null;
-            // int playDuration = data['playDuration'] ?? 0;
+          
             int playDuration = data.containsKey('playDuration') ? data['playDuration'].toInt() : 0; // if the key exists, get the value, else return 0
 
-
             if (endTime == null) {
-              // 4a. If endTime doesn't exist (means that they are playing the timer and haven't paused)
+              // if endTime doesn't exist, timer is playing and haven't paused yet
 
               QuerySnapshot timerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
               .collection('users')
@@ -112,13 +97,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
               .doc(activityID)
               .collection('timerLogs')
               .get();
-
-              // DocumentSnapshot ds = await FirebaseFirestore.instance
-              //     .collection('users')
-              //     .doc(currentUser!.uid)
-              //     .collection('activities')
-              //     .doc(activityID)
-              //     .get();
 
               setState(() {
                 //total of all playDuration from all timerlogs
@@ -141,107 +119,27 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
                 print(DateTime.now().difference(startTime).inSeconds);
 
-                // _counter = latestCounter - DateTime.now().difference(startTime).inSeconds; 
-
-                // _counter = initialCounterActivity - DateTime.now().difference(startTime).inSeconds;          
-                // _initialCounter = _counter;
-                // print(DateTime.now().difference(startTime).inSeconds);
-
-                // _isPaused = false; // Initially play
-                // _startTimer();
                 _resumeTimer();
               });
             } else {
-              // 4b. If endTime exists (means that they already played and paused timer)
+              // If endTime exists, timer played and paused
               setState(() {
-                int playDuration = data.containsKey('playDuration') ? data['playDuration'] : 0; // if the key exists, get the value, else return 0
-                // _counter = ((hour * 3600) + (minute * 60)) - playDuration;
+                int playDuration = data.containsKey('playDuration') ? data['playDuration'] : 0; // if the key exists, get the value, else return 0          
 
-                if (initialCounterActivity == playDuration) { // 4c. timer completed
+                if (initialCounterActivity == playDuration) { // timer completed
                   _counter = initialCounterActivity;
                   _initialCounter = _counter;                
-                } else { // 4b
+                } else { // If endTime exists, timer played and paused
                   _counter = initialCounterActivity - playDuration;
                   _initialCounter = _counter;                
 
                 }
-
-                // _counter = initialCounterActivity - playDuration;
-                // _initialCounter = _counter;                
+             
               });
 
               
             }
-          
-          // QuerySnapshot allTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
-          //     .collection('users')
-          //     .doc(currentUser!.uid)
-          //     .collection('activities')
-          //     .doc(widget.activityID)
-          //     .collection('timerLogs')
-          //     .get();
-
-          // // List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
-          // List<Map<String, dynamic>> fetchedRecords = allTimerLogsSnapshot.docs.map((doc) {
-          //   return {
-          //     // 'playDuration': doc['playDuration'],
-          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
-          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
-          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
-          //   };
-          // }).toList();
-
-          // setState(() {
-          //   _timeRecords = fetchedRecords;
-          // });
-
-          // print('_timeRecords: $_timeRecords');
-
-
-
           }  
-//161-184
-          // QuerySnapshot allTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
-          //     .collection('users')
-          //     .doc(currentUser!.uid)
-          //     .collection('activities')
-          //     .doc(widget.activityID)
-          //     .collection('timerLogs')
-          //     .get();
-
-          // List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
-          // // List<Map<String, dynamic>> fetchedRecords = allTimerLogsSnapshot.docs.map((doc) {
-          //   return {
-          //     // 'playDuration': doc['playDuration'],
-          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
-          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
-          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
-          //   };
-          // }).toList();
-
-          // setState(() {
-          //   _timeRecords = fetchedRecords;
-          // });
-
-          // print('_timeRecords: $_timeRecords');
-
-          // if (timerLogsSnapshot.docs.isNotEmpty) {
-          //   List<Map<String, dynamic>> fetchedRecords = timerLogsSnapshot.docs.map((doc) {
-          //     return {
-          //       'playDuration': doc['playDuration'],
-          //       'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-          //       'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A',
-          //     };
-          //   }).toList();
-
-          //   setState(() {
-          //     _timeRecords = fetchedRecords;
-          //   });
-          // }        
-
-          // Process timer logs if needed
         } else {
           print('Activity document does not exist');
         }
@@ -269,12 +167,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
             final data = doc.data() as Map<String, dynamic>?; // Ensure data is not null
 
             return {
-              // 'playDuration': doc['playDuration'],
-              // 'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
-              // 'playDuration': doc.data().containsKey('playDuration') ? doc['playDuration'] : 0,
-              // // 'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-              // 'start': doc['startTime'] != null ? DateFormat('h:mm a').format(doc['startTime'].toDate()) : 'N/A',
-              // 'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A',
             'playDuration': data != null && data.containsKey('playDuration') ? data['playDuration'] : 0,
             'start': data != null && data.containsKey('startTime') ? DateFormat('h:mm a').format((data['startTime'] as Timestamp).toDate()) : '              ',
             'end': data != null && data.containsKey('endTime') ? DateFormat('h:mm a').format((data['endTime'] as Timestamp).toDate()) : '              ',
@@ -293,58 +185,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
     }
   }
 
-  // Future<void> retrieveInitialCounterProgress(String activityID) async {
-  //   try {
-  //     if (currentUser != null) {
-  //       DocumentSnapshot ds = await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(currentUser!.uid)
-  //           .collection('activities')
-  //           .doc(activityID)
-  //           .get();
-
-  //       if (ds.exists) {
-  //         int hour = int.parse(ds['hour']);
-  //         int minute = int.parse(ds['minute']);
-
-  //         // int initialCounterProgress = (hour * 3600) + (minute * 60);
-
-  //         setState(() {
-  //           initialCounterProgress = (hour * 3600) + (minute * 60);
-  //         });
-
-  //         print('hour: $hour');
-  //         print('minute: $minute');
-  //         print('initialCounterProgress: $initialCounterProgress');
-
-  //       } else {
-  //         print('initialCounterProgress does not exist');
-  //       }
-  //     } else {
-  //       print('User not logged in');
-  //     }
-  //   } catch (e) {
-  //     print('Error retrieving timer logs: $e');
-  //   }
-  // }
-
-  // Future <void> checkTimerCompletion(String activityID) async {
-  //   try {
-  //     if (currentUser != null) {
-  //       if (_counter <= 0) {
-  //         _showCompletionDialog();
-  //         print('Timer completed');
-  //       }
-  //     } else {
-  //       print('User not logged in');
-  //     }
-  //   } catch (e) {
-  //     print('Error checking timer completion: $e');
-  //   }
-
-  // }
-
-
   Future<int> retrieveInitialCounterProgress(String activityID) async {
     try {
       if (currentUser != null) {
@@ -359,9 +199,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
           int hour = int.parse(ds['hour']);
           int minute = int.parse(ds['minute']);
           int initialCounterProgress = (hour * 3600) + (minute * 60);
-          // print('hour: $hour');
-          // print('minute: $minute');
-          // print('initialCounterProgress: $initialCounterProgress');
+
           return initialCounterProgress;
         } else {
           print('initialCounterProgress does not exist');
@@ -462,7 +300,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
         int minute = int.parse(ds['minute']);
 
         int playDuration = ((hour * 3600) + (minute * 60)) - _counter;
-        // int playDuration = _initialCounter - _counter;
 
         Map<String, dynamic> timerLogInfoMap = {
           'playDuration': FieldValue.increment(playDuration),
@@ -495,33 +332,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
 
         // update fetched records
         retrieveTimerLogs(widget.activityID);
-
-
-        // _timeRecords
-          // QuerySnapshot pausedTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
-          //     .collection('users')
-          //     .doc(currentUser!.uid)
-          //     .collection('activities')
-          //     .doc(widget.activityID)
-          //     .collection('timerLogs')
-          //     .get();
-
-          // List<Map<String, dynamic>> fetchedRecords = pausedTimerLogsSnapshot.docs.map((doc) {
-          //   return {
-          //     // 'playDuration': doc['playDuration'],
-          //     // if playDuration exists, doc['playDuration'], else return 0 because it is not set
-          //     'playDuration': doc['playDuration'] != null ? doc['playDuration'] : 0,
-          //     'start': DateFormat('h:mm a').format(doc['startTime'].toDate()),
-          //     'end': doc['endTime'] != null ? DateFormat('h:mm a').format(doc['endTime'].toDate()) : 'N/A', // if end time exists, format it, else return N/A
-          //   };
-          // }).toList();
-
-          // setState(() {
-          //   _timeRecords = fetchedRecords;
-          // });
-
-          // print('in pauseTimer, _timeRecords: $_timeRecords');
-              
 
       } else {
         print('User not logged in');
@@ -564,7 +374,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
           };
 
           // check latest timerLogID
-          // DocumentSnapshot latestLog = timerLogsSnapshot.docs.first; // get the latest timer log
           int timerLogCount = await DatabaseMethods().getTimerLogCount(currentUser!, widget.activityID) + 1;
           _timerLogID = "T${timerLogCount.toString().padLeft(4, '0')}";
           print('in resumeTimer, Timer log ID created: $_timerLogID');
@@ -609,20 +418,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Align(
-                alignment: Alignment.topLeft,
-                // child: Container(
-                //   decoration: BoxDecoration(
-                //     shape: BoxShape.circle,            
-                //     color: Color(0xFF9887FF),                 
-                //     // border: Border.all(color: Colors.black, width: 2),
-                //   ),
-                //   child: IconButton(
-                //     icon: Icon(Icons.close, size: 20, color: Colors.white),
-                //     onPressed: () {
-                //       Navigator.pushReplacementNamed(context, Routes.activity);
-                //     },
-                //   ),
-                // ),                
+                alignment: Alignment.topLeft,                      
                 child: IconButton(
                   icon: Icon(Icons.close, size: 30),
                   onPressed: () {
@@ -645,29 +441,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
               ),
               const SizedBox(height: 10)
             ],
-          ),          
-          // title: Stack(
-          //   children: [
-          //     Align(
-          //       alignment: Alignment.topLeft,
-          //       child: IconButton(
-          //         icon: Icon(Icons.close),
-          //         onPressed: () {
-          //           // Navigator.of(context).pop();
-          //           Navigator.pushReplacementNamed(context, Routes.activity);
-          //         },
-          //       ),
-          //     ),
-          //     Align(
-          //       alignment: Alignment.center,
-          //       child: Text(
-          //         "TIME'S UP!",
-          //         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // content: const Icon(Icons.timer, size: 50, color: Colors.blue),          
+          ),                    
         );
       },
     );
@@ -717,23 +491,6 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                     child: FutureBuilder<int>(
                       future: retrieveInitialCounterProgress(widget.activityID),
                       builder: (context, snapshot) {
-                        // if (snapshot.connectionState == ConnectionState.waiting) {
-                        //   return CircularProgressIndicator(
-                        //     value: 1.0
-                        //   );
-                        // } else if (snapshot.hasError) {
-                        //   return Text('Error: ${snapshot.error}');
-                        // } else {
-                        //   int initialCounterProgress = snapshot.data ?? 0;
-                        //   // return Text('Initial Counter Progress: $initialCounterProgress');
-                        //   return CircularProgressIndicator(                        
-                        //     value: initialCounterProgress > 0 ? _counter / initialCounterProgress : 1.0, // 1.0 is the default value if initialCounterProgress is 0
-                        //     strokeWidth: 10,
-                        //     valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
-                        //     backgroundColor: Colors.white,
-                        //   );      
-                        // }
-                        //here
                           int initialCounterProgress = snapshot.data ?? 0;
                           return CircularProgressIndicator(                        
                             value: initialCounterProgress > 0 ? _counter / initialCounterProgress : 1.0, // 1.0 is the default value if initialCounterProgress is 0
@@ -742,16 +499,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                             backgroundColor: Colors.white,
                           );      
                       },
-                    ),
-                    // child: CircularProgressIndicator(
-                    //   // value: _initialCounter > 0 ? _counter / _initialCounter : 1.0,
-                    //   // value: initialCounterActivity > 0 ? _counter / _initialCounter : 1.0,
-                    //   // value: initialCounterActivity > 0 ? _counter / initialCounterActivity : 1.0,
-                    //   value: initialCounterActivity > 0 ? _counter / initialCounterProgress : 1.0, // if initialCounterProgress is 0, set value to 1.0, else set value to _counter / initialCounterProgress
-                    //   strokeWidth: 10,
-                    //   valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.secondary),
-                    //   backgroundColor: Colors.white,
-                    // ),                                  
+                    ),                                
                   ),
                 ),
                 Text(
@@ -769,8 +517,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   backgroundColor: Colors.blue,
                   child: IconButton(
                     icon: const Icon(Icons.pause, color: Colors.white),
-                    onPressed: _isPaused ? null : _pauseTimer, // if paused, disable the button, else enable, and call _pauseTimer, else call _resumeTimer, and disable the button. even though there is no _resumeTimer in this line, call resumetimer because it is in the else statement below (line 320). line 320 has ] which means resumetimer is at the end of the else statement at line 
-                    // onPressed: _pauseTimer,
+                    onPressed: _isPaused ? null : _pauseTimer,                   
                   ),
                 ),
                 SizedBox(width: 20),
@@ -779,8 +526,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
                   backgroundColor: Colors.blue,
                   child: IconButton(
                     icon: const Icon(Icons.play_arrow, color: Colors.white),
-                    onPressed: _isPaused ? _resumeTimer : null,
-                    // onPressed: _resumeTimer,
+                    onPressed: _isPaused ? _resumeTimer : null,                 
                   ),
                 ),
               ],

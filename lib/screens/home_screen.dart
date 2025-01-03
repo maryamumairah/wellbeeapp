@@ -84,8 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const Image(
                   image: AssetImage('assets/regular_face-smile.png'), // Replace with your image asset path
-                  // width: 60, // Adjust the image size
-                  // height: 60, // Adjust the image size
                 ),
                 const SizedBox(height: 15), // Space between the image and the text
                 const Text(

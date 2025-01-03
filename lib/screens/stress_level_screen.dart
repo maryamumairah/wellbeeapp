@@ -47,16 +47,6 @@ class _StressLevelScreenState extends State<StressLevelScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const Padding(
-              //   padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0),
-              //   child: Text(
-              //     'Stress Level',
-              //     style: TextStyle(
-              //       fontSize: 24,
-              //       fontFamily: 'InterBold',
-              //     ),
-              //   ),
-              // ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

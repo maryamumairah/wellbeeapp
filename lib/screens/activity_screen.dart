@@ -25,8 +25,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 
   getontheload()async{ 
-    // activityStream = await DatabaseMethods().getActivityDetails();
-    // setState(() {}); 
     User? currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       activityStream = await DatabaseMethods().getActivityDetails(currentUser); // Pass currentUser as argument
@@ -34,21 +32,18 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
   }
 
-  // Stream? activityStream;
-
   Widget showActivitiesList(){
     return StreamBuilder(stream: activityStream, builder:(context, AsyncSnapshot snapshots){
       return snapshots.hasData? ListView.builder( // if there is data in the collection of activities
-        padding: const EdgeInsets.only(bottom: 150.0), // Add extra space at the bottom
-        // shrinkWrap: true,
+        padding: const EdgeInsets.only(bottom: 150.0),       
         scrollDirection: Axis.vertical,
         itemCount: snapshots.data.docs.length, itemBuilder: (BuildContext context, int index) { // get number of documents in the collection of activities
           DocumentSnapshot ds = snapshots.data.docs[index]; 
           String activityID = ds.id;
-          // body         
+                   
           return Container(
             margin: const EdgeInsets.all(20.0),        
-            // child: ListView(
+            
               child: Container(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
                 padding: const EdgeInsets.all(16.0),
@@ -71,7 +66,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              // 'Design Prototype',
                               ds["activityName"],
                               style: const TextStyle(
                                 fontSize: 18,
@@ -83,8 +77,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             PopupMenuButton<MenuItem>(
                               onSelected: (MenuItem item) async {
                                 switch (item) {
-                                  case MenuItem.edit:                                    
-                                    // Navigator.pushNamed(context, Routes.editActivity); // to be changed
+                                  case MenuItem.edit:                                                                     
                                     Navigator.pushNamed(
                                       context,
                                       Routes.editActivity,
@@ -92,10 +85,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                     );
                                     break;
                                   case MenuItem.delete:
-                                    // Navigator.pushNamed(context, Routes.home); // to be changed
-                                    // _showDeleteConfirmationDialog(context, ds["activityID"]);
-                                    // pass currentUser and activity ID
-                                    // _showDeleteConfirmationDialog(context, ds)
                                     _showDeleteConfirmationDialog(context, activityID);
 
                                     break;
@@ -122,15 +111,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             ),                            
                           ],
                         ),
-                        Container(
-                          // margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        Container(                          
                           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                           decoration:BoxDecoration(
                             color: Theme.of(context).colorScheme.tertiary,
                             borderRadius: BorderRadius.circular(5.0),
                           ),
-                          child: Text(
-                            // 'Work',
+                          child: Text(                            
                             ds["categoryName"],
                             style: const TextStyle(
                               fontSize: 16,     
@@ -140,8 +127,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          // '13 May 2024',                          
+                        Text(                                                   
                           DateFormat('d MMM yyyy').format(DateTime.parse(ds["date"])),                                                
                           style: const TextStyle(
                             fontSize: 14,
@@ -196,9 +182,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             // Debugging prints
                             print('Document ID: ${ds.id}');
                             print('Document Data: ${ds.data()}');
-
-                            //navigate to timer screen
-                            // Navigator.pushNamed(context, Routes.timerActivity);
+                           
                             Navigator.pushNamed(
                               context,
                               Routes.timerActivity,                              
@@ -244,8 +228,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: () {
-              // navigate to add new activity screen 
+            onPressed: () {            
               Navigator.pushNamed(context, Routes.analyticsActivity);     
             },         
             backgroundColor: Colors.black,
@@ -254,8 +237,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
           ),
           const SizedBox(height: 10),
           FloatingActionButton(
-            onPressed: () {
-              // navigate to add new activity screen
+            onPressed: () {              
               Navigator.pushNamed(context, Routes.addActivity);      
             },         
             backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -380,17 +362,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           Navigator.pushReplacementNamed(context, Routes.activity); // Redirect to home screen
                         } else {
                           throw Exception('User not logged in');
-                        }
-                        // await DatabaseMethods().deleteActivity(currentUser, activityID); // delete from database
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   const SnackBar(
-                        //     content: Text('Activity deleted'),
-                        //     duration: Duration(seconds: 3),
-                        //     backgroundColor: Colors.red,
-                        //   ),
-                        // );
-                        // Navigator.pop(context); // Close the dialog
-                        // Navigator.pushNamed(context, Routes.activity); // Redirect to home screen
+                        }                       
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

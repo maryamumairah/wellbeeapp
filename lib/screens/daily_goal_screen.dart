@@ -45,13 +45,9 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
     _retrieveData(DateTime.now()); // Set default date to current date
   }
   
-    // Retrieve data from Firebase
-  // Future<void> _retrieveData() async {
+    // Retrieve data from Firebase 
   Future<void> _retrieveData([DateTime? pickedDate]) async {
     if (currentUser != null) {
-
-      // DateTime selectedDate = pickedDate ?? DateTime.now();
-      // String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
 
     DateTime selectedDate;
 
@@ -102,14 +98,6 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
       double selfLearningPlayDuration = 0;
       double spiritualPlayDuration = 0;              
 
-      // // Print all activityCategories in the activities collection
-      // for (var doc in activitiesSnapshot.docs) {
-      //   final data = doc.data() as Map<String, dynamic>;
-      //   print('Data from Firestore: $data');
-      //   final category = data['categoryName'] ?? '';
-      //   print('Category: $category');
-      // }
-
       // Iterate over all activities
       for (var doc in activitiesSnapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
@@ -145,10 +133,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
 
         final latestPlayDuration = (timerLog.isNotEmpty ? timerLog.last['playDuration'] ?? 0 : 0) / 60;
 
-        print('Category: $category, Duration: $duration, Latest Play Duration: $latestPlayDuration');
-          // 'Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual'
-
-
+        print('Category: $category, Duration: $duration, Latest Play Duration: $latestPlayDuration');        
         switch (category) {
           case 'Work':
             workDuration += duration;
@@ -269,38 +254,11 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
-                          // 'Selected Date: ${DateFormat('yyyy-MM-dd').format(_displayedDate!)}',
                           '${DateFormat('d MMM yyyy').format(_displayedDate!)}',
                           style: const TextStyle(fontSize: 20, fontFamily: 'InterSemiBold'),
                           textAlign: TextAlign.center,
                         ),
                       ),                    
-                      // Center(
-                      //   child: Padding(
-                      //     padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      //     child: Text(
-                      //       DateFormat('yyyy-MM-dd').format(selectedDate!),
-                      //       style: const TextStyle(
-                      //         fontSize: 18,
-                      //         fontWeight: FontWeight.bold,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     DateTime? pickedDate = await showDatePicker(
-                  //       context: context,
-                  //       initialDate: DateTime.now(),
-                  //       firstDate: DateTime(2000),
-                  //       lastDate: DateTime(2101),
-                  //     );
-                  //     if (pickedDate != null) {
-                  //       _retrieveData(pickedDate);
-                  //     }
-                  //   },
-                  //   child: Text('Select Date'),
-                  // ),                         
                     if (durationWork > 0)
                       _buildActivityCategory(
                         context,
@@ -346,7 +304,6 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                         playDuration: playDurationSpiritual,
                         color: Colors.black,
                       ),                                   
-                      // if (durationWork == 0 && durationMeal == 0 && durationSpiritual == 0) ...[
                       if (durationWork == 0 && durationMeal == 0 && durationExercise == 0 && durationSelfLearning == 0 && durationSpiritual == 0) ...[
                         const SizedBox(height: 16.0),
                         const Center(
@@ -364,14 +321,8 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                     const SizedBox(height: 16.0),                    
                     Divider(thickness: 3, indent: 20, endIndent: 20, color: Color(0xFFB8DEFF)),
 
-                    Container(
-                      // decoration: BoxDecoration(
-                      //   color: Colors.white,
-                      //   borderRadius: BorderRadius.circular(8),
-                      //   border: Border.all(color: Colors.white, width: 2),              
-                      // ),
+                    Container(                     
                       child: SfCircularChart(
-                        // legend: Legend(isVisible: true, position: LegendPosition.bottom),
                         legend: Legend(
                           isVisible: true,
                           position: LegendPosition.bottom,
@@ -380,31 +331,20 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                         series: <CircularSeries>[
                           RadialBarSeries<ChartData, String>(
                             radius: '100%',
-                            dataSource: [
-                              // ChartData('Work', playDurationWork / durationWork),
-                              // ChartData('Meal', playDurationMeal / durationMeal),
-                              // ChartData('Spiritual', playDurationSpiritual / durationSpiritual), 
-
-                              if (durationWork > 0)
-                                // ChartData('Work', playDurationWork / durationWork),
+                            dataSource: [    
+                              if (durationWork > 0)                          
                                 ChartData('Work', (playDurationWork / durationWork) * 100),
-                              if (durationMeal > 0)
-                                // ChartData('Meal', playDurationMeal / durationMeal),
+                              if (durationMeal > 0)                            
                                 ChartData('Meal', (playDurationMeal / durationMeal) * 100),
                               if (durationExercise > 0)
-                                // ChartData('Exercise', playDurationExercise / durationExercise),
                                 ChartData('Exercise', (playDurationExercise / durationExercise) * 100),
                               if (durationSelfLearning > 0)
-                                // ChartData('Self-learning', playDurationSelfLearning / durationSelfLearning),
                                 ChartData('Self-learning', (playDurationSelfLearning / durationSelfLearning) * 100),
                               if (durationSpiritual > 0)
-                                // ChartData('Spiritual', playDurationSpiritual / durationSpiritual),
                                 ChartData('Spiritual', (playDurationSpiritual / durationSpiritual) * 100),
                             ],
                             xValueMapper: (ChartData data, _) => data.x,
-                            yValueMapper: (ChartData data, _) => data.y,                            
-                            // dataLabelSettings: DataLabelSettings(isVisible: true), 
-                            // dataLabelMapper: (ChartData data, _) => '${(data.y * 100).toStringAsFixed(0)}%',  
+                            yValueMapper: (ChartData data, _) => data.y,                              
                             dataLabelMapper: (ChartData data, _) => '${data.y.toStringAsFixed(0)}%',
 
                             dataLabelSettings: DataLabelSettings(
@@ -437,19 +377,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                 ),
               ),
             ),
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     FloatingActionButton(
-      //       onPressed: () {               
-      //         // Navigator.pushNamed(context, Routes.analyticsActivity);     
-      //       },         
-      //       backgroundColor: Colors.black,
-      //       shape: const CircleBorder(),
-      //       child: const Icon(Icons.bar_chart, size: 40),
-      //     ),          
-      //   ],
-      // ), 
+  
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         backgroundColor: Theme.of(context).primaryColor,
@@ -517,7 +445,6 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                // child: Icon(icon, size: 35, color: Colors.black),
                 child: Icon(icon, size: 35, color: color),
               ),
               const SizedBox(width: 16.0),

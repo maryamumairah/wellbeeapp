@@ -10,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class EditActivityScreen extends StatefulWidget {  
   final Map<String, dynamic> activity;
-  // final DocumentSnapshot activity; 
 
   EditActivityScreen({Key? key, required this.activity}) : super(key: key); // constructor to receive activity details
 
@@ -36,8 +35,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     hourController.text = widget.activity['hour'];
     minuteController.text = widget.activity['minute'];
     dateController.text = widget.activity['date'];
-
-    // super.initState(); // to initialize the text controllers with the existing activity details
   }
   
   @override
@@ -59,7 +56,6 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         if (currentUser != null) { // Added check for current user
           int hours = int.parse(hourController.text);
           int minutes = int.parse(minuteController.text);
-          // int activityDuration = (hours * 60) + minutes;
 
           Map<String, dynamic> activityInfoMap = {
             "activityName": activityController.text,
@@ -157,8 +153,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                 ),
                 //display the selected category
                 hint: const Text('Select category', style: TextStyle(fontFamily: 'Inter',),),
-                value: categoryController.text,        
-                // items: ['Work', 'Meal', 'Spiritual'].map((String category) {
+                value: categoryController.text,                        
                 items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual'].map((String category) {
                   return DropdownMenuItem<String>(
                     value: category,

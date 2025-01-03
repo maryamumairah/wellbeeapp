@@ -35,16 +35,10 @@ class DatabaseMethods {
       .doc(activityID)
       .collection('timerLogs')
       .doc(timerLogID)
-      .set(timerLogInfoMap);
-      // .set(timerLogInfoMap, SetOptions(merge: true)); // if the document already exists, the new data will be merged with the existing data
-      
+      .set(timerLogInfoMap);          
   }
 
   // get activity count
-  // Future<int> getActivityCount() async {
-  //   QuerySnapshot activityCount = await FirebaseFirestore.instance.collection('activities').get();
-  //   return activityCount.docs.length; // return the number of documents in the collection
-  // }
   Future<int> getActivityCount(User currentUser) async {
     QuerySnapshot activitySnapshot = await FirebaseFirestore.instance
       .collection('users')
@@ -53,8 +47,6 @@ class DatabaseMethods {
       .get();
     return activitySnapshot.docs.length;
   }
-  
-
 
   // get timer log count
   Future<int> getTimerLogCount(User currentUser, String activityID) async {
@@ -68,12 +60,9 @@ class DatabaseMethods {
     return timerLogCount.docs.length; // return the number of documents in the collection
   }
 
-
   // check if activityID exists
   Future<bool> checkActivityIDExists(String activityID) async {
     DocumentSnapshot doc = await FirebaseFirestore.instance
-      // .collection('users') 
-      // .doc(currentUser.uid) 
       .collection('activities')
       .doc(activityID)
       .get();
@@ -83,8 +72,6 @@ class DatabaseMethods {
   // check if timerLogID exists
   Future<bool> checkTimerLogIDExists(String activityID, String timerLogID) async {
     DocumentSnapshot doc = await FirebaseFirestore.instance
-      // .collection('users') 
-      // .doc(currentUser.uid)
       .collection('activities')
       .doc(activityID)
       .collection('timerLogs')
@@ -146,17 +133,4 @@ class DatabaseMethods {
     .doc(activityID)
     .delete();
   }
-  // Future deleteActivity(String activityID) async {
-  //   if (currentUser != null) {
-  //     return await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(currentUser.uid)
-  //       .collection('activities')
-  //       .doc(activityID)
-  //       .delete();
-  //   } else {
-  //     throw Exception('User not logged in');
-  //   }
-  // }
-
 }

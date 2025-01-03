@@ -279,13 +279,6 @@ class _LoginScreenState extends State<LoginScreen> {
       } on FirebaseAuthException catch (e) {
         setState(() {
           _isSigningIn = false;
-          // if (e.code == 'user-not-found') {
-          //   errorMessage = 'User not found';
-          // } else if (e.code == 'wrong-password') {
-          //   errorMessage = 'Incorrect password';
-          // } else {
-          //   errorMessage = 'Invalid email or password. Please try again.';
-          // }
         });
       } catch (e) {
         setState(() {
@@ -364,24 +357,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _sendPasswordResetEmail(String email) async {
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      // showToast(message: 'Password reset email sent');
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Password reset email sent'),
         ),
       );
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        // showToast(message: 'No user found with this email');
+      if (e.code == 'user-not-found') {        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,
             content: Text('No user found with this email'),
           ),
         );
-      } else {
-        // showToast(message: 'An error occurred. Please try again.');
+      } else {        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: Colors.red,

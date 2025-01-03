@@ -344,52 +344,6 @@ class _UpdateUserProfileScreenState extends State<UpdateUserProfileScreen> {
           ),
         ),
       ),
-
-      // bottomNavigationBar: BottomNavigationBar(
-      //   type: BottomNavigationBarType.fixed,
-      //   backgroundColor: Theme.of(context).primaryColor,
-      //   unselectedItemColor: const Color(0xFF378DF9),
-      //   selectedItemColor: Colors.black,
-      //   currentIndex: _currentIndex,
-      //   onTap: (int newIndex) {
-      //     setState(() {
-      //       _currentIndex = newIndex;
-      //     });
-      //     switch (newIndex) {
-      //       case 0:
-      //         Navigator.pushReplacementNamed(context, Routes.home);
-      //         break;
-      //       case 1:
-      //         Navigator.pushReplacementNamed(context, Routes.activity);
-      //         break;
-      //       case 2:
-      //         Navigator.pushReplacementNamed(context, Routes.dailyGoal);
-      //         break;
-      //       case 3:
-      //         Navigator.pushReplacementNamed(context, Routes.stress);
-      //         break;
-      //     }          
-      //   },
-
-      //   items: const <BottomNavigationBarItem>[
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home_rounded),
-      //       label: 'Home',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.task_rounded),
-      //       label: 'Activities',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.track_changes_rounded),
-      //       label: 'Goals',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.sentiment_satisfied_alt),
-      //       label: 'Stress',
-      //     ),
-      //   ],        
-      // ),
     );
   }
 }

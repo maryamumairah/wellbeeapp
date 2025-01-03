@@ -6,7 +6,6 @@ import 'package:wellbeeapp/routes.dart';
 import 'package:wellbeeapp/screens/home_screen.dart';
 import 'package:wellbeeapp/user_auth/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:intl/intl.dart'; // For date formatting
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -278,26 +277,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String email = emailController.text;
     String password = passwordController.text;
     String confirmPassword = confirmPasswordController.text;
-
-    // Check password validity
-    // if (password.isEmpty) {
-    //   setState(() {
-    //     passwordError = 'Please enter a password';
-    //     isSigningUp = false;
-    //   });
-    //   return;
-    // }
-    // if (password.length < 6) {
-    //   setState(() {
-    //     passwordError = 'Password must be at least 6 characters';
-    //     isSigningUp = false;
-    //   });
-    //   return;
-    // } else {
-    //   setState(() {
-    //     passwordError = 'Password is strong';
-    //   });
-    // }
 
     if (password != confirmPassword) {
       setState(() {
