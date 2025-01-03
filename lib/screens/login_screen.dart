@@ -317,20 +317,44 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel', 
-              style: TextStyle(color: Colors.blue)),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _sendPasswordResetEmail(email);
-              },
-              child: const Text('Reset',
-              style: TextStyle(color: Colors.blue)),
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.values[5],
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.black),
+                      shadowColor: Colors.black,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.black, fontFamily: 'InterSemiBold')),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _sendPasswordResetEmail(email);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      side: const BorderSide(color: Colors.black),
+                      shadowColor: Colors.black,
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text('Reset',
+                    style: TextStyle(color: Colors.white, fontFamily: 'InterSemiBold')),
+                  ),
+                ],
+              ),
             ),
           ],
         );

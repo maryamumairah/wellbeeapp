@@ -377,7 +377,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             ),
                           );
                           Navigator.pop(context); // Close the dialog
-                          Navigator.pushNamed(context, Routes.activity); // Redirect to home screen
+                          Navigator.pushReplacementNamed(context, Routes.activity); // Redirect to home screen
                         } else {
                           throw Exception('User not logged in');
                         }

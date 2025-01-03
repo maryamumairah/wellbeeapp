@@ -42,7 +42,7 @@ class _DailyGoalScreenState extends State<DailyGoalScreen> {
   void initState() {
     super.initState();
     currentUser = FirebaseAuth.instance.currentUser;
-    _retrieveData(); 
+    _retrieveData(DateTime.now()); // Set default date to current date
   }
   
     // Retrieve data from Firebase

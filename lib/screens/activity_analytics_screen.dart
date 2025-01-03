@@ -123,7 +123,7 @@ class _ActivityAnalyticsScreenState extends State<ActivityAnalyticsScreen> {
     double chartMaxY = maxHours - 0.3;
 
     return SizedBox(
-      height: 400,
+      height: 500,
       width: MediaQuery.of(context).size.width * 0.9,
       child: Container(
         decoration: BoxDecoration(

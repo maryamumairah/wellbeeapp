@@ -205,6 +205,15 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                       child: ElevatedButton(                                     
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
+                            if (dateController.text.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.red,
+                                  content: Text('Please select a date.'),
+                                ),
+                              );
+                              return;
+                            }
                             try {
                               if (Firebase.apps.isEmpty) {
                                 await Firebase.initializeApp();
@@ -230,7 +239,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                                       content: const Text('Activity created successfully!'),
                                     ),
                                   );
-                                  Navigator.pushNamed(context, Routes.activity);                                                      
+                                  Navigator.pop(context);                                                      
                                 });
                             } catch (e) {
                               print('Error creating activity: $e');
