@@ -83,7 +83,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                         ),
                       ),
                       hint: const Text('Select category'),
-                      items: ['Work', 'Meal', 'Spiritual'].map((String category) {
+                      items: ['Work', 'Meal', 'Exercise', 'Self-learning', 'Spiritual'].map((String category) {
                         return DropdownMenuItem<String>(
                           value: category,
                           child: Text(category),

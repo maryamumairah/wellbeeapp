@@ -37,6 +37,7 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
     // _loadCounter();
     retrieveActivityTime(widget.activityID); 
     retrieveTimerLogs(widget.activityID);
+    // checkTimerCompletion(widget.activityID);
     retrieveInitialCounterProgress(widget.activityID);
   }
 
@@ -155,9 +156,21 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
               setState(() {
                 int playDuration = data.containsKey('playDuration') ? data['playDuration'] : 0; // if the key exists, get the value, else return 0
                 // _counter = ((hour * 3600) + (minute * 60)) - playDuration;
-                _counter = initialCounterActivity - playDuration;
-                _initialCounter = _counter;                
+
+                if (initialCounterActivity == playDuration) { // 4c. timer completed
+                  _counter = initialCounterActivity;
+                  _initialCounter = _counter;                
+                } else { // 4b
+                  _counter = initialCounterActivity - playDuration;
+                  _initialCounter = _counter;                
+
+                }
+
+                // _counter = initialCounterActivity - playDuration;
+                // _initialCounter = _counter;                
               });
+
+              
             }
           
           // QuerySnapshot allTimerLogsSnapshot = await FirebaseFirestore.instance // to retrieve the timer logs
@@ -314,6 +327,23 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
   //     print('Error retrieving timer logs: $e');
   //   }
   // }
+
+  // Future <void> checkTimerCompletion(String activityID) async {
+  //   try {
+  //     if (currentUser != null) {
+  //       if (_counter <= 0) {
+  //         _showCompletionDialog();
+  //         print('Timer completed');
+  //       }
+  //     } else {
+  //       print('User not logged in');
+  //     }
+  //   } catch (e) {
+  //     print('Error checking timer completion: $e');
+  //   }
+
+  // }
+
 
   Future<int> retrieveInitialCounterProgress(String activityID) async {
     try {
@@ -575,27 +605,69 @@ class _TimerActivityScreenState extends State<TimerActivityScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Stack(
+          title: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Align(
                 alignment: Alignment.topLeft,
+                // child: Container(
+                //   decoration: BoxDecoration(
+                //     shape: BoxShape.circle,            
+                //     color: Color(0xFF9887FF),                 
+                //     // border: Border.all(color: Colors.black, width: 2),
+                //   ),
+                //   child: IconButton(
+                //     icon: Icon(Icons.close, size: 20, color: Colors.white),
+                //     onPressed: () {
+                //       Navigator.pushReplacementNamed(context, Routes.activity);
+                //     },
+                //   ),
+                // ),                
                 child: IconButton(
-                  icon: Icon(Icons.close),
+                  icon: Icon(Icons.close, size: 30),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.pushReplacementNamed(context, Routes.activity);
                   },
                 ),
               ),
               Align(
                 alignment: Alignment.center,
-                child: Text(
-                  "TIME'S UP!",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                child: Column(
+                  children: [
+                    Text(
+                      "TIME'S UP!",
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue),
+                    ),
+                    const SizedBox(height: 9),
+                    const Icon(Icons.timer, size: 50, color: Colors.blue),
+                  ],
                 ),
               ),
+              const SizedBox(height: 10)
             ],
-          ),
-          content: const Icon(Icons.timer, size: 50, color: Colors.blue),
+          ),          
+          // title: Stack(
+          //   children: [
+          //     Align(
+          //       alignment: Alignment.topLeft,
+          //       child: IconButton(
+          //         icon: Icon(Icons.close),
+          //         onPressed: () {
+          //           // Navigator.of(context).pop();
+          //           Navigator.pushReplacementNamed(context, Routes.activity);
+          //         },
+          //       ),
+          //     ),
+          //     Align(
+          //       alignment: Alignment.center,
+          //       child: Text(
+          //         "TIME'S UP!",
+          //         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // content: const Icon(Icons.timer, size: 50, color: Colors.blue),          
         );
       },
     );
