@@ -34,10 +34,15 @@ To run the project locally:
 4. Run ```flutter run```
 
 <img width="359" height="928" alt="image" src="https://github.com/user-attachments/assets/775b670e-857b-425d-a313-4d60d7b8d247" />
+<br><br>
 <img width="382" height="826" alt="image" src="https://github.com/user-attachments/assets/9f880297-70fd-44eb-a720-7cbf33ef28bf" />
+<br><br>
 <img width="383" height="851" alt="image" src="https://github.com/user-attachments/assets/dfe18e79-1085-41fa-afcb-9c7adc2b5f14" />
+<br><br>
 <img width="378" height="825" alt="image" src="https://github.com/user-attachments/assets/cd03f3ac-74cd-49cc-abd7-bef59ccf1a74" />
+<br><br>
 <img width="376" height="818" alt="image" src="https://github.com/user-attachments/assets/85aa083f-1ec6-498e-9fb2-595283b8dd21" />
+<br><br>
 <img width="365" height="810" alt="image" src="https://github.com/user-attachments/assets/e032499d-cc04-43bf-b5ba-054a41a5ade6" />
 
 
