@@ -1,6 +1,6 @@
 # Wellbee – Work-Life Balance App
 
-Wellbee is an all-in-one solution for a work-life balance mobile application. It is designed specifically for remote workers that empowers them to achieve a good balance between work productivity and personal well-being. This application focuses on helping the workers to manage their time effectively by utilizing the activity progress tracking and monitoring their productivity through analytics.\
+Wellbee is an all-in-one solution for a work-life balance mobile application. It is designed specifically for remote workers that empowers them to achieve a good balance between work productivity and personal well-being. This application focuses on helping the workers to manage their time effectively by utilizing the activity progress tracking and monitoring their productivity through analytics.
 
 This project was developed as our Final Year Project (Feb 2024 – Jan 2025) with a focus on user-centered design and practical solutions for work-life balance.
 
